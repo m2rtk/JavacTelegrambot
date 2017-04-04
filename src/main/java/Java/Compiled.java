@@ -3,9 +3,6 @@ package Java;
 import java.io.IOException;
 import java.util.concurrent.*;
 
-/**
- * Created on 28.03.2017.
- */
 public class Compiled {
     private String name;
     private String out;

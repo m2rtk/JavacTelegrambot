@@ -5,9 +5,6 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-/**
- * Created on 28.03.2017.
- */
 public class Utils {
 
     // TODO: 04.04.2017 Delete all the oneliner methods

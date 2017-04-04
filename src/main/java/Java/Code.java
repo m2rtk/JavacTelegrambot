@@ -3,9 +3,6 @@ package Java;
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
-/**
- * Created on 27.03.2017.
- */
 public class Code {
     private String source;
     private String name;

@@ -1,8 +1,5 @@
 package Bot;
 
-/**
- * Created on 24.02.2017.
- */
 public class Commands {
     public static final String initChar = "/";
 

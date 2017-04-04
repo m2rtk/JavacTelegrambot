@@ -11,9 +11,6 @@ import org.telegram.telegrambots.logging.BotLogger;
 import java.util.*;
 import java.util.regex.Pattern;
 
-/**
- * Created on 25.03.2017.
- */
 public class BotMcBotfaceBot extends TelegramLongPollingBot {
     private static final String TAG = "BOTMCBOTFACEBOT";
 
