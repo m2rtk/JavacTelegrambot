@@ -31,9 +31,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         if (update.getMessage().isCommand()) {
             String commmand = update.getMessage().getText().split(" ", 2)[0];
 
-            if (commmand.startsWith(Commands.decide)) onDecideCommand(update);
-            else if (commmand.startsWith(Commands.roll)) onRollCommand(update);
-            else if (commmand.startsWith(Commands.help)) onHelpCommand(update);
+            if (commmand.startsWith(Commands.help)) onHelpCommand(update);
             else if (commmand.startsWith(Commands.nice)) onNiceCommand(update);
             else if (commmand.startsWith(Commands.javac))onJavacCommand(update); // ordering is important
             else if (commmand.startsWith(Commands.java)) onJavaCommand(update);
@@ -109,36 +107,25 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
     }
 
     private void onHelpCommand(Update update) {
-        sendMessage("Ask Märt", update.getMessage().getChatId());
+        StringBuilder sb = new StringBuilder();
+        sb.append("Hello, I'm Javac Bot! I can compile and execute java code for you.").append("\n");
+        sb.append("Use these commands to control me:").append("\n").append("\n");
+        sb.append("/javac - compile java code.").append("\n");
+        sb.append("Example:").append("\n");
+        sb.append("'/javac public class HelloWorld {").append("\n");
+        sb.append("                  public static void main(String[] args) {").append("\n");
+        sb.append("                      System.out.println(\"Hello World!\");").append("\n");
+        sb.append("                  }").append("\n");
+        sb.append("              }'").append("\n");
+        sb.append("Use '/javac -Classname to write only to main method").append("\n");
+        sb.append("Example:").append("\n");
+        sb.append("'/javac -HelloWorld System.out.println(\"Hello World!\");'").append("\n");
+        sb.append("Both examples produce equivalent bytecode").append("\n").append("\n");
+        sb.append("/java - execute compiled java code.").append("\n");
+        sb.append("Example:").append("\n");
+        sb.append("'/java HelloWorld' should output \"Hello World!\"");
+        sendMessage(sb.toString(), update.getMessage().getChatId());
     }
-
-    // TODO: 04.04.2017 Remove this method
-    private void onRollCommand(Update update) {
-        String[] parts = update.getMessage().getText().substring(6).split("-");
-        try {
-            int left = Integer.parseInt(parts[0]);
-            int right = Integer.parseInt(parts[1]);
-            sendMessage(String.valueOf(randInt(Math.min(left, right), Math.max(left, right))), update.getMessage().getChatId());
-        } catch (Exception e) {
-            sendMessage("Invalid query, try again", update.getMessage().getChatId());
-        }
-    }
-
-    private static int randInt(int min, int max) {
-        return new Random().nextInt((max - min) + 1) + min;
-    }
-
-    // TODO: 04.04.2017 Remove this method
-    private void onDecideCommand(Update update) {
-        Random rand = new Random();
-        char c = update.getMessage().getText().charAt(7);
-        String delimiter = " or ";
-        if (c != ' ') delimiter = String.valueOf(c);
-        String query = update.getMessage().getText().substring(8);
-        String[] pieces = query.split(Pattern.quote(delimiter));
-        sendMessage(pieces[rand.nextInt(pieces.length)], update.getMessage().getChatId());
-    }
-
 
     private void sendMessage(String message, Long chatId) {
         try {
