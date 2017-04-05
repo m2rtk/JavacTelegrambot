@@ -1,7 +1,7 @@
-package Bot;
+package bot;
 
 public class Commands {
-    public static final String initChar = "/";
+    public static final char initChar = '/';
 
     public static final String help = initChar + "help";
 
@@ -16,4 +16,10 @@ public class Commands {
     public static final String javac = initChar + "javac";
 
     public static final String list = initChar + "list";
+
+    public static final String delete = initChar + "delete";
+
+    public static final String privacyParam = "p";
+
+    public static final String mainParam = "m";
 }

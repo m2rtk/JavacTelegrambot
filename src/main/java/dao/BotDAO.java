@@ -1,0 +1,26 @@
+package dao;
+
+import java.Compiled;
+import java.util.Set;
+
+/**
+ * Created on 4.04.2017.
+ */
+public interface BotDAO {
+
+    void add(Compiled compiled, Long id, Privacy privacy);
+
+    boolean remove(String name, Long id, Privacy privacy);
+
+    boolean isEmpty(Long id, Privacy privacy);
+
+    boolean contains(String name, Long id, Privacy privacy);
+
+    Set<String> getAll(Long id, Privacy privacy);
+
+    Compiled get(String name, Long id, Privacy privacy);
+
+    enum Privacy {
+        CHAT, USER
+    }
+}

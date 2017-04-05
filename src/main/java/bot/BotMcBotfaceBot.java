@@ -1,7 +1,9 @@
-package Bot;
+package bot;
 
-import Java.Code;
-import Java.Compiled;
+import java.Code;
+import java.Compiled;
+import dao.BotDAO;
+import dao.InMemoryBotDAO;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -15,7 +17,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
     private static final String TAG = "BOTMCBOTFACEBOT";
 
     // TODO: 04.04.2017 Add database or some other sort of persistence
-    private static Map<String, Compiled> scripts = new HashMap<>();
+    private static final BotDAO dao = new InMemoryBotDAO();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -38,12 +40,31 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
             else if (commmand.startsWith(Commands.javac))onJavacCommand(update); // ordering is important
             else if (commmand.startsWith(Commands.java)) onJavaCommand(update);
             else if (commmand.startsWith(Commands.list)) onListCommand(update);
+            else if (commmand.startsWith(Commands.delete)) onDeleteCommand(update);
+        }
+    }
+
+    private void onDeleteCommand(Update update) {
+        Map<String, String> params = getParameters(update.getMessage().getText());
+        BotDAO.Privacy privacy = BotDAO.Privacy.CHAT;
+        Long id = update.getMessage().getChatId();
+        if (params.containsKey(Commands.privacyParam)) {
+            privacy = BotDAO.Privacy.USER;
+            id = new Long(update.getMessage().getFrom().getId());
         }
     }
 
     private void onListCommand(Update update) {
+        Map<String, String> params = getParameters(update.getMessage().getText());
+        BotDAO.Privacy privacy = BotDAO.Privacy.CHAT;
+        Long id = update.getMessage().getChatId();
+        if (params.containsKey(Commands.privacyParam)) {
+            privacy = BotDAO.Privacy.USER;
+            id = new Long(update.getMessage().getFrom().getId());
+        }
+
         StringBuilder sb = new StringBuilder();
-        List<String> names = new ArrayList<>(scripts.keySet());
+        List<String> names = new ArrayList<>(dao.getAll(id, privacy));
         Collections.sort(names);
         for (String name : names) sb.append(name).append(System.getProperty("line.separator"));
         sendMessage(sb.toString(), update.getMessage().getChatId());
@@ -67,13 +88,17 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         Code code = new Code(content);
 
         if (code.compile()) {
-            scripts.put(code.getName(), code.getCompiled());
+            dao.add(code.getCompiled(), null, null);
             sendMessage("Succesfully compiled!", update.getMessage().getChatId());
         } else {
             sendMessage("Compilation failed " + System.getProperty("line.separator") + code.getOut(),
                     update.getMessage().getChatId()
             );
         }
+    }
+
+    private void onJavacCommand2(Update update) {
+
     }
 
     private void onJavaCommand(Update update) {
@@ -93,11 +118,11 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         else
             args = new String[0];
 
-        if (scripts.isEmpty()) sendMessage("No scripts in database.", update.getMessage().getChatId());
-        else if (!scripts.containsKey(pieces[1])){
+        if (dao.isEmpty(null, null)) sendMessage("No scripts in database.", update.getMessage().getChatId());
+        else if (!dao.contains(pieces[1], null, null)){
             sendMessage("Database doesn't contain script named '" + pieces[1] + "'", update.getMessage().getChatId());
         } else {
-            compiledCode = scripts.get(pieces[1]);
+            compiledCode = dao.get(pieces[1], null, null);
             compiledCode.run(args);
             sendMessage(compiledCode.getOut(), update.getMessage().getChatId());
 
@@ -149,6 +174,32 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         } catch (TelegramApiException e) {
             BotLogger.error(TAG, e);
         }
+    }
+
+    /**
+     * Returns a map of <Param, Argument>
+     *     Currently assuming that every param only has 0 to 1 arguments.
+     */
+    private static Map<String, String> getParameters(String text) {
+        Map<String, String> result = new HashMap<>();
+        String[] pieces = text.split(" ");
+        // [0] -> command Ex. /java
+        // [i] -> parameter Ex. -p
+        // [i + 1] -> parameter argument where applicable Ex. -c Test
+
+        String param;
+        for (int i = 1; i < pieces.length; i++) {
+            if (pieces[i].charAt(0) == '-') {
+                param = pieces[i].substring(1);
+                if (pieces.length > i + 1 && pieces[i+1].charAt(0) != '-') {
+                    result.put(param, pieces[i+1]);
+                    i++;
+                }
+                else result.put(param, null);
+            } else break;
+        }
+
+        return result;
     }
 
     @Override

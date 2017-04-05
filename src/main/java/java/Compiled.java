@@ -1,4 +1,4 @@
-package Java;
+package java;
 
 import java.io.IOException;
 import java.util.concurrent.*;
@@ -73,5 +73,9 @@ public class Compiled {
 
     public String getOut() {
         return out;
+    }
+
+    public String getName() {
+        return name;
     }
 }
