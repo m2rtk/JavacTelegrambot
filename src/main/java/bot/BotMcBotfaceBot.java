@@ -1,7 +1,5 @@
 package bot;
 
-import java.Code;
-import java.Compiled;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -10,8 +8,11 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 
+import javac.Code;
+import javac.Compiled;
+
 import java.util.*;
-import java.util.regex.Pattern;
+import java.util.stream.Collectors;
 
 public class BotMcBotfaceBot extends TelegramLongPollingBot {
     private static final String TAG = "BOTMCBOTFACEBOT";
@@ -43,32 +44,38 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
     }
 
     private void onDeleteCommand(Update update) {
-        Map<String, String> params = getParameters(update.getMessage().getText());
+        String content = update.getMessage().getText();
+        Map<String, String> parameters = getParameters(content);
         BotDAO.Privacy privacy = BotDAO.Privacy.CHAT;
         Long id = update.getMessage().getChatId();
-        if (params.containsKey(Commands.privacyParam)) {
+        if (parameters.containsKey(Commands.privacyParam)) {
             privacy = BotDAO.Privacy.USER;
             id = new Long(update.getMessage().getFrom().getId());
         }
+        String name = content.split(" ")[content.split(" ").length - 1];
+
+        boolean result = dao.remove(name, id, privacy);
+        if (result) sendMessage("Succesfully deleted " + name, update.getMessage().getChatId());
+        else sendMessage("Couldn't delete " + name, update.getMessage().getChatId());
     }
 
     private void onListCommand(Update update) {
-        Map<String, String> params = getParameters(update.getMessage().getText());
+        Map<String, String> parameters = getParameters(update.getMessage().getText());
         BotDAO.Privacy privacy = BotDAO.Privacy.CHAT;
         Long id = update.getMessage().getChatId();
-        if (params.containsKey(Commands.privacyParam)) {
+        if (parameters.containsKey(Commands.privacyParam)) {
             privacy = BotDAO.Privacy.USER;
             id = new Long(update.getMessage().getFrom().getId());
         }
 
         StringBuilder sb = new StringBuilder();
-        List<String> names = new ArrayList<>(dao.getAll(id, privacy));
+        List<String> names = dao.getAll(id, privacy).stream().map(Compiled::getName).collect(Collectors.toList());
         Collections.sort(names);
         for (String name : names) sb.append(name).append(System.getProperty("line.separator"));
         sendMessage(sb.toString(), update.getMessage().getChatId());
     }
 
-    private void onJavacCommand(Update update) {
+    private void onJavaccommand(Update update) {
         String content = update.getMessage().getText();
         String name;
         String[] pieces = content.split(" ", 3);
@@ -95,11 +102,46 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         }
     }
 
-    private void onJavacCommand2(Update update) {
+    private void onJavacCommand(Update update) {
+        String content = update.getMessage().getText();
+        Map<String, String> parameters = getParameters(content);
+        BotDAO.Privacy privacy = BotDAO.Privacy.CHAT;
+        Long id = update.getMessage().getChatId();
+        String name;
+        if (parameters.containsKey(Commands.privacyParam)) {
+            privacy = BotDAO.Privacy.USER;
+            id = new Long(update.getMessage().getFrom().getId());
+            content = content.replaceFirst(Commands.privacyParam, "");
+        }
 
+        //remove command
+        content = content.replaceFirst(content.split(" ", 2)[0], "");
+        if (parameters.containsKey(Commands.mainParam)) {
+            name = parameters.get(Commands.mainParam);
+            content = content.replaceFirst(Commands.mainParam, "");
+            content = content.replaceFirst(name, "");
+
+            StringBuilder sb = new StringBuilder();
+            sb.append("public class ").append(name).append(" {");
+            sb.append(" public static void main(String[] args) {");
+            sb.append(content);
+            sb.append("}}");
+            content = sb.toString();
+        }
+
+        Code code = new Code(content);
+
+        if (code.compile()) {
+            dao.add(code.getCompiled(), id, privacy);
+            sendMessage("Succesfully compiled!", update.getMessage().getChatId());
+        } else {
+            sendMessage("Compilation failed " + System.getProperty("line.separator") + code.getOut(),
+                    update.getMessage().getChatId()
+            );
+        }
     }
 
-    private void onJavaCommand(Update update) {
+    private void onJavacommand(Update update) {
         Compiled compiledCode;
         String[] args;
         String[] pieces = update.getMessage().getText().split(" ");
@@ -124,6 +166,42 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
             compiledCode.run(args);
             sendMessage(compiledCode.getOut(), update.getMessage().getChatId());
 
+        }
+    }
+
+    private void onJavaCommand(Update update) {
+        String content = update.getMessage().getText();
+        System.out.println(content);
+        System.out.println(Arrays.asList(content.split(" ")));
+        String[] pieces = content.split(" ");
+        String name;
+        Compiled compiled;
+        int i = 1;
+
+        Map<String, String> parameters = getParameters(content);
+        BotDAO.Privacy privacy = BotDAO.Privacy.CHAT;
+        Long id = update.getMessage().getChatId();
+        if (parameters.containsKey(Commands.privacyParam)) {
+            privacy = BotDAO.Privacy.USER;
+            id = new Long(update.getMessage().getFrom().getId());
+            i++;
+        }
+
+        name = pieces[i];
+
+        String[] args;
+        if (pieces.length > i + 1)
+            args = Arrays.copyOfRange(pieces, i + 1, pieces.length);
+        else
+            args = new String[0];
+
+        if (dao.isEmpty(id, privacy)) sendMessage("No scripts in database.", update.getMessage().getChatId());
+        else if (!dao.contains(name, id, privacy)){
+            sendMessage("Database doesn't contain script named '" + name + "'", update.getMessage().getChatId());
+        } else {
+            compiled = dao.get(name, id, privacy);
+            compiled.run(args);
+            sendMessage(compiled.getOut(), update.getMessage().getChatId());
         }
     }
 
@@ -168,25 +246,26 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
      *     Currently assuming that every param only has 0 to 1 arguments.
      */
     private static Map<String, String> getParameters(String text) {
-        Map<String, String> result = new HashMap<>();
+        Map<String, String> parameters = new HashMap<>();
         String[] pieces = text.split(" ");
         // [0] -> command Ex. /java
         // [i] -> parameter Ex. -p
         // [i + 1] -> parameter argument where applicable Ex. -c Test
 
-        String param;
         for (int i = 1; i < pieces.length; i++) {
-            if (pieces[i].charAt(0) == '-') {
-                param = pieces[i].substring(1);
-                if (pieces.length > i + 1 && pieces[i+1].charAt(0) != '-') {
-                    result.put(param, pieces[i+1]);
+            if (pieces[i].startsWith(Commands.mainParam) && pieces[i].length() == 2) {
+                if (i + 1 < pieces.length
+                        && !pieces[i + 1].startsWith(String.valueOf(Commands.paramInitChar))) {
+                    parameters.put(pieces[i], pieces[i + 1]);
                     i++;
                 }
-                else result.put(param, null);
+            }
+            else if (pieces[i].startsWith(Commands.privacyParam) && pieces[i].length() == 2) {
+                parameters.put(pieces[i], null);
             } else break;
         }
 
-        return result;
+        return parameters;
     }
 
     @Override

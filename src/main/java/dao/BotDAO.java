@@ -1,6 +1,6 @@
 package dao;
 
-import java.Compiled;
+import javac.Compiled;
 import java.util.Set;
 
 /**
@@ -16,7 +16,7 @@ public interface BotDAO {
 
     boolean contains(String name, Long id, Privacy privacy);
 
-    Set<String> getAll(Long id, Privacy privacy);
+    Set<Compiled> getAll(Long id, Privacy privacy);
 
     Compiled get(String name, Long id, Privacy privacy);
 

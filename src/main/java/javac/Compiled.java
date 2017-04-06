@@ -1,4 +1,4 @@
-package java;
+package javac;
 
 import java.io.IOException;
 import java.util.concurrent.*;

@@ -4,7 +4,6 @@ import org.telegram.telegrambots.TelegramBotsApi;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 
-// TODO: 04.04.2017 Write tests
 public class Main {
     private static final String TAG = "MAIN";
 

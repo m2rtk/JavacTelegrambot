@@ -1,4 +1,4 @@
-package java;
+package javac;
 
 import java.io.*;
 import java.nio.file.Files;
