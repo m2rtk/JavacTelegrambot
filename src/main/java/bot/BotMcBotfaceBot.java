@@ -69,37 +69,14 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         }
 
         StringBuilder sb = new StringBuilder();
-        List<String> names = dao.getAll(id, privacy).stream().map(Compiled::getName).collect(Collectors.toList());
+        List<String> names = new ArrayList<>();
+        if (dao.getAll(id, privacy) != null)
+            names = dao.getAll(id, privacy).stream().map(Compiled::getName).collect(Collectors.toList());
         Collections.sort(names);
+        sb.append("List: ").append(System.getProperty("line.separator"));
         for (String name : names) sb.append(name).append(System.getProperty("line.separator"));
+
         sendMessage(sb.toString(), update.getMessage().getChatId());
-    }
-
-    private void onJavaccommand(Update update) {
-        String content = update.getMessage().getText();
-        String name;
-        String[] pieces = content.split(" ", 3);
-        if (pieces.length > 2 && pieces[1].startsWith("-")) {
-            name = pieces[1].substring(1);
-            StringBuilder sb = new StringBuilder();
-            sb.append("public class ").append(name).append(" {");
-            sb.append(" public static void main(String[] args) {");
-            sb.append(pieces[2]);
-            sb.append("}}");
-            content = sb.toString();
-        } else {
-            content = update.getMessage().getText().substring(7);
-        }
-        Code code = new Code(content);
-
-        if (code.compile()) {
-            dao.add(code.getCompiled(), null, null);
-            sendMessage("Succesfully compiled!", update.getMessage().getChatId());
-        } else {
-            sendMessage("Compilation failed " + System.getProperty("line.separator") + code.getOut(),
-                    update.getMessage().getChatId()
-            );
-        }
     }
 
     private void onJavacCommand(Update update) {
@@ -138,34 +115,6 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
             sendMessage("Compilation failed " + System.getProperty("line.separator") + code.getOut(),
                     update.getMessage().getChatId()
             );
-        }
-    }
-
-    private void onJavacommand(Update update) {
-        Compiled compiledCode;
-        String[] args;
-        String[] pieces = update.getMessage().getText().split(" ");
-        // 0    -> /java
-        // 1    -> classname
-        // 2... -> args
-
-        if (pieces.length < 2) {
-            sendMessage("Invalid input, no arguments.", update.getMessage().getChatId());
-            return;
-        }
-        if (pieces.length > 2)
-            args = Arrays.copyOfRange(pieces, 2, pieces.length);
-        else
-            args = new String[0];
-
-        if (dao.isEmpty(null, null)) sendMessage("No scripts in database.", update.getMessage().getChatId());
-        else if (!dao.contains(pieces[1], null, null)){
-            sendMessage("Database doesn't contain script named '" + pieces[1] + "'", update.getMessage().getChatId());
-        } else {
-            compiledCode = dao.get(pieces[1], null, null);
-            compiledCode.run(args);
-            sendMessage(compiledCode.getOut(), update.getMessage().getChatId());
-
         }
     }
 
@@ -220,7 +169,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         sb.append("                      System.out.println(\"Hello World!\");").append("\n");
         sb.append("                  }").append("\n");
         sb.append("              }'").append("\n");
-        sb.append("Use '/javac -Classname to write only to main method").append("\n");
+        sb.append("Use '/javac -m Classname to write only to main method").append("\n");
         sb.append("Example:").append("\n");
         sb.append("'/javac -HelloWorld System.out.println(\"Hello World!\");'").append("\n");
         sb.append("Both examples produce equivalent bytecode").append("\n").append("\n");
