@@ -25,10 +25,11 @@ public class Utils {
 
     static void writeFile(String content, String filename) {
         BufferedWriter bw = null;
-        FileWriter fw = null;
+        OutputStreamWriter fw = null;
 
         try {
-            fw = new FileWriter(filename);
+           // fw = new FileWriter(filename);
+            fw = new OutputStreamWriter(new FileOutputStream(filename), "utf-8");
             bw = new BufferedWriter(fw);
             bw.write(content);
         } catch (IOException e) {

@@ -1,15 +1,14 @@
 package bot;
 
 import dao.BotDAO;
-import dao.InMemoryBotDAO;
+import dao.WriteToDiskBotDAO;
+import javac.Code;
+import javac.Compiled;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
-
-import javac.Code;
-import javac.Compiled;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -18,7 +17,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
     private static final String TAG = "BOTMCBOTFACEBOT";
 
     // TODO: 04.04.2017 Add database or some other sort of persistence
-    private static final BotDAO dao = new InMemoryBotDAO();
+    private static final BotDAO dao = new WriteToDiskBotDAO();
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -29,6 +28,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
             return;
         } else {
             BotLogger.info(TAG, "Update from chat: " + update.getMessage().getChatId());
+            BotLogger.info(TAG, "Update from user: " + update.getMessage().getFrom().getId());
         }
 
         if (update.getMessage().isCommand()) {
@@ -109,6 +109,9 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         Code code = new Code(content);
 
         if (code.compile()) {
+            if (dao.get(code.getName(), id, privacy) != null) {
+                dao.remove(code.getName(), id, privacy);
+            }
             dao.add(code.getCompiled(), id, privacy);
             sendMessage("Succesfully compiled!", update.getMessage().getChatId());
         } else {
@@ -120,8 +123,6 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
 
     private void onJavaCommand(Update update) {
         String content = update.getMessage().getText();
-        System.out.println(content);
-        System.out.println(Arrays.asList(content.split(" ")));
         String[] pieces = content.split(" ");
         String name;
         Compiled compiled;
@@ -171,7 +172,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         sb.append("              }'").append("\n");
         sb.append("Use '/javac -m Classname to write only to main method").append("\n");
         sb.append("Example:").append("\n");
-        sb.append("'/javac -HelloWorld System.out.println(\"Hello World!\");'").append("\n");
+        sb.append("'/javac -m HelloWorld System.out.println(\"Hello World!\");'").append("\n");
         sb.append("Both examples produce equivalent bytecode").append("\n").append("\n");
         sb.append("/java - execute compiled java code.").append("\n");
         sb.append("Example:").append("\n");

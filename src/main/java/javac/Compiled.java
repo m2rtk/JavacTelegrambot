@@ -1,6 +1,7 @@
 package javac;
 
 import java.io.IOException;
+import java.util.Arrays;
 import java.util.concurrent.*;
 
 public class Compiled {
@@ -77,5 +78,9 @@ public class Compiled {
 
     public String getName() {
         return name;
+    }
+
+    public byte[] getByteCode() {
+        return byteCode;
     }
 }
