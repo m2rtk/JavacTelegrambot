@@ -1,17 +1,25 @@
 package javac;
 
+import dao.BotDAO;
+
 import java.io.IOException;
 import java.util.concurrent.TimeUnit;
 
+import static dao.BotDAO.Privacy;
+
 public class Code {
     private String source;
+    private Privacy privacy;
+    private Long id;
     private String name;
     private String out;
 
     private Compiled compiled;
 
-    public Code(String source) {
+    public Code(String source, Privacy privacy, Long id) {
         this.source = source;
+        this.privacy = privacy;
+        this.id = id;
     }
 
     private String getClassName() {
@@ -28,7 +36,7 @@ public class Code {
             Utils.writeFile(source, name + ".java");
             out = runJavac();
             result = Utils.exists(name + ".class");
-            this.compiled = new Compiled(Utils.readSmallBinaryFile(name + ".class"), name);
+            this.compiled = new Compiled(Utils.readSmallBinaryFile(name + ".class"), name, privacy, id);
         } catch (IOException | InterruptedException ignored) {
 
         } finally {
@@ -50,7 +58,7 @@ public class Code {
         pb.command("javac", name + ".java");
         pb.redirectErrorStream(true);
         Process pro = pb.start();
-        String out;
+        String out = "";
         try {
             pro.waitFor(10, TimeUnit.SECONDS);
             out = Utils.getLines(pro.getInputStream());

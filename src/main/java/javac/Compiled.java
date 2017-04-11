@@ -5,6 +5,7 @@ import org.telegram.telegrambots.logging.BotLogger;
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.*;
+import static dao.BotDAO.Privacy;
 
 public class Compiled {
     private String name;
@@ -12,10 +13,15 @@ public class Compiled {
 
     private byte[] byteCode;
 
+    private Privacy privacy;
+    private Long id;
 
-    public Compiled(byte[] byteCode, String name) {
+
+    public Compiled(byte[] byteCode, String name, Privacy privacy, Long id) {
         this.byteCode = byteCode;
         this.name = name;
+        this.privacy = privacy;
+        this.id = id;
     }
 
     public void run(String... args) {
@@ -50,25 +56,26 @@ public class Compiled {
 
     private String runJava(String... args) throws IOException, InterruptedException {
 
-        Utils.writeSmallBinaryFile(byteCode, name + ".class");
-
         ProcessBuilder pb = new ProcessBuilder();
-        String[] completeArgs = new String[args.length + 2];
+        String[] completeArgs = new String[args.length + 4];
         completeArgs[0] = "java";
-        completeArgs[1] = name;
-        System.arraycopy(args, 0, completeArgs, 2, args.length);
+        completeArgs[1] = "-classpath";
+        completeArgs[2] = "cache/" + privacy + "/" + id;
+        completeArgs[3] = name;
+        System.arraycopy(args, 0, completeArgs, 4, args.length);
         pb.command(completeArgs);
         pb.redirectErrorStream(true);
 
-
+        System.out.println(pb.command());
         Process pro = pb.start();
         String out;
         try {
             pro.waitFor(1, TimeUnit.SECONDS);
             out = Utils.getLines(pro.getInputStream());
+            if (out.trim().isEmpty()) out = "No output.";
         } catch (InterruptedException e) {
             System.out.println("INTERRUPTEDD");
-            out = "";
+            out = "Timed out after 1 seconds";
         }
         return out;
     }

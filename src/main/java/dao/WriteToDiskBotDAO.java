@@ -65,7 +65,7 @@ public class WriteToDiskBotDAO implements BotDAO {
         if (Files.exists(getFolderPath(id, privacy))) {
             try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(getFolderPath(id, privacy))) {
                 for (Path path : dirStream) {
-                    result.add(new Compiled(Files.readAllBytes(path), path.toFile().getName().replace(".class", "")));
+                    result.add(new Compiled(Files.readAllBytes(path), path.toFile().getName().replace(".class", ""), privacy, id));
                 }
             } catch (IOException e) {
                 BotLogger.error(TAG, e);
@@ -78,7 +78,7 @@ public class WriteToDiskBotDAO implements BotDAO {
     public Compiled get(String name, Long id, Privacy privacy) {
         if (Files.exists(getFilePath(name, id, privacy))) {
             try {
-                return new Compiled(Files.readAllBytes(getFilePath(name, id, privacy)), name);
+                return new Compiled(Files.readAllBytes(getFilePath(name, id, privacy)), name, privacy, id);
             } catch (IOException e) {
                 BotLogger.error(TAG, e);
             }

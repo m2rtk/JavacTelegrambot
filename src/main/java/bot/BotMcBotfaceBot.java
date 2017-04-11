@@ -34,8 +34,8 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         if (update.getMessage().isCommand()) {
             BotLogger.info(TAG, "Update from chat: " + update.getMessage().getChatId()
                                          + " user: " + update.getMessage().getFrom().getId()
-                                         + System.getProperty("line-separator")
-                                         + update.getMessage().getText());
+                                         + System.getProperty("line.separator")
+                                         + "content: " + update.getMessage().getText());
 
             executeCommand(update);
         }
@@ -43,26 +43,13 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
 
     private void executeCommand(Update update) {
         String command = update.getMessage().getText().split(" ", 2)[0];
-        switch (command) {
-            case Commands.help:
-                onHelpCommand(update);
-                break;
-            case Commands.nice:
-                onNiceCommand(update);
-                break;
-            case Commands.javac:
-                onJavacCommand(update);
-                break;
-            case Commands.java:
-                onJavaCommand(update);
-                break;
-            case Commands.list:
-                onListCommand(update);
-                break;
-            case Commands.delete:
-                onDeleteCommand(update);
-                break;
-        }
+
+        if (command.startsWith(Commands.help))        onHelpCommand(update);
+        else if (command.startsWith(Commands.nice))   onNiceCommand(update);
+        else if (command.startsWith(Commands.javac))  onJavacCommand(update);
+        else if (command.startsWith(Commands.java))   onJavaCommand(update);
+        else if (command.startsWith(Commands.list))   onListCommand(update);
+        else if (command.startsWith(Commands.delete)) onDeleteCommand(update);
     }
 
     private void onDeleteCommand(Update update) {
@@ -144,7 +131,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         BotLogger.info(TAG, "Executing Javac command in chat: " + update.getMessage().getChatId()
                 + " with privacy: " + privacy + " content: " + content);
         Long id = privacy == CHAT ? update.getMessage().getChatId() : new Long(update.getMessage().getFrom().getId());
-        Code code = new Code(content);
+        Code code = new Code(content, privacy, id);
 
         if (code.compile()) {
             if (dao.get(code.getName(), id, privacy) != null) {
@@ -200,6 +187,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         }
 
         compiled.run(args);
+        System.out.println("OUT:" + compiled.getOut());
         sendMessage(compiled.getOut(), update.getMessage().getChatId());
     }
 
