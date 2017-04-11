@@ -1,5 +1,7 @@
 package javac;
 
+import org.telegram.telegrambots.logging.BotLogger;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.*;
@@ -63,12 +65,11 @@ public class Compiled {
         String out;
         try {
             pro.waitFor(1, TimeUnit.SECONDS);
-            out = Utils.getLines(">", pro.getInputStream());
+            out = Utils.getLines(pro.getInputStream());
         } catch (InterruptedException e) {
             System.out.println("INTERRUPTEDD");
             out = "";
         }
-        System.out.println("java exitValue() " + pro.exitValue());
         return out;
     }
 

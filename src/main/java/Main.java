@@ -8,6 +8,7 @@ public class Main {
     private static final String TAG = "MAIN";
 
     public static void main(String[] args) throws Exception{
+        BotLogger.info(TAG, "Bot starting!");
         ApiContextInitializer.init();
         TelegramBotsApi botsApi = new TelegramBotsApi();
         try {

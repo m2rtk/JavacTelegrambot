@@ -44,13 +44,11 @@ public class Utils {
         }
     }
 
-    static String getLines(String name, InputStream is) throws IOException {
-        System.out.println("GETLINES CALLED");
-        String line = null;
+    static String getLines(InputStream is) throws IOException {
+        String line;
         StringBuilder sb = new StringBuilder();
         BufferedReader in = new BufferedReader(new InputStreamReader(is));
         while ((line = in.readLine()) != null) {
-            System.out.println(name + " " + line);
             sb.append(line);
             sb.append(System.getProperty("line.separator"));
         }

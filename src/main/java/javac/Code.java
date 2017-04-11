@@ -52,13 +52,12 @@ public class Code {
         Process pro = pb.start();
         String out;
         try {
-            pro.waitFor(1, TimeUnit.SECONDS);
-            out = Utils.getLines(">", pro.getInputStream());
+            pro.waitFor(10, TimeUnit.SECONDS);
+            out = Utils.getLines(pro.getInputStream());
         } catch (InterruptedException e) {
             System.out.println("INTERRUPTED");
             out = "";
         }
-        System.out.println("javac exitValue() " + pro.exitValue());
         return out;
     }
 
