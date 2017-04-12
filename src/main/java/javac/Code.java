@@ -1,9 +1,11 @@
 package javac;
 
 import dao.BotDAO;
+import org.telegram.telegrambots.logging.BotLogger;
 
 import java.io.IOException;
-import java.util.concurrent.TimeUnit;
+import java.sql.Time;
+import java.util.concurrent.*;
 
 import static dao.BotDAO.Privacy;
 
@@ -32,13 +34,29 @@ public class Code {
         this.name = getClassName();
         boolean result = false;
 
+
+        final Callable task = (Callable<String>) () -> {
+            try {
+                return runJavac();
+            } catch (IOException | InterruptedException e) {
+                e.printStackTrace();
+                return "";
+            }
+        };
+
+        final ExecutorService executor = Executors.newSingleThreadExecutor();
+        final Future future = executor.submit(task);
+        executor.shutdown();
+
         try {
             Utils.writeFile(source, name + ".java");
-            out = runJavac();
+            out  = (String)future.get(10, TimeUnit.SECONDS);
             result = Utils.exists(name + ".class");
             this.compiled = new Compiled(Utils.readSmallBinaryFile(name + ".class"), name, privacy, id);
-        } catch (IOException | InterruptedException ignored) {
+        } catch (IOException | InterruptedException | ExecutionException ignored) {
 
+        } catch (TimeoutException e) {
+            out = "Timed out after 10 seconds.";
         } finally {
             try {
                 Utils.delete(name + ".class");
@@ -55,16 +73,20 @@ public class Code {
         Utils.writeFile(source, name + ".java");
 
         ProcessBuilder pb = new ProcessBuilder();
-        pb.command("javac", name + ".java");
+        String[] args = new String[4];
+        args[0] = "javac";
+        args[1] = "-classpath";
+        args[2] = "cache/" + privacy + "/" + id;
+        args[3] = name + ".java";
+        pb.command(args);
         pb.redirectErrorStream(true);
         Process pro = pb.start();
-        String out = "";
+        String out = null;
         try {
-            pro.waitFor(10, TimeUnit.SECONDS);
+            pro.waitFor(1, TimeUnit.MILLISECONDS);
             out = Utils.getLines(pro.getInputStream());
-        } catch (InterruptedException e) {
-            System.out.println("INTERRUPTED");
-            out = "";
+        } catch (InterruptedException ignored) {
+            // out is handled in compile method.
         }
         return out;
     }

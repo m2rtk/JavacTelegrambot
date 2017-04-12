@@ -16,6 +16,7 @@ public class Main {
         } catch (TelegramApiException e) {
             BotLogger.error(TAG, e);
         }
+        BotLogger.info(TAG, "Bot started!");
     }
 
 }

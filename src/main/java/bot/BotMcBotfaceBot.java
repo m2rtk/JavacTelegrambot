@@ -187,7 +187,6 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         }
 
         compiled.run(args);
-        System.out.println("OUT:" + compiled.getOut());
         sendMessage(compiled.getOut(), update.getMessage().getChatId());
     }
 

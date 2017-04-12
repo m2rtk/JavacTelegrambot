@@ -1,10 +1,8 @@
 package javac;
 
-import org.telegram.telegrambots.logging.BotLogger;
-
 import java.io.IOException;
-import java.util.Arrays;
 import java.util.concurrent.*;
+
 import static dao.BotDAO.Privacy;
 
 public class Compiled {
@@ -43,7 +41,7 @@ public class Compiled {
         } catch (ExecutionException | InterruptedException ignored) {
 
         } catch (TimeoutException e) {
-            out = "Timed out after 1 seconds";
+            out = "Timed out after 1 second.";
             future.cancel(true);
         } finally {
             try {
@@ -66,16 +64,14 @@ public class Compiled {
         pb.command(completeArgs);
         pb.redirectErrorStream(true);
 
-        System.out.println(pb.command());
         Process pro = pb.start();
-        String out;
+        String out = null;
         try {
             pro.waitFor(1, TimeUnit.SECONDS);
             out = Utils.getLines(pro.getInputStream());
             if (out.trim().isEmpty()) out = "No output.";
-        } catch (InterruptedException e) {
-            System.out.println("INTERRUPTEDD");
-            out = "Timed out after 1 seconds";
+        } catch (InterruptedException ignored) {
+            // out is handled in run method.
         }
         return out;
     }
