@@ -23,7 +23,7 @@ public class Compiled {
     }
 
     public void run(String... args) {
-        final Callable task = (Callable<String>) () -> {
+        final Callable<String> task = () -> {
             try {
                 return runJava(args);
             } catch (IOException | InterruptedException e) {

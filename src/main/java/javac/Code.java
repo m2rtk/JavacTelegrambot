@@ -1,22 +1,19 @@
 package javac;
 
-import dao.BotDAO;
-import org.telegram.telegrambots.logging.BotLogger;
-
 import java.io.IOException;
-import java.sql.Time;
 import java.util.concurrent.*;
 
 import static dao.BotDAO.Privacy;
 
 public class Code {
     private String source;
-    private Privacy privacy;
-    private Long id;
     private String name;
     private String out;
 
     private Compiled compiled;
+
+    private Privacy privacy;
+    private Long id;
 
     public Code(String source, Privacy privacy, Long id) {
         this.source = source;
@@ -34,12 +31,10 @@ public class Code {
         this.name = getClassName();
         boolean result = false;
 
-
-        final Callable task = (Callable<String>) () -> {
+        final Callable<String> task = () -> {
             try {
                 return runJavac();
             } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
                 return "";
             }
         };
@@ -69,9 +64,6 @@ public class Code {
     }
 
     private String runJavac() throws IOException, InterruptedException {
-
-        Utils.writeFile(source, name + ".java");
-
         ProcessBuilder pb = new ProcessBuilder();
         String[] args = new String[4];
         args[0] = "javac";
@@ -81,14 +73,10 @@ public class Code {
         pb.command(args);
         pb.redirectErrorStream(true);
         Process pro = pb.start();
-        String out = null;
-        try {
-            pro.waitFor(1, TimeUnit.MILLISECONDS);
-            out = Utils.getLines(pro.getInputStream());
-        } catch (InterruptedException ignored) {
-            // out is handled in compile method.
-        }
-        return out;
+
+        pro.waitFor(1, TimeUnit.MILLISECONDS);
+
+        return Utils.getLines(pro.getInputStream());
     }
 
 

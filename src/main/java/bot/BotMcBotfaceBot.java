@@ -20,7 +20,8 @@ import static dao.BotDAO.Privacy.USER;
 public class BotMcBotfaceBot extends TelegramLongPollingBot {
     private static final String TAG = "BOTMCBOTFACEBOT";
 
-    private static final BotDAO dao = new WriteToDiskBotDAO();
+    // Non-final for testing purposes.
+    private static BotDAO dao = new WriteToDiskBotDAO();
 
     @Override
     public void onUpdateReceived(Update update) {
