@@ -8,7 +8,7 @@ import java.util.Set;
  */
 public interface BotDAO {
 
-    void add(Compiled compiled, Long id, Privacy privacy);
+    void add(Compiled compiled);
 
     boolean remove(String name, Long id, Privacy privacy);
 

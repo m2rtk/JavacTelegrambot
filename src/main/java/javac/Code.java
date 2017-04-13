@@ -14,11 +14,15 @@ public class Code {
 
     private Privacy privacy;
     private Long id;
+    private String classPath;
 
     public Code(String source, Privacy privacy, Long id) {
         this.source = source;
         this.privacy = privacy;
         this.id = id;
+
+        if (id != null && privacy != null)
+            this.classPath = "cache/" + privacy + "/" + id;
     }
 
     private String getClassName() {
@@ -65,16 +69,24 @@ public class Code {
 
     private String runJavac() throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder();
-        String[] args = new String[4];
-        args[0] = "javac";
-        args[1] = "-classpath";
-        args[2] = "cache/" + privacy + "/" + id;
-        args[3] = name + ".java";
+
+        String[] args;
+        if (classPath != null) {
+            args = new String[4];
+            args[0] = "javac";
+            args[1] = "-classpath";
+            args[2] = classPath;
+            args[3] = name + ".java";
+        } else { // mainly for testing
+            args = new String[2];
+            args[0] = "javac";
+            args[1] = name + ".java";
+        }
         pb.command(args);
         pb.redirectErrorStream(true);
         Process pro = pb.start();
 
-        pro.waitFor(1, TimeUnit.MILLISECONDS);
+        pro.waitFor(10, TimeUnit.SECONDS);
 
         return Utils.getLines(pro.getInputStream());
     }

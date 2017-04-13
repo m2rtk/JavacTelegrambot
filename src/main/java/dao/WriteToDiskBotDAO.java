@@ -20,10 +20,10 @@ public class WriteToDiskBotDAO implements BotDAO {
     private static final String DIR = "cache";
 
     @Override
-    public void add(Compiled compiled, Long id, Privacy privacy) {
+    public void add(Compiled compiled) {
         try {
-            Files.createDirectories(getFolderPath(id, privacy));
-            Files.write(getFilePath(compiled.getName(), id, privacy), compiled.getByteCode());
+            Files.createDirectories(getFolderPath(compiled.getId(), compiled.getPrivacy()));
+            Files.write(getFilePath(compiled.getName(), compiled.getId(), compiled.getPrivacy()), compiled.getByteCode());
         } catch (IOException e) {
             BotLogger.error(TAG, e);
         }
