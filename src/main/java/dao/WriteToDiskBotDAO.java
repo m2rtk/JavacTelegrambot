@@ -20,10 +20,10 @@ public class WriteToDiskBotDAO implements BotDAO {
     private static final String DIR = "cache";
 
     @Override
-    public void add(Compiled compiled) {
+    public void add(Compiled compiled, Long id, Privacy privacy) {
         try {
-            Files.createDirectories(getFolderPath(compiled.getId(), compiled.getPrivacy()));
-            Files.write(getFilePath(compiled.getName(), compiled.getId(), compiled.getPrivacy()), compiled.getByteCode());
+            Files.createDirectories(getFolderPath(id, privacy));
+            Files.write(getFilePath(compiled.getName(), id, privacy), compiled.getByteCode());
         } catch (IOException e) {
             BotLogger.error(TAG, e);
         }
@@ -51,7 +51,7 @@ public class WriteToDiskBotDAO implements BotDAO {
                 BotLogger.error(TAG, e);
             }
         }
-        return false;
+        return true;
     }
 
     @Override
@@ -62,10 +62,13 @@ public class WriteToDiskBotDAO implements BotDAO {
     @Override
     public Set<Compiled> getAll(Long id, Privacy privacy) {
         Set<Compiled> result = new HashSet<>();
+        Compiled compiled;
         if (Files.exists(getFolderPath(id, privacy))) {
             try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(getFolderPath(id, privacy))) {
                 for (Path path : dirStream) {
-                    result.add(new Compiled(Files.readAllBytes(path), path.toFile().getName().replace(".class", ""), privacy, id));
+                    compiled = new Compiled(Files.readAllBytes(path), path.toFile().getName().replace(".class", ""));
+                    compiled.setPrivacyAndId(privacy, id);
+                    result.add(compiled);
                 }
             } catch (IOException e) {
                 BotLogger.error(TAG, e);
@@ -78,7 +81,9 @@ public class WriteToDiskBotDAO implements BotDAO {
     public Compiled get(String name, Long id, Privacy privacy) {
         if (Files.exists(getFilePath(name, id, privacy))) {
             try {
-                return new Compiled(Files.readAllBytes(getFilePath(name, id, privacy)), name, privacy, id);
+                Compiled compiled = new Compiled(Files.readAllBytes(getFilePath(name, id, privacy)), name);
+                compiled.setPrivacyAndId(privacy, id);
+                return compiled;
             } catch (IOException e) {
                 BotLogger.error(TAG, e);
             }

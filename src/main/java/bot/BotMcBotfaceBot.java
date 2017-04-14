@@ -138,7 +138,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
             if (dao.get(code.getName(), id, privacy) != null) {
                 dao.remove(code.getName(), id, privacy);
             }
-            dao.add(code.getCompiled());
+            dao.add(code.getCompiled(), id, privacy);
             sendMessage("Succesfully compiled!", update.getMessage().getChatId());
         } else {
             sendMessage("Compilation failed " + System.getProperty("line.separator") + code.getOut(),

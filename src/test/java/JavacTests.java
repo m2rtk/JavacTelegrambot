@@ -47,7 +47,7 @@ public class JavacTests {
     }
 
     private void runTest(String name, String[] args, String expectedOut) throws Exception {
-        Compiled compiled = new Compiled(Utils.readOut(name), name, null, null);
+        Compiled compiled = new Compiled(Utils.readOut(name), name);
         String path = getClass().getClassLoader().getResource("out/").getPath();
         Utils.setObjectField(compiled, "classPath", path);
         compiled.run(args);

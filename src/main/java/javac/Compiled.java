@@ -16,14 +16,9 @@ public class Compiled {
     private Long id;
     private String classPath;
 
-    public Compiled(byte[] byteCode, String name, Privacy privacy, Long id) {
+    public Compiled(byte[] byteCode, String name) {
         this.byteCode = byteCode;
         this.name = name;
-        this.privacy = privacy;
-        this.id = id;
-
-        if (id != null && privacy != null)
-            this.classPath = "cache/" + privacy + "/" + id;
     }
 
     public void run(String... args) {
@@ -108,14 +103,21 @@ public class Compiled {
         return id;
     }
 
-    @Override
-    public String toString() {
-        return "Compiled{" +
-                "name='" + name + '\'' +
-                ", out='" + out + '\'' +
-                ", byteCode=" + Arrays.toString(byteCode) +
-                ", privacy=" + privacy +
-                ", id=" + id +
-                '}';
+    public String getClassPath() {
+        return classPath;
+    }
+
+    public void setClassPath(String classPath) {
+        this.classPath = classPath;
+    }
+
+    public void setPrivacyAndId(Privacy privacy, Long id) {
+        this.privacy = privacy;
+        this.id = id;
+
+        if (privacy == null || id == null)
+            throw new NullPointerException("Privacy and id should not be null at this point.");
+
+        setClassPath("cache/" + privacy + "/" + id);
     }
 }

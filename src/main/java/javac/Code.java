@@ -51,7 +51,8 @@ public class Code {
             Utils.writeFile(source, name + ".java");
             out  = (String)future.get(10, TimeUnit.SECONDS);
             result = Utils.exists(name + ".class");
-            this.compiled = new Compiled(Utils.readSmallBinaryFile(name + ".class"), name, privacy, id);
+            compiled = new Compiled(Utils.readSmallBinaryFile(name + ".class"), name);
+            if (privacy != null && id != null) compiled.setPrivacyAndId(privacy, id);
         } catch (IOException | InterruptedException | ExecutionException ignored) {
 
         } catch (TimeoutException e) {

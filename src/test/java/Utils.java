@@ -6,6 +6,7 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;
 
 import java.lang.reflect.Field;
+import java.lang.reflect.Modifier;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
@@ -26,6 +27,9 @@ class Utils {
 
     static void setObjectField(Object object, String fieldName, Object newValue) throws Exception {
         Field field = object.getClass().getDeclaredField(fieldName);
+        Field modifiersField = Field.class.getDeclaredField("modifiers");
+        modifiersField.setAccessible(true);
+        modifiersField.setInt(field, field.getModifiers() & ~Modifier.FINAL); // remove final
         field.setAccessible(true);
         field.set(object, newValue);
     }
