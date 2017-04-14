@@ -1,3 +1,5 @@
 .idea
 target
 cache
+test.log*
+Config.java

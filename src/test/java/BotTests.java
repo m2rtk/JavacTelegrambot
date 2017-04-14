@@ -187,7 +187,7 @@ public class BotTests {
     }
 
     // I feel that this is a bad way of doing things but it is what it is
-    // TODO: 14.04.2017 find a better solution to this
+    // TODO: 14.04.2017 find a better solution to do this
     private void testLogContains(String expected) throws Exception {
         List<String> lines = Files.readAllLines(Paths.get(TEST_LOG));
         boolean passed = false;
