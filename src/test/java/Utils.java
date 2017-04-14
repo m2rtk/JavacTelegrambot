@@ -1,4 +1,4 @@
-import bot.BotMcBotfaceBot;
+import bot.JavaBot;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import org.telegram.telegrambots.api.objects.Message;
@@ -15,10 +15,10 @@ import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
 class Utils {
-    static BotDAO changeDAO(BotMcBotfaceBot bot) throws Exception {
+    static BotDAO changeDAO(JavaBot bot) throws Exception {
         BotDAO dao = new InMemoryBotDAO();
 
-        Field field = BotMcBotfaceBot.class.getDeclaredField("dao");
+        Field field = JavaBot.class.getDeclaredField("dao");
         field.setAccessible(true);
         field.set(bot, dao);
 

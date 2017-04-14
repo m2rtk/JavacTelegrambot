@@ -17,8 +17,8 @@ import static dao.BotDAO.Privacy;
 import static dao.BotDAO.Privacy.CHAT;
 import static dao.BotDAO.Privacy.USER;
 
-public class BotMcBotfaceBot extends TelegramLongPollingBot {
-    private static final String TAG = "BOTMCBOTFACEBOT";
+public class JavaBot extends TelegramLongPollingBot {
+    private static final String TAG = "JAVABOT";
 
     // Non-final for testing purposes.
     private static BotDAO dao = new WriteToDiskBotDAO();
@@ -69,7 +69,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
         Long id = privacy == CHAT ? update.getMessage().getChatId() : new Long(update.getMessage().getFrom().getId());
         boolean result = dao.remove(className, id, privacy);
 
-        if (result) sendMessage("Succesfully deleted " + className, update.getMessage().getChatId());
+        if (result) sendMessage("Successfully deleted " + className, update.getMessage().getChatId());
         else sendMessage("Couldn't delete " + className, update.getMessage().getChatId());
     }
 
@@ -139,7 +139,7 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
                 dao.remove(code.getName(), id, privacy);
             }
             dao.add(code.getCompiled(), id, privacy);
-            sendMessage("Succesfully compiled!", update.getMessage().getChatId());
+            sendMessage("Successfully compiled!", update.getMessage().getChatId());
         } else {
             sendMessage("Compilation failed " + System.getProperty("line.separator") + code.getOut(),
                     update.getMessage().getChatId()
@@ -259,11 +259,11 @@ public class BotMcBotfaceBot extends TelegramLongPollingBot {
 
     @Override
     public String getBotUsername() {
-        return Config.BOTMCBOTFACEBOT_USER;
+        return Config.JAVABOT_USER;
     }
 
     @Override
     public String getBotToken() {
-        return Config.BOTMCBOTFACEBOT_TOKEN;
+        return Config.JAVABOT_TOKEN;
     }
 }

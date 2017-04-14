@@ -1,18 +1,12 @@
-import bot.BotMcBotfaceBot;
+import bot.JavaBot;
 import dao.BotDAO;
 import javac.Compiled;
-import jdk.internal.org.objectweb.asm.Handle;
-import jdk.nashorn.internal.runtime.ECMAException;
-import org.junit.After;
-import org.junit.AfterClass;
 import org.junit.Before;
 import org.junit.Test;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.logging.BotLogger;
 
-import java.io.IOException;
-import java.lang.reflect.Method;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -28,7 +22,7 @@ import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
 public class BotTests {
-    private static final BotMcBotfaceBot bot = new BotMcBotfaceBot();
+    private static final JavaBot bot = new JavaBot();
     private static final Long CHAT_1 = -1L;
     private static final Long CHAT_2 = -2L;
     private static final Long USER_1 =  1L;
@@ -49,7 +43,7 @@ public class BotTests {
 
     @Test
     public void receivesUpdateTest() throws Exception {
-        BotMcBotfaceBot mockBot = mock(BotMcBotfaceBot.class);
+        JavaBot mockBot = mock(JavaBot.class);
         Message mockMessage = mock(Message.class);
         when(mockMessage.getChatId()).thenReturn(USER_1);
         Update mockUpdate = mock(Update.class);
