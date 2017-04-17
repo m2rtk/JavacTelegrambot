@@ -17,6 +17,8 @@ public class Commands {
 
     public static final String delete = initChar + "delete";
 
+    public static final String up = initChar + "up";
+
     public static final String privacyParam = paramInitChar + "p";
 
     public static final String mainParam = paramInitChar + "m";

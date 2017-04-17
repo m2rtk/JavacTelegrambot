@@ -14,8 +14,8 @@ import java.util.stream.Collectors;
 import static org.mockito.Mockito.mock;
 import static org.mockito.Mockito.when;
 
-class Utils {
-    static BotDAO changeDAO(JavaBot bot) throws Exception {
+public class Utils {
+    public static BotDAO changeDAO(JavaBot bot) throws Exception {
         BotDAO dao = new InMemoryBotDAO();
 
         Field field = JavaBot.class.getDeclaredField("dao");
@@ -25,7 +25,7 @@ class Utils {
         return dao;
     }
 
-    static void setObjectField(Object object, String fieldName, Object newValue) throws Exception {
+    public static void setObjectField(Object object, String fieldName, Object newValue) throws Exception {
         Field field = object.getClass().getDeclaredField(fieldName);
         Field modifiersField = Field.class.getDeclaredField("modifiers");
         modifiersField.setAccessible(true);
@@ -34,15 +34,15 @@ class Utils {
         field.set(object, newValue);
     }
 
-    static String readSource(String name) throws Exception {
+    public static String readSource(String name) throws Exception {
         return String.join("\n", Files.readAllLines(Paths.get(Utils.class.getClassLoader().getResource("src/" + name + ".java").toURI())).stream().collect(Collectors.toList()));
     }
 
-    static byte[] readOut(String name) throws Exception {
+    public static byte[] readOut(String name) throws Exception {
         return Files.readAllBytes(Paths.get(Utils.class.getClassLoader().getResource("out/" + name + ".class").toURI()));
     }
 
-    static Update createMockUpdateWithTextContent(String content, Long userId, Long chatId) {
+    public static Update createMockUpdateWithTextContent(String content, Long userId, Long chatId) {
         User mockUser = mock(User.class);
         when(mockUser.getId()).thenReturn(userId.intValue());
         Message mockMessage = mock(Message.class);

@@ -10,6 +10,7 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 
+import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
 
@@ -22,6 +23,11 @@ public class JavaBot extends TelegramLongPollingBot {
 
     // Non-final for testing purposes.
     private static BotDAO dao = new WriteToDiskBotDAO();
+
+    private final long startTime;
+    public JavaBot() {
+        startTime = Instant.now().getEpochSecond();
+    }
 
     @Override
     public void onUpdateReceived(Update update) {
@@ -45,12 +51,26 @@ public class JavaBot extends TelegramLongPollingBot {
     private void executeCommand(Update update) {
         String command = update.getMessage().getText().split(" ", 2)[0];
 
-        if (command.startsWith(Commands.help))        onHelpCommand(update);
+        if (command.startsWith(Commands.up))          onUpCommand(update);
+        else if (command.startsWith(Commands.help))   onHelpCommand(update);
         else if (command.startsWith(Commands.nice))   onNiceCommand(update);
         else if (command.startsWith(Commands.javac))  onJavacCommand(update);
         else if (command.startsWith(Commands.java))   onJavaCommand(update);
         else if (command.startsWith(Commands.list))   onListCommand(update);
         else if (command.startsWith(Commands.delete)) onDeleteCommand(update);
+    }
+
+    private void onUpCommand(Update update) {
+        long t = Instant.now().getEpochSecond() - startTime;
+        long sec = t % 60;
+        long min = t % 3600 / 60;
+        long hour = t % 86400 / 3600;
+        long day = t / 86400;
+
+        String message = "I've been up for " + t + " seconds." + System.getProperty("line.separator");
+        message += "That's " + day + " days, " + hour + " hours, " + min + " minutes and " + sec + " seconds.";
+        message += "That's ";
+        sendMessage(message, update.getMessage().getChatId());
     }
 
     private void onDeleteCommand(Update update) {

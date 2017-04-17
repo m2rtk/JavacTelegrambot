@@ -15,9 +15,9 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.SimpleFormatter;
 
+import static dao.BotDAO.Privacy;
 import static dao.BotDAO.Privacy.CHAT;
 import static dao.BotDAO.Privacy.USER;
-import static dao.BotDAO.Privacy;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
