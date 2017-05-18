@@ -50,7 +50,11 @@ public class ParserTests {
                 Token.command("/java", "Shit")
         );
 
-        test("/java Decide A B C D",
+        test("/java  Decide A B C D",
+                Token.command("/java", "Decide A B C D")
+        );
+
+        test("/java                Decide    A          B  C            D",
                 Token.command("/java", "Decide A B C D")
         );
     }
