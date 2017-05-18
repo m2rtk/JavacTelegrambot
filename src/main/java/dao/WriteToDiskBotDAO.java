@@ -19,14 +19,6 @@ public class WriteToDiskBotDAO implements BotDAO {
     private static final String TAG = "TODISKDAO";
     private static final String DIR = "cache";
 
-    private static class SingletonHelper {
-        private static final WriteToDiskBotDAO INSTANCE = new WriteToDiskBotDAO();
-    }
-
-    public static BotDAO getInstance() {
-        return SingletonHelper.INSTANCE;
-    }
-
     @Override
     public void add(Compiled compiled, Long id, Privacy privacy) {
         try {
