@@ -3,8 +3,11 @@ import org.junit.Test;
 import parser.ParserException;
 import parser.Token;
 
+import java.util.Map;
+
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 /**
  * Created on 18.05.2017.
@@ -39,53 +42,57 @@ public class ParserTests {
     @Test(timeout = 500)
     public void validJavaTest() {
         test("/java -p Shit",
-                new Token("/java", "Shit"),
-                new Token("-p")
+                Token.command("/java", "Shit"),
+                Token.parameter("-p")
         );
 
         test("/java Shit",
-                new Token("/java", "Shit")
+                Token.command("/java", "Shit")
+        );
+
+        test("/java Decide A B C D",
+                Token.command("/java", "Decide A B C D")
         );
     }
 
     @Test(timeout = 500)
     public void validJavacTest() {
         test("/javac -p -m Shit System.out.println(\"asd\")",
-                new Token("/javac", "System.out.println(\"asd\")"),
-                new Token("-p"),
-                new Token("-m", "Shit")
+                Token.command("/javac", "System.out.println(\"asd\")"),
+                Token.parameter("-p"),
+                Token.parameter("-m", "Shit")
         );
 
         test("/javac -m Shit -p System.out.println(\"asd\")",
-                new Token("/javac", "System.out.println(\"asd\")"),
-                new Token("-p"),
-                new Token("-m", "Shit")
+                Token.command("/javac", "System.out.println(\"asd\")"),
+                Token.parameter("-p"),
+                Token.parameter("-m", "Shit")
         );
 
         test("/javac -m Shit System.out.println(\"asd\")",
-                new Token("/javac", "System.out.println(\"asd\")"),
-                new Token("-m", "Shit")
+                Token.command("/javac", "System.out.println(\"asd\")"),
+                Token.parameter("-m", "Shit")
         );
 
         test("/javac -p public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }",
-                new Token("/javac", "public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }"),
-                new Token("-p")
+                Token.command("/javac", "public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }"),
+                Token.parameter("-p")
         );
 
         test("/javac public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }",
-                new Token("/javac", "public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }")
+                Token.parameter("/javac", "public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }")
         );
     }
 
     @Test(timeout = 500)
     public void validDeleteTest() {
         test("/delete -p Shit",
-                new Token("/delete", "Shit"),
-                new Token("-p")
+                Token.command("/delete", "Shit"),
+                Token.parameter("-p")
         );
 
         test("/delete Shit",
-                new Token("/delete", "Shit")
+                Token.command("/delete", "Shit")
         );
     }
 
@@ -93,66 +100,63 @@ public class ParserTests {
     @Test(timeout = 500)
     public void ValidListTest() {
         test("/list -p",
-                new Token("/list"),
-                new Token("-p")
+                Token.command("/list"),
+                Token.parameter("-p")
         );
 
         test("/list",
-                new Token("/list")
+                Token.command("/list")
         );
     }
 
     @Test(timeout = 500)
     public void validSimpleTest() {
         test("/up",
-                new Token("/up")
+                Token.command("/up")
         );
 
         test("/help",
-                new Token("/help")
+                Token.command("/help")
         );
 
         test("/nice",
-                new Token("/nice")
+                Token.command("/nice")
         );
     }
 
     @Test(timeout = 500)
     public void validWrongsTest() {
         test("/java Shit -s",
-                new Token("/java", "Shit -s")
+                Token.command("/java", "Shit -s")
         );
 
         test("/list Shit -s",
-                new Token("/list")
+                Token.command("/list")
         );
 
         test("/delete this is whatever",
-                new Token("/delete", "this is whatever")
+                Token.command("/delete", "this is whatever")
         );
     }
 
     private void test(String input, Token command, Token... parameters) {
         CommandParser parser = new CommandParser(input);
         parser.parse();
-        
+
         assertEquals(command.getValue(), parser.getCommand().getValue());
         assertEquals(command.getArgument(), parser.getCommand().getArgument());
 
-        assertEquals(parameters.length, parser.getParameters().size());
+        Map<String, Token.ParameterToken> parserParameters = parser.getParameters();
+
+        assertEquals(parameters.length, parserParameters.size());
 
         for (Token param : parameters) {
-            boolean ok = false;
-            for (Token parserParam : parser.getParameters()) {
-                // Av == Bv && ((Aa == null && Ba == null) || Aa == Ba)
-                if (param.getValue().equals(parserParam.getValue()) && ((
-                                param.getArgument() == null && parserParam.getArgument() == null) ||
-                                param.getArgument().equals(parserParam.getArgument()))) {
-                    ok = true;
-                    break;
-                }
+            if (parserParameters.containsKey(param.getValue())) {
+                if (param.getArgument() == null) assertTrue(parserParameters.get(param.getValue()).getArgument() == null);
+                else assertEquals(param.getArgument(), parserParameters.get(param.getValue()).getArgument());
+            } else {
+                fail();
             }
-            assertTrue(ok);
         }
     }
 }

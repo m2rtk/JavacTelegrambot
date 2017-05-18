@@ -122,36 +122,32 @@ public class BotTests {
 
     @Test
     public void javaCodeChatSuccessTest() throws Exception {
-        javaTest("Test", new String[0], CHAT, USER_1, CHAT_2);
+        javaTest("Test", new String[]{"wow"}, CHAT, USER_1, CHAT_2, "wow");
     }
 
     @Test
     public void javaCodeChatFailTest() throws Exception {
-        javaTest("Test", new String[0], CHAT, USER_1, CHAT_1);
-        testLogContains("Database doesn't contain script named 'Test'");
+        javaTest("Test", new String[0], CHAT, USER_1, CHAT_1, "Database doesn't contain script named 'Test'");
     }
 
     @Test
     public void javaCodeUserSuccessTest() throws Exception {
-        javaTest("Test", new String[0], USER, USER_2, CHAT_1);
+        javaTest("Test", new String[]{"wow"}, USER, USER_2, CHAT_1, "wow");
     }
 
     @Test
     public void javaCodeChatFailTest1() throws Exception {
-        javaTest("Test", new String[0], USER, USER_1, CHAT_2);
-        testLogContains("Database doesn't contain script named 'Test'");
+        javaTest("Test", new String[0], USER, USER_1, CHAT_2, "Database doesn't contain script named 'Test'");
     }
 
     @Test
     public void javaCodeChatFailTest2() throws Exception {
-        javaTest("Test", new String[0], USER, USER_1, CHAT_1);
-        testLogContains("Database doesn't contain script named 'Test'");
+        javaTest("Test", new String[0], USER, USER_1, CHAT_1, "Database doesn't contain script named 'Test'");
     }
 
     @Test
     public void javaCodeWithArgumentsTest() throws Exception {
-        javaTest("Test", new String[]{"wow"}, USER, USER_2, CHAT_2);
-        testLogContains("Sending message 'wow"); // is enough
+        javaTest("Test", new String[]{"wow"}, USER, USER_2, CHAT_2, "wow");
     }
 
     private void setCorrectTestClasspaths() throws Exception {
@@ -160,7 +156,7 @@ public class BotTests {
         Utils.setObjectField(dao.get("Test", USER_2, USER), "classPath", path);
     }
 
-    private void javaTest(String sourceName, String[] args, Privacy privacy, Long user, Long chat) throws Exception {
+    private void javaTest(String sourceName, String[] args, Privacy privacy, Long user, Long chat, String output) throws Exception {
         String content = "/java ";
         if (privacy == USER) content += "-p ";
         content += sourceName;
@@ -170,8 +166,7 @@ public class BotTests {
         setCorrectTestClasspaths();
         bot.onUpdateReceived(update);
 
-        String expectedOutput = "Executing Java command in chat: " + chat
-                + " with privacy: " + privacy + " className: " + sourceName + " args: " + Arrays.asList(args);
+        String expectedOutput = "Executed command java in chat " + chat + " with output " + output;
 
         testLogContains(expectedOutput);
     }

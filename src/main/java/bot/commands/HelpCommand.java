@@ -10,10 +10,10 @@ import java.util.List;
 
 public class HelpCommand implements Command {
     private static final String TAG = "HelpCommand";
-    private static String help;
+    private static String output;
 
     public HelpCommand() {
-        if (help == null) {
+        if (output == null) {
             try {
                 init();
             } catch (Exception e) {
@@ -29,11 +29,16 @@ public class HelpCommand implements Command {
 
     @Override
     public String getOutput() {
-        return help;
+        return output;
+    }
+
+    @Override
+    public String getName() {
+        return "help";
     }
 
     /**
-     * Reads help text from file and loads it into memory.
+     * Reads output text from file and loads it into memory.
      * This method should only be called once in the systems life.
      * IllegalStateException is thrown if called a second time.
      * @throws IOException if file not found.
@@ -41,10 +46,10 @@ public class HelpCommand implements Command {
      */
     private static void init() throws IOException, URISyntaxException {
         System.out.println("Init()");
-        if (help != null) throw new IllegalStateException();
+        if (output != null) throw new IllegalStateException();
         StringBuilder sb = new StringBuilder();
         List<String> lines = Files.readAllLines(Paths.get(ClassLoader.getSystemResource("HelpMessage.txt").toURI()));
         lines.forEach(s -> sb.append(s).append("\n"));
-        help = sb.toString();
+        output = sb.toString();
     }
 }

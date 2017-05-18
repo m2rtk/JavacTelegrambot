@@ -1,11 +1,8 @@
 package parser;
 
-import bot.Commands;
-
 import java.util.*;
 
 import static bot.Commands.*;
-
 
 /**
  *   /COMMAND( PARAMETER (ARGUMENT)?)? ARGUMENT?
@@ -18,8 +15,8 @@ public class CommandParser {
     private State state;
     private boolean needsNext, needsArgument;
 
-    private Token command;
-    private Set<Token> parameters;
+    private Token.CommandToken command;
+    private Map<String, Token.ParameterToken> parameters;
 
     private Token lastParam;
 
@@ -38,7 +35,7 @@ public class CommandParser {
         this.needsNext = true;
         this.needsArgument = false;
 
-        this.parameters = new HashSet<>();
+        this.parameters = new HashMap<>();
     }
 
     public void parse() {
@@ -87,7 +84,7 @@ public class CommandParser {
                 throw new ParserException("Unknown command " + token);
         }
 
-        command = new Token(token);
+        command = Token.command(token);
     }
 
     private void handleFree(String token) {
@@ -105,9 +102,9 @@ public class CommandParser {
                 default:
                     throw new ParserException("Unknown parameter " + token);
             }
-            Token param = new Token(token);
+            Token.ParameterToken param = Token.parameter(token);
             lastParam = param;
-            parameters.add(param);
+            parameters.put(token, param);
         } else { // if not parameter, then argument for command
             if (needsArgument) {
                 command.setArgument(readRemaining(token));
@@ -135,11 +132,11 @@ public class CommandParser {
         return sb.toString().trim();
     }
 
-    public Token getCommand() {
+    public Token.CommandToken getCommand() {
         return command;
     }
 
-    public Set<Token> getParameters() {
+    public Map<String, Token.ParameterToken> getParameters() {
         return parameters;
     }
 }

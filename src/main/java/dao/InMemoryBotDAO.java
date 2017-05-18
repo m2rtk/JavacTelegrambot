@@ -12,6 +12,15 @@ public class InMemoryBotDAO implements BotDAO {
     private Map<Long, Set<Compiled>> userClasses = new HashMap<>();
     private Map<Long, Set<Compiled>> chatClasses = new HashMap<>();
 
+
+    private static class SingletonHelper {
+        private static final InMemoryBotDAO INSTANCE = new InMemoryBotDAO();
+    }
+
+    public static BotDAO getInstance() {
+        return SingletonHelper.INSTANCE;
+    }
+
     @Override
     public void add(Compiled compiled, Long id, Privacy privacy) {
         if (compiled.getPrivacy() == null || compiled.getId() == null) compiled.setPrivacyAndId(privacy, id);
