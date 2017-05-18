@@ -26,7 +26,7 @@ public class CommandParser {
 
     public CommandParser(String input) {
         this.input = new ArrayList<>();
-        this.input.addAll(Arrays.asList(input.split(" ")));
+        this.input.addAll(Arrays.asList(input.split("\\s"))); // TODO: 18.05.2017 this works weirdly
         this.input.add(TERMINATOR);
 
         this.pos = 0;
@@ -39,11 +39,14 @@ public class CommandParser {
     }
 
     public void parse() {
+        String token = "";
         while (needsNext) {
             if (pos >= input.size())
                 throw new ParserException("Ran out of input while parsing.");
 
-            String token = input.get(pos++);
+            while (token.isEmpty()) { //// FIXME: 18.05.2017 this is a weird solution
+                token = input.get(pos++).trim();
+            }
 
             switch (state) {
                 case START:
@@ -56,6 +59,7 @@ public class CommandParser {
                     handlePArg(token);
                     break;
             }
+            token = "";
         }
         if (needsArgument) throw new ParserException("Expected argument for command.");
     }
@@ -109,7 +113,11 @@ public class CommandParser {
             parameters.put(token, param);
         } else { // if not parameter, then argument for command
             if (needsArgument) {
-                command.setArgument(readRemaining(token));
+                System.out.println("needsargument");
+                String remaining = readRemaining(token);
+                System.out.println("token = " + token);
+                System.out.println("remaining = " + remaining);
+                command.setArgument(remaining);
                 needsArgument = false;
             }
             needsNext = false;
