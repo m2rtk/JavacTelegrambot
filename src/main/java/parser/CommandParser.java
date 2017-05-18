@@ -67,6 +67,8 @@ public class CommandParser {
         if (token.charAt(0) != initChar)
             throw new ParserException("Command must start with " + initChar);
 
+        token = token.replace("@BotMcBotfaceBot", ""); //todo write tests for this
+
         switch (token) {
             case up:
             case help:
