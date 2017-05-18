@@ -1,5 +1,7 @@
 package bot;
 
+import bot.commands.Command;
+import bot.commands.HelpCommand;
 import dao.BotDAO;
 import dao.WriteToDiskBotDAO;
 import javac.Code;
@@ -10,6 +12,9 @@ import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 
+import java.io.IOException;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
 import java.util.stream.Collectors;
@@ -27,6 +32,26 @@ public class JavaBot extends TelegramLongPollingBot {
     private final long startTime;
     public JavaBot() {
         startTime = Instant.now().getEpochSecond();
+
+        Thread consoleInputThread = new Thread(() -> {
+            try (Scanner scanner = new Scanner(System.in)) {
+                while (true) {
+                    String reply = scanner.nextLine();
+                    String[] pieces = reply.split(" ");
+                    if (pieces.length > 2 && pieces[0].equals("send")) {
+                        try {
+                            Long chatId = Long.parseLong(pieces[1]);
+                            StringBuilder sb = new StringBuilder();
+                            for (int i = 2; i < pieces.length; i++) sb.append(pieces[i]).append(" ");
+                            sendMessage(sb.toString(), chatId);
+                        } catch (Exception e) {
+                            e.printStackTrace();
+                        }
+                    }
+                }
+            }
+        });
+        consoleInputThread.start();
     }
 
     @Override
@@ -41,8 +66,8 @@ public class JavaBot extends TelegramLongPollingBot {
         if (update.getMessage().isCommand()) {
             BotLogger.info(TAG, "Update from chat: " + update.getMessage().getChatId()
                                          + " user: " + update.getMessage().getFrom().getId()
-                                         + System.getProperty("line.separator")
-                                         + "content: " + update.getMessage().getText());
+                                         + "content: " + System.getProperty("line.separator")
+                                         + update.getMessage().getText());
 
             executeCommand(update);
         }
@@ -60,6 +85,14 @@ public class JavaBot extends TelegramLongPollingBot {
         else if (command.startsWith(Commands.delete)) onDeleteCommand(update);
     }
 
+    private Command getCommand(Update update) {
+        String command = update.getMessage().getText().split(" ", 2)[0];
+
+        if (command.startsWith(Commands.help))  return new HelpCommand();
+
+        throw new UnsupportedOperationException();
+    }
+
     private void onUpCommand(Update update) {
         long t = Instant.now().getEpochSecond() - startTime;
         long sec = t % 60;
@@ -69,7 +102,6 @@ public class JavaBot extends TelegramLongPollingBot {
 
         String message = "I've been up for " + t + " seconds." + System.getProperty("line.separator");
         message += "That's " + day + " days, " + hour + " hours, " + min + " minutes and " + sec + " seconds.";
-        message += "That's ";
         sendMessage(message, update.getMessage().getChatId());
     }
 
@@ -219,22 +251,13 @@ public class JavaBot extends TelegramLongPollingBot {
     private void onHelpCommand(Update update) {
         BotLogger.info(TAG, "Help command from chat: " + update.getMessage().getChatId());
         StringBuilder sb = new StringBuilder();
-        sb.append("Hello, I'm Javac Bot! I can compile and execute java code for you.").append("\n");
-        sb.append("Use these commands to control me:").append("\n").append("\n");
-        sb.append("/javac - compile java code.").append("\n");
-        sb.append("Example:").append("\n");
-        sb.append("'/javac public class HelloWorld {").append("\n");
-        sb.append("                  public static void main(String[] args) {").append("\n");
-        sb.append("                      System.out.println(\"Hello World!\");").append("\n");
-        sb.append("                  }").append("\n");
-        sb.append("              }'").append("\n");
-        sb.append("Use '/javac -m Classname to write only to main method").append("\n");
-        sb.append("Example:").append("\n");
-        sb.append("'/javac -m HelloWorld System.out.println(\"Hello World!\");'").append("\n");
-        sb.append("Both examples produce equivalent bytecode").append("\n").append("\n");
-        sb.append("/java - execute compiled java code.").append("\n");
-        sb.append("Example:").append("\n");
-        sb.append("'/java HelloWorld' should output \"Hello World!\"");
+        try {
+            System.out.println(Paths.get(ClassLoader.getSystemResource("HelpMessage.txt").toURI()).toAbsolutePath());
+            System.out.println(Paths.get(ClassLoader.getSystemResource("HelpMessage.txt").toURI()));
+            Files.readAllLines(Paths.get(ClassLoader.getSystemResource("HelpMessage.txt").toURI())).forEach(s -> sb.append(s).append("\n"));
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         sendMessage(sb.toString(), update.getMessage().getChatId());
     }
 

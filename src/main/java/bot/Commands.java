@@ -1,7 +1,7 @@
 package bot;
 
 public class Commands {
-    private static final char initChar = '/';
+    public static final char initChar = '/';
 
     public static final char paramInitChar = '-';
 

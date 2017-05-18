@@ -1,0 +1,16 @@
+Hello, I'm Javac Bot! I can compile and execute java code for you.
+
+Use these commands to control me:
+/javac - compile java code.
+/javac -m Classname to write only to main method
+/java - execute compiled java code.
+
+Examples:
+'/javac public class HelloWorld {
+    public static void main(String[] args) {
+        System.out.println("Hello World!");
+    }
+}'
+'/javac -m HelloWorld System.out.println(\"Hello World!\");'
+
+'/java HelloWorld' should output "Hello World!"
