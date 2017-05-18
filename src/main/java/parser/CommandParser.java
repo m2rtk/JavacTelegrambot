@@ -1,9 +1,8 @@
 package parser;
 
-import java.util.Arrays;
-import java.util.HashSet;
-import java.util.List;
-import java.util.Set;
+import bot.Commands;
+
+import java.util.*;
 
 import static bot.Commands.*;
 
@@ -13,6 +12,7 @@ import static bot.Commands.*;
  * /\/[a-zA-Z]+( -[a-zA-Z]( [a-zA-Z]+)?) [a-zA-Z]+?/g
  */
 public class CommandParser {
+    private final static String TERMINATOR = "\0";
     private List<String> input;
     private int pos;
     private State state;
@@ -28,11 +28,14 @@ public class CommandParser {
     }
 
     public CommandParser(String input) {
-        this.input = Arrays.asList(input.split(" "));
+        this.input = new ArrayList<>();
+        this.input.addAll(Arrays.asList(input.split(" ")));
+        this.input.add(TERMINATOR);
+
         this.pos = 0;
         this.state = State.START;
 
-        this.needsNext = this.pos < this.input.size();
+        this.needsNext = true;
         this.needsArgument = false;
 
         this.parameters = new HashSet<>();
@@ -40,7 +43,9 @@ public class CommandParser {
 
     public void parse() {
         while (needsNext) {
-            if (pos >= input.size()) throw new ParserException("Ran out of input while parsing.");
+            if (pos >= input.size())
+                throw new ParserException("Ran out of input while parsing.");
+
             String token = input.get(pos++);
 
             switch (state) {
@@ -59,6 +64,9 @@ public class CommandParser {
     }
 
     private void handleStart(String token) {
+        if (token.equals(TERMINATOR))
+            throw new ParserException("Expected command. Reached end of input.");
+
         if (token.charAt(0) != initChar)
             throw new ParserException("Command must start with " + initChar);
 
@@ -67,40 +75,52 @@ public class CommandParser {
             case help:
             case nice:
                 needsNext = false;
+                break;
             case delete:
             case javac:
             case java:
                 needsArgument = true;
             case list:
                 state = State.FREE;
-                command = new Token(token);
                 break;
             default:
                 throw new ParserException("Unknown command " + token);
         }
+
+        command = new Token(token);
     }
 
     private void handleFree(String token) {
+        if (token.equals(TERMINATOR)) {
+            needsNext = false;
+            return;
+        }
+
         if (token.charAt(0) == paramInitChar) {
             switch (token) {
                 case mainParam:
                     state = State.PARG;
                 case privacyParam:
-                    Token param = new Token(token);
-                    lastParam = param;
-                    parameters.add(param);
                     break;
                 default:
                     throw new ParserException("Unknown parameter " + token);
             }
+            Token param = new Token(token);
+            lastParam = param;
+            parameters.add(param);
         } else { // if not parameter, then argument for command
-            command.setArgument(readRemaining(token));
-            needsArgument = false;
+            if (needsArgument) {
+                command.setArgument(readRemaining(token));
+                needsArgument = false;
+            }
             needsNext = false;
         }
     }
 
     private void handlePArg(String token) {
+        if (token.equals(TERMINATOR))
+            throw new ParserException("Expected parameter argument. Reached end of input.");
+
         if (token.charAt(0) == paramInitChar) //todo ponder on the necessity of this
             throw new ParserException("Expected parameter argument. Got parameter " + token);
 
@@ -111,7 +131,7 @@ public class CommandParser {
     private String readRemaining(String token) {
         StringBuilder sb = new StringBuilder();
         sb.append(token).append(" ");
-        while (pos < input.size()) sb.append(input.get(pos)).append(" ");
+        while (pos < input.size()) sb.append(input.get(pos++)).append(" ");
         return sb.toString().trim();
     }
 
