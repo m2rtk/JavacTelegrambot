@@ -1,5 +1,6 @@
 package bot.commands;
 
+import bot.Commands;
 import dao.BotDAO;
 import javac.Compiled;
 
@@ -43,6 +44,6 @@ public class JavaCommand implements Command {
 
     @Override
     public String getName() {
-        return "java";
+        return Commands.java;
     }
 }

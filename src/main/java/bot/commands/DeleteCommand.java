@@ -1,5 +1,6 @@
 package bot.commands;
 
+import bot.Commands;
 import dao.BotDAO;
 
 public class DeleteCommand implements Command {
@@ -32,6 +33,6 @@ public class DeleteCommand implements Command {
 
     @Override
     public String getName() {
-        return "delete";
+        return Commands.delete;
     }
 }

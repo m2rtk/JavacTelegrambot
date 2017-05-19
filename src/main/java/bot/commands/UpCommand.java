@@ -1,5 +1,7 @@
 package bot.commands;
 
+import bot.Commands;
+
 import java.time.Instant;
 
 public class UpCommand implements Command {
@@ -30,6 +32,6 @@ public class UpCommand implements Command {
 
     @Override
     public String getName() {
-        return "up";
+        return Commands.up;
     }
 }

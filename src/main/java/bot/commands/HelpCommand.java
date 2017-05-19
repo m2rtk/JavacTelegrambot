@@ -1,5 +1,6 @@
 package bot.commands;
 
+import bot.Commands;
 import org.telegram.telegrambots.logging.BotLogger;
 
 import java.io.IOException;
@@ -34,7 +35,7 @@ public class HelpCommand implements Command {
 
     @Override
     public String getName() {
-        return "help";
+        return Commands.help;
     }
 
     /**

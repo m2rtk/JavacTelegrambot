@@ -1,5 +1,7 @@
 package bot.commands;
 
+import bot.Commands;
+
 public class NiceCommand implements Command {
 
     @Override
@@ -14,6 +16,6 @@ public class NiceCommand implements Command {
 
     @Override
     public String getName() {
-        return "nice";
+        return Commands.nice;
     }
 }

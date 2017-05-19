@@ -8,9 +8,11 @@ import java.util.Scanner;
 public class DirectInputThread implements Runnable {
 
     private final JavaBot bot;
+    private final Thread thread;
 
     public DirectInputThread(JavaBot bot) {
         this.bot = bot;
+        this.thread = new Thread(this);
     }
 
     @Override
@@ -31,5 +33,9 @@ public class DirectInputThread implements Runnable {
                 }
             }
         }
+    }
+
+    public void start() {
+        thread.start();
     }
 }

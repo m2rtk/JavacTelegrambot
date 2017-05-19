@@ -49,9 +49,9 @@ public class BotTests {
         Update mockUpdate = mock(Update.class);
         when(mockUpdate.getMessage()).thenReturn(mockMessage);
         mockBot.onUpdateReceived(mockUpdate);
-        verify(mockBot, times(1)).onUpdateReceived(mockUpdate);
+        verify(mockBot, times(1)).onUpdateReceived(mockUpdate);// this is stupid
     }
-
+    
     @Test
     public void javacNoParamsTest1() throws Exception {
         javacNoParamsTest("M8");
@@ -166,7 +166,7 @@ public class BotTests {
         setCorrectTestClasspaths();
         bot.onUpdateReceived(update);
 
-        String expectedOutput = "Executed command java in chat " + chat + " with output " + output;
+        String expectedOutput = "Executed command /java in chat " + chat + " with output " + output;
 
         testLogContains(expectedOutput);
     }

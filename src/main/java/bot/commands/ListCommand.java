@@ -1,5 +1,6 @@
 package bot.commands;
 
+import bot.Commands;
 import dao.BotDAO;
 import javac.Compiled;
 
@@ -52,6 +53,6 @@ public class ListCommand implements Command {
 
     @Override
     public String getName() {
-        return "list";
+        return Commands.list;
     }
 }

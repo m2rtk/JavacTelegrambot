@@ -1,7 +1,8 @@
 import parser.CommandParser;
 import org.junit.Test;
 import parser.ParserException;
-import parser.Token;
+import parser.data.ParameterToken;
+import parser.data.Token;
 
 import java.util.Map;
 
@@ -30,6 +31,11 @@ public class ParserTests {
     }
 
     @Test(expected = ParserException.class, timeout = 500)
+    public void noParamArgumentTest2() {
+        test("/java -m -p", null);
+    }
+
+    @Test(expected = ParserException.class, timeout = 500)
     public void unknownParamTest() {
         test("/java -s", null);
     }
@@ -37,6 +43,11 @@ public class ParserTests {
     @Test(expected = ParserException.class, timeout = 500)
     public void unknownParamTest2() {
         test("/java -s Shit", null);
+    }
+
+    @Test(expected = ParserException.class, timeout = 500)
+    public void noInputTest() {
+        test("", null);
     }
 
     @Test(timeout = 500)
@@ -55,7 +66,7 @@ public class ParserTests {
         );
 
         test("/java                Decide    A          B  C            D",
-                Token.command("/java", "Decide    A          B  C            D")
+                Token.command("/java", "Decide A          B  C            D")
         );
     }
 
@@ -87,13 +98,13 @@ public class ParserTests {
                 Token.parameter("/javac", "public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }")
         );
 
-        test("/javac         -p         public    class     Shit { public static void main(String[  ] args    ) { System.out.println(\"asd      \") } }",
-                Token.command("/javac", "public    class    Shit { public static void main(String[  ] args    ) { System.out.println(\"asd      \") } }"),
+        test("/javac         -p         public     class     Shit { public static void main(String[  ] args    ) { System.out.println(\"asd      \") } }",
+                Token.command("/javac", "public class     Shit { public static void main(String[  ] args    ) { System.out.println(\"asd      \") } }"),
                 Token.parameter("-p")
         );
 
         test("/javac public class  Shit {       public static void      main(String[] args) { System.out.println(\"     asd\") } }",
-                Token.parameter("/javac", "public class  Shit {         public static void      main(String[] args) { System.out.println(\"     asd\") } }")
+                Token.parameter("/javac", "public class  Shit {       public static void      main(String[] args) { System.out.println(\"     asd\") } }")
         );
     }
 
@@ -159,7 +170,7 @@ public class ParserTests {
         assertEquals(command.getValue(), parser.getCommand().getValue());
         assertEquals(command.getArgument(), parser.getCommand().getArgument());
 
-        Map<String, Token.ParameterToken> parserParameters = parser.getParameters();
+        Map<String, ParameterToken> parserParameters = parser.getParameters();
 
         assertEquals(parameters.length, parserParameters.size());
 

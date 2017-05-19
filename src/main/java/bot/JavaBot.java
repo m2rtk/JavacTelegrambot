@@ -10,7 +10,8 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 import parser.CommandParser;
 import parser.ParserException;
-import parser.Token;
+import parser.data.ParameterToken;
+import parser.data.Token;
 
 import java.time.Instant;
 import java.util.*;
@@ -28,7 +29,7 @@ public class JavaBot extends TelegramLongPollingBot {
     private final long startTime;
     public JavaBot() {
         startTime = Instant.now().getEpochSecond();
-        new DirectInputThread(this).run();
+        new DirectInputThread(this).start();
     }
 
     @Override
@@ -73,7 +74,7 @@ public class JavaBot extends TelegramLongPollingBot {
         if (command.equals(Commands.up))    return new UpCommand(startTime);
 
         // the following commands make use of parameters
-        Map<String, Token.ParameterToken> parameters = parser.getParameters();
+        Map<String, ParameterToken> parameters = parser.getParameters();
 
         Privacy privacy = parameters.containsKey(Commands.privacyParam) ? USER : CHAT;
         Long id = privacy == CHAT ? update.getMessage().getChatId() : new Long(update.getMessage().getFrom().getId());
@@ -96,7 +97,7 @@ public class JavaBot extends TelegramLongPollingBot {
     }
 
     public void sendMessage(String message, Long chatId) {
-        BotLogger.info(TAG, "Sending message '" + message + "' to chat: " + chatId);
+        BotLogger.info(TAG, "Sending message \n" + message + "\nto chat: " + chatId);
         try {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(chatId);
