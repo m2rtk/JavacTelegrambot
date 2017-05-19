@@ -10,7 +10,7 @@ import static bot.Commands.*;
  */
 public class CommandParser {
     private final static String TERMINATOR = "\0";
-    private List<String> input;
+    private String input;
     private int pos;
     private State state;
     private boolean needsNext, needsArgument;
@@ -25,9 +25,11 @@ public class CommandParser {
     }
 
     public CommandParser(String input) {
-        this.input = new ArrayList<>();
-        this.input.addAll(Arrays.asList(input.split(" ")));
-        this.input.add(TERMINATOR);
+
+//        this.input = new ArrayList<>();
+//        this.input.addAll(Arrays.asList(input.split("\\s+")));
+//        this.input.add(TERMINATOR);
+        this.input = input + TERMINATOR;
 
         this.pos = 0;
         this.state = State.START;
@@ -38,12 +40,40 @@ public class CommandParser {
         this.parameters = new HashMap<>();
     }
 
-    public void parse() {
-        while (needsNext) {
-            if (pos >= input.size())
-                throw new ParserException("Ran out of input while parsing.");
+    private String nextToken() {
+        String token;
 
-            String token = input.get(pos++);
+        String[] pieces = input.split("\\s+", 2);
+
+//        if (pieces.length < 2)
+//            throw new ParserException("Ran out of input while parsing.");
+
+        token = pieces[0];
+        if (pieces.length > 1) input = pieces[1];
+        else input = "";
+
+        return token.trim();
+    }
+
+//    private String readRemaining(String token) {
+//        StringBuilder sb = new StringBuilder();
+//        sb.append(token).append(" ");
+//        while (pos < input.size()) sb.append(input.get(pos++)).append(" ");
+//        return sb.toString().trim();
+//    }
+
+    public void parse() {
+        String token;
+        while (needsNext) {
+            token = nextToken();
+            System.out.println("---------------------------");
+            System.out.println("token = " + token);
+            System.out.println("input = " + input);
+//            if (pos >= input.size())
+//                throw new ParserException("Ran out of input while parsing.");
+//
+//            token = input.get(pos++);
+
 
             switch (state) {
                 case START:
@@ -96,6 +126,7 @@ public class CommandParser {
         }
 
         if (token.charAt(0) == paramInitChar) {
+//            System.out.println(token);
             switch (token) {
                 case mainParam:
                     state = State.PARG;
@@ -109,7 +140,9 @@ public class CommandParser {
             parameters.put(token, param);
         } else { // if not parameter, then argument for command
             if (needsArgument) {
-                command.setArgument(readRemaining(token));
+                String remaining = token;//readRemaining(token);
+                if (!input.isEmpty()) remaining = token + " " + input.replace(TERMINATOR, "");
+                command.setArgument(remaining);
                 needsArgument = false;
             }
             needsNext = false;
@@ -125,13 +158,6 @@ public class CommandParser {
 
         lastParam.setArgument(token);
         state = State.FREE;
-    }
-
-    private String readRemaining(String token) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(token).append(" ");
-        while (pos < input.size()) sb.append(input.get(pos++)).append(" ");
-        return sb.toString().trim();
     }
 
     public Token.CommandToken getCommand() {

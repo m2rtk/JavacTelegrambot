@@ -50,8 +50,12 @@ public class ParserTests {
                 Token.command("/java", "Shit")
         );
 
-        test("/java Decide A B C D",
+        test("/java  Decide A B C D",
                 Token.command("/java", "Decide A B C D")
+        );
+
+        test("/java                Decide    A          B  C            D",
+                Token.command("/java", "Decide    A          B  C            D")
         );
     }
 
@@ -81,6 +85,15 @@ public class ParserTests {
 
         test("/javac public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }",
                 Token.parameter("/javac", "public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }")
+        );
+
+        test("/javac         -p         public    class     Shit { public static void main(String[  ] args    ) { System.out.println(\"asd      \") } }",
+                Token.command("/javac", "public    class    Shit { public static void main(String[  ] args    ) { System.out.println(\"asd      \") } }"),
+                Token.parameter("-p")
+        );
+
+        test("/javac public class  Shit {       public static void      main(String[] args) { System.out.println(\"     asd\") } }",
+                Token.parameter("/javac", "public class  Shit {         public static void      main(String[] args) { System.out.println(\"     asd\") } }")
         );
     }
 

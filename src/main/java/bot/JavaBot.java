@@ -3,8 +3,6 @@ package bot;
 import bot.commands.*;
 import dao.BotDAO;
 import dao.WriteToDiskBotDAO;
-import javac.Code;
-import javac.Compiled;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -14,12 +12,8 @@ import parser.CommandParser;
 import parser.ParserException;
 import parser.Token;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Instant;
 import java.util.*;
-import java.util.stream.Collectors;
 
 import static dao.BotDAO.Privacy;
 import static dao.BotDAO.Privacy.CHAT;
@@ -34,26 +28,7 @@ public class JavaBot extends TelegramLongPollingBot {
     private final long startTime;
     public JavaBot() {
         startTime = Instant.now().getEpochSecond();
-
-        Thread consoleInputThread = new Thread(() -> {
-            try (Scanner scanner = new Scanner(System.in)) {
-                while (true) {
-                    String reply = scanner.nextLine();
-                    String[] pieces = reply.split(" ");
-                    if (pieces.length > 2 && pieces[0].equals("send")) {
-                        try {
-                            Long chatId = Long.parseLong(pieces[1]);
-                            StringBuilder sb = new StringBuilder();
-                            for (int i = 2; i < pieces.length; i++) sb.append(pieces[i]).append(" ");
-                            sendMessage(sb.toString(), chatId);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-        consoleInputThread.start();
+        new DirectInputThread(this).run();
     }
 
     @Override
@@ -120,7 +95,7 @@ public class JavaBot extends TelegramLongPollingBot {
         throw new RuntimeException();
     }
 
-    private void sendMessage(String message, Long chatId) {
+    public void sendMessage(String message, Long chatId) {
         BotLogger.info(TAG, "Sending message '" + message + "' to chat: " + chatId);
         try {
             SendMessage sendMessage = new SendMessage();
