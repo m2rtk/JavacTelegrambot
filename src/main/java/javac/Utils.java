@@ -4,7 +4,9 @@ import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class Utils {
+class Utils {
+
+    private Utils() {} // prevent instantiation
 
     // TODO: 04.04.2017 Delete all the oneliner methods
     static void writeSmallBinaryFile(byte[] aBytes, String aFileName) throws IOException {

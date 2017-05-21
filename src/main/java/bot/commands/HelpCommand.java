@@ -15,6 +15,7 @@ public class HelpCommand implements Command {
     private static final String TAG = "HelpCommand";
     private static String output;
 
+    // this makes sure that the help text is read into memory only once in the systems runtime
     static {
         try {
             output = String.join("\n", Files.readAllLines(

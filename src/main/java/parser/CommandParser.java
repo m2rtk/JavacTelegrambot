@@ -23,7 +23,7 @@ public class CommandParser {
     private CommandToken command;
     private Map<String, ParameterToken> parameters; // TODO: 19.05.2017 Maybe replace with Map<String, String> <parameter, argument>
 
-    private Token lastParam;
+    private ParameterToken lastParameter;
 
     private enum State {
         START, FREE, ARG
@@ -31,7 +31,6 @@ public class CommandParser {
 
     public CommandParser(String input) {
         this.input = input + TERMINATOR;
-
         this.state = State.START;
 
         this.needsNext = true;
@@ -67,7 +66,7 @@ public class CommandParser {
                     handleArg(token);
                     break;
                 default:
-                    throw new RuntimeException("Not possible. I hope. Invalid state.");
+                    throw new RuntimeException("Invalid state. Not possible. I hope.");
             }
         }
         if (needsArgument) throw new ParserException("Expected argument for command.");
@@ -118,7 +117,7 @@ public class CommandParser {
                     throw new ParserException("Unknown parameter " + token);
             }
             ParameterToken param = Token.parameter(token);
-            lastParam = param;
+            lastParameter = param;
             parameters.put(token, param);
         } else { // if not parameter, then argument for command
             if (needsArgument) {
@@ -137,7 +136,7 @@ public class CommandParser {
         if (token.charAt(0) == paramInitChar)
             throw new ParserException("Expected parameter argument. Got parameter " + token);
 
-        lastParam.setArgument(token);
+        lastParameter.setArgument(token);
         state = State.FREE;
     }
 
