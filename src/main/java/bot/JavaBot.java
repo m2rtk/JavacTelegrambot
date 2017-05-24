@@ -112,7 +112,7 @@ public class JavaBot extends TelegramLongPollingBot {
 
 
         if (parameters.containsKey(Commands.mainParam))
-            command.acceptParameter(new MainParameter(parameters.get(Commands.mainParam).getArgument()));
+            command.acceptParameter(new MainParameter().set(parameters.get(Commands.mainParam).getArgument()));
 
 
         return command;

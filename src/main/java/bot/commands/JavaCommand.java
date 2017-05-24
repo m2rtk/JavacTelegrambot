@@ -11,7 +11,7 @@ import java.util.Arrays;
 
 import static dao.Privacy.CHAT;
 
-public class JavaCommand implements Command, Argument, Private, NeedsDAO {
+public class JavaCommand extends Command implements Argument, Private, NeedsDAO {
     private BotDAO dao;
     private String className;
     private String[] args;
@@ -37,11 +37,6 @@ public class JavaCommand implements Command, Argument, Private, NeedsDAO {
         compiled.run(args);
 
         output = compiled.getOut();
-    }
-
-    @Override
-    public void acceptParameter(Parameter parameterVisitor) {
-        parameterVisitor.visit(this);
     }
 
     @Override

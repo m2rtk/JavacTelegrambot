@@ -9,12 +9,6 @@ public interface Parameter {
     String getName();
 
     /**
-     * Returns the number of arguments the parameter takes.
-     * @return number of arguments needed.
-     */
-    int getNrOfParams();
-
-    /**
      * Visits command.
      * @param command command to visit.
      */

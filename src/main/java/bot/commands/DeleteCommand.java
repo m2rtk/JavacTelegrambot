@@ -9,7 +9,7 @@ import dao.WriteToDiskBotDAO;
 import static dao.Privacy.CHAT;
 
 
-public class DeleteCommand implements Command, Private, Argument, NeedsDAO {
+public class DeleteCommand extends Command implements Private, Argument, NeedsDAO {
     private BotDAO dao;
     private String argument;
     private Privacy privacy;
@@ -28,11 +28,6 @@ public class DeleteCommand implements Command, Private, Argument, NeedsDAO {
 
         if (successful) output = "Successfully deleted " + argument;
         else output = "Couldn't delete " + argument;
-    }
-
-    @Override
-    public void acceptParameter(Parameter parameterVisitor) {
-        parameterVisitor.visit(this);
     }
 
     @Override

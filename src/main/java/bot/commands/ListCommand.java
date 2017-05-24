@@ -20,7 +20,7 @@ import static dao.Privacy.CHAT;
 /**
  * Created on 18.05.2017.
  */
-public class ListCommand implements Command, Private, NeedsDAO {
+public class ListCommand extends Command implements Private, NeedsDAO {
     private BotDAO dao;
     private Privacy privacy;
     private long id;
@@ -48,11 +48,6 @@ public class ListCommand implements Command, Private, NeedsDAO {
         for (String name : names) sb.append(name).append(System.getProperty("line.separator"));
 
         output = sb.toString();
-    }
-
-    @Override
-    public void acceptParameter(Parameter parameterVisitor) {
-        parameterVisitor.visit(this);
     }
 
     @Override

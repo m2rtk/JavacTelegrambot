@@ -6,7 +6,7 @@ import bot.commands.interfaces.Parameter;
 
 import java.time.Instant;
 
-public class UpCommand implements Command {
+public class UpCommand extends Command {
 
     private final long startTime;
     private String output;
@@ -25,11 +25,6 @@ public class UpCommand implements Command {
 
         output = "I've been up for " + t + " seconds." + System.getProperty("line.separator");
         output += "That's " + day + " days, " + hour + " hours, " + min + " minutes and " + sec + " seconds.";
-    }
-
-    @Override
-    public void acceptParameter(Parameter parameterVisitor) {
-        parameterVisitor.visit(this);
     }
 
     @Override

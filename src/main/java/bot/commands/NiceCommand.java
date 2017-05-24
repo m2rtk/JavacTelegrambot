@@ -4,16 +4,11 @@ import bot.Commands;
 import bot.commands.interfaces.Command;
 import bot.commands.interfaces.Parameter;
 
-public class NiceCommand implements Command {
+public class NiceCommand extends Command {
 
     @Override
     public void execute() {
         // nothing to do here
-    }
-
-    @Override
-    public void acceptParameter(Parameter parameterVisitor) {
-        parameterVisitor.visit(this);
     }
 
     @Override

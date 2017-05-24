@@ -24,9 +24,4 @@ public class PrivacyParameter implements Parameter {
     public String getName() {
         return Commands.privacyParam;
     }
-
-    @Override
-    public int getNrOfParams() {
-        return 0;
-    }
 }

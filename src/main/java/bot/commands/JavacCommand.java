@@ -9,7 +9,7 @@ import javac.Code;
 
 import static dao.Privacy.CHAT;
 
-public class JavacCommand implements Command, Argument, Private, NeedsDAO {
+public class JavacCommand extends Command implements Argument, Private, NeedsDAO {
     private BotDAO dao;
     private String content;
     private Privacy privacy;
@@ -40,11 +40,6 @@ public class JavacCommand implements Command, Argument, Private, NeedsDAO {
         } else {
             output = "Compilation failed " + System.getProperty("line.separator") + code.getOut();
         }
-    }
-
-    @Override
-    public void acceptParameter(Parameter parameterVisitor) {
-        parameterVisitor.visit(this);
     }
 
     @Override

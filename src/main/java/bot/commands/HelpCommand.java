@@ -8,7 +8,7 @@ import org.telegram.telegrambots.logging.BotLogger;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-public class HelpCommand implements Command {
+public class HelpCommand extends Command {
     private static final String TAG = "HelpCommand";
     private static String output;
 
@@ -27,11 +27,6 @@ public class HelpCommand implements Command {
     @Override
     public void execute() {
         // nothing to do here
-    }
-
-    @Override
-    public void acceptParameter(Parameter parameterVisitor) {
-        parameterVisitor.visit(this);
     }
 
     @Override

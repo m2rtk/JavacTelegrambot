@@ -1,17 +1,20 @@
 package bot.commands.interfaces;
 
-public interface Command {
 
-    /**
-     * Execute command.
-     */
-    void execute();
-
+public abstract class Command {
     /**
      * Accepts visitor parameter.
      * @param parameterVisitor visitor.
      */
-    void acceptParameter(Parameter parameterVisitor);
+    public void acceptParameter(Parameter parameterVisitor) {
+        parameterVisitor.visit(this);
+    }
+
+
+    /**
+     * Execute command.
+     */
+    public abstract void execute();
 
     /**
      * Returns output after calling execute();
@@ -19,11 +22,11 @@ public interface Command {
      * Currently nice and help command don't need execute() call to return output.
      * @return output as string.
      */
-    String getOutput();
+    public abstract String getOutput();
 
     /**
      * Returns name of command.
      * @return Command name.
      */
-    String getName();
+    public abstract String getName();
 }
