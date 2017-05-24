@@ -49,8 +49,8 @@ public class InMemoryBotDAO implements BotDAO {
     }
 
     private Map<Long, Set<Compiled>> getMap(Privacy privacy) {
-        if (privacy == Privacy.CHAT)      return chatClasses;
-        else if (privacy == Privacy.USER) return userClasses;
-        else throw new RuntimeException("Privacy can't be anything other than user or chat");
+        if (privacy == Privacy.CHAT) return chatClasses;
+        if (privacy == Privacy.USER) return userClasses;
+        throw new RuntimeException("Privacy can't be anything other than user or chat");
     }
 }

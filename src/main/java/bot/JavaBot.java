@@ -64,6 +64,10 @@ public class JavaBot extends TelegramLongPollingBot {
     }
 
     private Command getCommand(Update update) {
+        String s =  update.getMessage().getText().split(" ")[0];
+        if (s.length() > 1 && Character.isUpperCase(s.charAt(1))) {
+            return new JavaCommand(s.substring(1), Privacy.CHAT, update.getMessage().getChatId(), dao);
+        }
         CommandParser parser = new CommandParser(update.getMessage().getText());
         parser.parse();
         String command = parser.getCommand().getValue();
@@ -92,6 +96,7 @@ public class JavaBot extends TelegramLongPollingBot {
         if (parameters.containsKey(Commands.mainParam)) name = parameters.get(Commands.mainParam).getArgument();
 
         if (command.equals(Commands.javac))  return new JavacCommand(argument, name, privacy, id, dao);
+
 
         throw new RuntimeException();
     }
