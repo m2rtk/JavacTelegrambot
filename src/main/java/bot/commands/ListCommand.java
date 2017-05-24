@@ -1,13 +1,11 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.Command;
+import bot.commands.interfaces.IllegalExecutionException;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.Private;
-import bot.commands.interfaces.Parameter;
 import dao.BotDAO;
 import dao.Privacy;
-import dao.WriteToDiskBotDAO;
 import javac.Compiled;
 
 import java.util.ArrayList;
@@ -23,17 +21,16 @@ import static dao.Privacy.CHAT;
 public class ListCommand extends Command implements Private, NeedsDAO {
     private BotDAO dao;
     private Privacy privacy;
-    private long id;
+    private Long id;
 
-    private String output;
-
-    public ListCommand(long id) {
+    public ListCommand(Long id) {
         this.privacy = CHAT;
         this.id = id;
     }
 
     @Override
     public void execute() {
+        if (dao == null || privacy == null || id == null) throw new IllegalExecutionException();
         StringBuilder sb = new StringBuilder();
         List<String> names = new ArrayList<>();
 
@@ -47,12 +44,7 @@ public class ListCommand extends Command implements Private, NeedsDAO {
         sb.append("List: ").append(System.getProperty("line.separator"));
         for (String name : names) sb.append(name).append(System.getProperty("line.separator"));
 
-        output = sb.toString();
-    }
-
-    @Override
-    public String getOutput() {
-        return output;
+        setOutput(sb.toString());
     }
 
     @Override
@@ -74,9 +66,9 @@ public class ListCommand extends Command implements Private, NeedsDAO {
     @Override
     public String toString() {
         return "ListCommand{" +
-                "privacy=" + privacy +
+                "dao=" + dao +
+                ", privacy=" + privacy +
                 ", id=" + id +
-                ", output='" + output + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

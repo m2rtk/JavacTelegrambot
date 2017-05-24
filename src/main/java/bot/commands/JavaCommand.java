@@ -4,7 +4,6 @@ import bot.Commands;
 import bot.commands.interfaces.*;
 import dao.BotDAO;
 import dao.Privacy;
-import dao.WriteToDiskBotDAO;
 import javac.Compiled;
 
 import java.util.Arrays;
@@ -16,32 +15,26 @@ public class JavaCommand extends Command implements Argument, Private, NeedsDAO 
     private String className;
     private String[] args;
     private Privacy privacy;
-    private long id;
+    private Long id;
 
-    private String output;
-
-    public JavaCommand(long id) {
+    public JavaCommand(Long id) {
         this.privacy = CHAT;
         this.id = id;
     }
 
     @Override
     public void execute() {
+        if (args == null || id == null || privacy == null || dao == null || className == null) throw new IllegalExecutionException();
         Compiled compiled = dao.get(className, id, privacy);
 
         if (compiled == null) {
-            output = "Database doesn't contain script named '" + className + "'";
+            setOutput("Database doesn't contain script named '" + className + "'");
             return;
         }
 
         compiled.run(args);
 
-        output = compiled.getOut();
-    }
-
-    @Override
-    public String getOutput() {
-        return output;
+        setOutput(compiled.getOut());
     }
 
     @Override
@@ -75,7 +68,6 @@ public class JavaCommand extends Command implements Argument, Private, NeedsDAO 
                 ", args=" + Arrays.toString(args) +
                 ", privacy=" + privacy +
                 ", id=" + id +
-                ", output='" + output + '\'' +
                 '}';
     }
 }

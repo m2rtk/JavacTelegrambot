@@ -2,14 +2,13 @@ package bot.commands.parameters;
 
 import bot.Commands;
 import bot.commands.interfaces.Argument;
-import bot.commands.interfaces.Command;
+import bot.commands.Command;
 import bot.commands.JavacCommand;
-import bot.commands.interfaces.Parameter;
 
 /**
  * Works only on javac
  */
-public class MainParameter implements Parameter, Argument {
+public class MainParameter extends Parameter implements Argument {
     private String classname;
 
 

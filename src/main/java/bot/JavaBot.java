@@ -2,7 +2,7 @@ package bot;
 
 import bot.commands.*;
 import bot.commands.interfaces.Argument;
-import bot.commands.interfaces.Command;
+import bot.commands.Command;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.parameters.MainParameter;
 import bot.commands.parameters.PrivacyParameter;

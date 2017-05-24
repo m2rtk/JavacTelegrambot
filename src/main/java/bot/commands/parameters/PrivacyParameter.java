@@ -1,13 +1,12 @@
 package bot.commands.parameters;
 
 import bot.Commands;
-import bot.commands.interfaces.Command;
-import bot.commands.interfaces.Parameter;
+import bot.commands.Command;
 import bot.commands.interfaces.Private;
 
 import static dao.Privacy.USER;
 
-public class PrivacyParameter implements Parameter {
+public class PrivacyParameter extends Parameter {
     private final long userId;
 
 

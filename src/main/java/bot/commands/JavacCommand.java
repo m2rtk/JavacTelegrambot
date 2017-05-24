@@ -4,7 +4,6 @@ import bot.Commands;
 import bot.commands.interfaces.*;
 import dao.BotDAO;
 import dao.Privacy;
-import dao.WriteToDiskBotDAO;
 import javac.Code;
 
 import static dao.Privacy.CHAT;
@@ -13,9 +12,7 @@ public class JavacCommand extends Command implements Argument, Private, NeedsDAO
     private BotDAO dao;
     private String content;
     private Privacy privacy;
-    private long id;
-
-    private String output;
+    private Long id;
 
     public JavacCommand(long id) {
         this.privacy = CHAT;
@@ -29,6 +26,7 @@ public class JavacCommand extends Command implements Argument, Private, NeedsDAO
 
     @Override
     public void execute() {
+        if (content == null || id == null || privacy == null || dao == null) throw new IllegalExecutionException();
         Code code = new Code(content, privacy, id);
 
         if (code.compile()) {
@@ -36,15 +34,10 @@ public class JavacCommand extends Command implements Argument, Private, NeedsDAO
                 dao.remove(code.getName(), id, privacy);
             }
             dao.add(code.getCompiled(), id, privacy);
-            output = "Successfully compiled!";
+            setOutput("Successfully compiled!");
         } else {
-            output = "Compilation failed " + System.getProperty("line.separator") + code.getOut();
+            setOutput("Compilation failed " + System.getProperty("line.separator") + code.getOut());
         }
-    }
-
-    @Override
-    public String getOutput() {
-        return output;
     }
 
     @Override
@@ -71,10 +64,10 @@ public class JavacCommand extends Command implements Argument, Private, NeedsDAO
     @Override
     public String toString() {
         return "JavacCommand{" +
-                "content='" + content + '\'' +
+                "dao=" + dao +
+                ", content='" + content + '\'' +
                 ", privacy=" + privacy +
                 ", id=" + id +
-                ", output='" + output + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

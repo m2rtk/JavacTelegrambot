@@ -1,15 +1,12 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.Command;
-import bot.commands.interfaces.Parameter;
 
 import java.time.Instant;
 
 public class UpCommand extends Command {
 
     private final long startTime;
-    private String output;
 
     public UpCommand(long startTime) {
         this.startTime = startTime;
@@ -23,13 +20,9 @@ public class UpCommand extends Command {
         long hour = t % 86400 / 3600;
         long day = t / 86400;
 
-        output = "I've been up for " + t + " seconds." + System.getProperty("line.separator");
+        String output = "I've been up for " + t + " seconds." + System.getProperty("line.separator");
         output += "That's " + day + " days, " + hour + " hours, " + min + " minutes and " + sec + " seconds.";
-    }
-
-    @Override
-    public String getOutput() {
-        return output;
+        setOutput(output);
     }
 
     @Override
@@ -41,7 +34,6 @@ public class UpCommand extends Command {
     public String toString() {
         return "UpCommand{" +
                 "startTime=" + startTime +
-                ", output='" + output + '\'' +
-                '}';
+                "} " + super.toString();
     }
 }

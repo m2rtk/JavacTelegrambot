@@ -1,12 +1,17 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.Command;
-import bot.commands.interfaces.Parameter;
 import org.telegram.telegrambots.logging.BotLogger;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
+
+
+/**
+ * This is the only Command implementation that does not use setOutput(String)
+ * This is because the static block does not allow calling an object method from inside it.
+ * I really like the static block.
+ */
 
 public class HelpCommand extends Command {
     private static final String TAG = "HelpCommand";

@@ -1,19 +1,12 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.Command;
-import bot.commands.interfaces.Parameter;
 
 public class NiceCommand extends Command {
 
     @Override
     public void execute() {
-        // nothing to do here
-    }
-
-    @Override
-    public String getOutput() {
-        return "nice";
+        setOutput("nice");
     }
 
     @Override
