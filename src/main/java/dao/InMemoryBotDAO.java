@@ -12,7 +12,6 @@ public class InMemoryBotDAO implements BotDAO {
     private Map<Long, Set<Compiled>> userClasses = new HashMap<>();
     private Map<Long, Set<Compiled>> chatClasses = new HashMap<>();
 
-
     @Override
     public void add(Compiled compiled, Long id, Privacy privacy) {
         if (compiled.getPrivacy() == null || compiled.getId() == null) compiled.setPrivacyAndId(privacy, id);

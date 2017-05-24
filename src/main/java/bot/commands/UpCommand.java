@@ -1,15 +1,17 @@
 package bot.commands;
 
 import bot.Commands;
+import bot.commands.interfaces.Command;
+import bot.commands.interfaces.Parameter;
 
 import java.time.Instant;
 
 public class UpCommand implements Command {
 
-    private final Long startTime;
+    private final long startTime;
     private String output;
 
-    public UpCommand(Long startTime) {
+    public UpCommand(long startTime) {
         this.startTime = startTime;
     }
 
@@ -26,6 +28,11 @@ public class UpCommand implements Command {
     }
 
     @Override
+    public void acceptParameter(Parameter parameterVisitor) {
+        parameterVisitor.visit(this);
+    }
+
+    @Override
     public String getOutput() {
         return output;
     }
@@ -33,5 +40,13 @@ public class UpCommand implements Command {
     @Override
     public String getName() {
         return Commands.up;
+    }
+
+    @Override
+    public String toString() {
+        return "UpCommand{" +
+                "startTime=" + startTime +
+                ", output='" + output + '\'' +
+                '}';
     }
 }

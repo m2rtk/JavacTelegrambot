@@ -1,21 +1,25 @@
 package bot.commands;
 
 import bot.Commands;
+import bot.commands.interfaces.*;
 import dao.BotDAO;
+import dao.Privacy;
+import dao.WriteToDiskBotDAO;
 
-public class DeleteCommand implements Command {
-    private final String argument;
-    private final BotDAO.Privacy privacy;
-    private final Long id;
-    private final BotDAO dao;
+import static dao.Privacy.CHAT;
+
+
+public class DeleteCommand implements Command, Private, Argument, NeedsDAO {
+    private BotDAO dao;
+    private String argument;
+    private Privacy privacy;
+    private long id;
 
     private String output;
 
-    public DeleteCommand(String argument, BotDAO.Privacy privacy, Long id, BotDAO dao) {
-        this.argument = argument;
-        this.privacy = privacy;
-        this.id = id;
-        this.dao = dao;
+    public DeleteCommand(long chatId) {
+        this.privacy = CHAT;
+        this.id = chatId;
     }
 
     @Override
@@ -27,6 +31,11 @@ public class DeleteCommand implements Command {
     }
 
     @Override
+    public void acceptParameter(Parameter parameterVisitor) {
+        parameterVisitor.visit(this);
+    }
+
+    @Override
     public String getOutput() {
         return output;
     }
@@ -35,4 +44,31 @@ public class DeleteCommand implements Command {
     public String getName() {
         return Commands.delete;
     }
+
+    @Override
+    public void setPrivacy(Privacy privacy, long id) {
+        this.privacy = privacy;
+        this.id = id;
+    }
+
+    @Override
+    public void setArgument(String argument) {
+        this.argument = argument;
+    }
+
+    @Override
+    public void setDAO(BotDAO dao) {
+        this.dao = dao;
+    }
+
+    @Override
+    public String toString() {
+        return "DeleteCommand{" +
+                "argument='" + argument + '\'' +
+                ", privacy=" + privacy +
+                ", id=" + id +
+                ", output='" + output + '\'' +
+                '}';
+    }
+
 }

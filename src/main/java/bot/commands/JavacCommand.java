@@ -1,28 +1,31 @@
 package bot.commands;
 
 import bot.Commands;
+import bot.commands.interfaces.*;
 import dao.BotDAO;
+import dao.Privacy;
+import dao.WriteToDiskBotDAO;
 import javac.Code;
 
-public class JavacCommand implements Command {
-    private final String content;
-    private final BotDAO.Privacy privacy;
-    private final Long id;
-    private final BotDAO dao;
+import static dao.Privacy.CHAT;
+
+public class JavacCommand implements Command, Argument, Private, NeedsDAO {
+    private BotDAO dao;
+    private String content;
+    private Privacy privacy;
+    private long id;
 
     private String output;
 
-    public JavacCommand(String argument, String name, BotDAO.Privacy privacy, Long id, BotDAO dao) {
-        if (name == null)
-            this.content = argument;
-        else
-            this.content = String.format("public class %s { public static void main(String[] args) {%s}}", name, argument);
-
-        this.privacy = privacy;
+    public JavacCommand(long id) {
+        this.privacy = CHAT;
         this.id = id;
-        this.dao = dao;
     }
 
+    public void wrapContentInMain(String classname) {
+        if (content == null) throw new NullPointerException("Content/argument must be set before calling this method.");
+        this.content = String.format("public class %s { public static void main(String[] args) {%s}}", classname, content);
+    }
 
     @Override
     public void execute() {
@@ -40,6 +43,11 @@ public class JavacCommand implements Command {
     }
 
     @Override
+    public void acceptParameter(Parameter parameterVisitor) {
+        parameterVisitor.visit(this);
+    }
+
+    @Override
     public String getOutput() {
         return output;
     }
@@ -47,5 +55,31 @@ public class JavacCommand implements Command {
     @Override
     public String getName() {
         return Commands.javac;
+    }
+
+    @Override
+    public void setPrivacy(Privacy privacy, long id) {
+        this.privacy = privacy;
+        this.id = id;
+    }
+
+    @Override
+    public void setArgument(String argument) {
+        this.content = argument;
+    }
+
+    @Override
+    public void setDAO(BotDAO dao) {
+        this.dao = dao;
+    }
+
+    @Override
+    public String toString() {
+        return "JavacCommand{" +
+                "content='" + content + '\'' +
+                ", privacy=" + privacy +
+                ", id=" + id +
+                ", output='" + output + '\'' +
+                '}';
     }
 }

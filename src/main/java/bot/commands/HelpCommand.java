@@ -1,15 +1,12 @@
 package bot.commands;
 
 import bot.Commands;
-import com.google.common.io.Resources;
+import bot.commands.interfaces.Command;
+import bot.commands.interfaces.Parameter;
 import org.telegram.telegrambots.logging.BotLogger;
 
-import java.io.IOException;
-import java.net.URISyntaxException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
-import java.util.List;
-import java.util.stream.Collectors;
 
 public class HelpCommand implements Command {
     private static final String TAG = "HelpCommand";
@@ -33,6 +30,11 @@ public class HelpCommand implements Command {
     }
 
     @Override
+    public void acceptParameter(Parameter parameterVisitor) {
+        parameterVisitor.visit(this);
+    }
+
+    @Override
     public String getOutput() {
         return output;
     }
@@ -40,5 +42,10 @@ public class HelpCommand implements Command {
     @Override
     public String getName() {
         return Commands.help;
+    }
+
+    @Override
+    public String toString() {
+        return "HelpCommand{}";
     }
 }

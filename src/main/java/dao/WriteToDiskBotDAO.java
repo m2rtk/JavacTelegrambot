@@ -90,7 +90,6 @@ public class WriteToDiskBotDAO implements BotDAO {
         }
         return null;
     }
-
     private Path getFilePath(String name, Long id, Privacy privacy) {
         return Paths.get(DIR + "/" + privacy + "/" + id + "/" + name + ".class");
     }

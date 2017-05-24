@@ -1,6 +1,12 @@
 package bot;
 
+import java.util.Arrays;
+import java.util.List;
+
 public class Commands {
+
+    private Commands() {}
+
     public static final char initChar = '/';
 
     public static final char paramInitChar = '-';
@@ -22,4 +28,8 @@ public class Commands {
     public static final String privacyParam = paramInitChar + "p";
 
     public static final String mainParam = paramInitChar + "m";
+
+    public static final List<String> allCommands   = Arrays.asList(help, nice, java, javac, list, delete, up);
+
+    public static final List<String> allParameters = Arrays.asList(privacyParam, mainParam);
 }
