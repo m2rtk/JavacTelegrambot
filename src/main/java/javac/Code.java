@@ -1,9 +1,10 @@
 package javac;
 
+import dao.Privacy;
+
 import java.io.IOException;
 import java.util.concurrent.*;
 
-import static dao.BotDAO.Privacy;
 
 public class Code {
     private String source;

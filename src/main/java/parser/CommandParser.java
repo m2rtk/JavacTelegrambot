@@ -1,51 +1,59 @@
 package parser;
 
-import java.util.*;
+import bot.Commands;
+import bot.commands.Command;
+import bot.commands.JavaCommand;
+import bot.commands.interfaces.Argument;
+import bot.commands.parameters.Parameter;
 
-import static bot.Commands.*;
+import java.util.HashMap;
+import java.util.Map;
 
-/**
- *   /COMMAND( PARAMETER (ARGUMENT)?)? ARGUMENT?
- * /\/[a-zA-Z]+( -[a-zA-Z]( [a-zA-Z]+)?) [a-zA-Z]+?/g
- */
+import static bot.Commands.initChar;
+import static bot.Commands.paramInitChar;
+
 public class CommandParser {
-    private final static String TERMINATOR = "\0";
-    private List<String> input;
-    private int pos;
+    private String input;
     private State state;
-    private boolean needsNext, needsArgument;
+    private boolean needsNext, parseCalled;
 
-    private Token.CommandToken command;
-    private Map<String, Token.ParameterToken> parameters;
+    //output
+    private Command command;
+    private Map<String, Parameter> parameters;
 
-    private Token lastParam;
+    private Argument lastParameter;
 
     private enum State {
-        START, FREE, PARG
+        START, FREE, ARG
     }
 
     public CommandParser(String input) {
-        this.input = new ArrayList<>();
-        this.input.addAll(Arrays.asList(input.split("\\s+")));
-        this.input.add(TERMINATOR);
-
-        this.pos = 0;
+        this.input = input;
         this.state = State.START;
 
         this.needsNext = true;
-        this.needsArgument = false;
+        this.parseCalled = false;
 
         this.parameters = new HashMap<>();
     }
 
+    private String nextToken() {
+        String token;
+
+        String[] pieces = input.split("\\s+", 2);
+
+        token = pieces[0];
+        if (pieces.length > 1) input = pieces[1];
+        else input = "";
+
+        return token.trim();
+    }
+
     public void parse() {
+        parseCalled = true;
         String token;
         while (needsNext) {
-            if (pos >= input.size())
-                throw new ParserException("Ran out of input while parsing.");
-
-            token = input.get(pos++);
-
+            token = nextToken();
             switch (state) {
                 case START:
                     handleStart(token);
@@ -53,16 +61,21 @@ public class CommandParser {
                 case FREE:
                     handleFree(token);
                     break;
-                case PARG:
-                    handlePArg(token);
+                case ARG:
+                    handleArg(token);
                     break;
+                default:
+                    throw new RuntimeException("Invalid state. Not possible. I hope.");
             }
         }
-        if (needsArgument) throw new ParserException("Expected argument for command.");
+
+        if (command instanceof Argument)
+            if (!((Argument) command).hasArgument())
+                throw new ParserException("Expected argument for command. Reached end of input.");
     }
 
     private void handleStart(String token) {
-        if (token.equals(TERMINATOR))
+        if (token.isEmpty())
             throw new ParserException("Expected command. Reached end of input.");
 
         if (token.charAt(0) != initChar)
@@ -70,77 +83,75 @@ public class CommandParser {
 
         token = token.replace("@BotMcBotfaceBot", ""); //todo write tests for this
 
-        switch (token) {
-            case up:
-            case help:
-            case nice:
-                needsNext = false;
-                break;
-            case delete:
-            case javac:
-            case java:
-                needsArgument = true;
-            case list:
-                state = State.FREE;
-                break;
-            default:
-                throw new ParserException("Unknown command " + token);
+        if (Commands.allCommands.containsKey(token)) {
+            this.command = (Command) construct(Commands.allCommands.get(token));
+            this.state = State.FREE;
+        } else {
+            // unknown command, lets assume its a special case of /java
+            this.command = new JavaCommand();
+            end(token.substring(1));
         }
-
-        command = Token.command(token);
     }
 
     private void handleFree(String token) {
-        if (token.equals(TERMINATOR)) {
+        if (token.isEmpty()) {
             needsNext = false;
             return;
         }
 
-        if (token.charAt(0) == paramInitChar) {
-            switch (token) {
-                case mainParam:
-                    state = State.PARG;
-                case privacyParam:
-                    break;
-                default:
-                    throw new ParserException("Unknown parameter " + token);
+        if (Commands.allParameters.keySet().contains(token)) {
+            Parameter parameter = (Parameter) construct(Commands.allParameters.get(token));
+
+            if (parameter instanceof Argument) {
+                this.state = State.ARG;
+                this.lastParameter = (Argument) parameter;
             }
-            Token.ParameterToken param = Token.parameter(token);
-            lastParam = param;
-            parameters.put(token, param);
-        } else { // if not parameter, then argument for command
-            if (needsArgument) {
-                String remaining = readRemaining(token);
-                command.setArgument(remaining);
-                needsArgument = false;
-            }
-            needsNext = false;
+
+            this.parameters.put(token, parameter);
+        } else { // not a parameter -> must be command argument
+           end(token);
         }
     }
 
-    private void handlePArg(String token) {
-        if (token.equals(TERMINATOR))
+    private void handleArg(String token) {
+        if (token.isEmpty())
             throw new ParserException("Expected parameter argument. Reached end of input.");
 
-        if (token.charAt(0) == paramInitChar) //todo ponder on the necessity of this
+        if (token.charAt(0) == paramInitChar)
             throw new ParserException("Expected parameter argument. Got parameter " + token);
 
-        lastParam.setArgument(token);
-        state = State.FREE;
+        this.lastParameter.setArgument(token);
+        this.state = State.FREE;
     }
 
-    private String readRemaining(String token) {
-        StringBuilder sb = new StringBuilder();
-        sb.append(token).append(" ");
-        while (pos < input.size()) sb.append(input.get(pos++)).append(" ");
-        return sb.toString().trim();
+    /**
+     * Ends the parsing.
+     * If command needs argument, sets token + remaining input as argument.
+     * @param token current token.
+     */
+    private void end(String token) {
+        if (command instanceof Argument) {
+            if (input.trim().isEmpty()) ((Argument) command).setArgument(token);
+            else ((Argument) command).setArgument(token + " " + input.trim());
+        }
+        needsNext = false;
     }
 
-    public Token.CommandToken getCommand() {
+    private static Object construct(Class c) {
+        try {
+            return c.getConstructors()[0].newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Cant cast parameter " + e);
+        }
+    }
+
+    public Command getCommand() {
+        if (!parseCalled) throw new RuntimeException("Parse must be called before this method.");
         return command;
     }
 
-    public Map<String, Token.ParameterToken> getParameters() {
+    public Map<String, Parameter> getParameters() {
+        if (!parseCalled) throw new RuntimeException("Parse must be called before this method.");
         return parameters;
     }
 }

@@ -1,35 +1,43 @@
 package bot.commands;
 
+import bot.Commands;
+import bot.commands.interfaces.IllegalExecutionException;
+import bot.commands.interfaces.StartTime;
+
 import java.time.Instant;
 
-public class UpCommand implements Command {
+public class UpCommand extends Command implements StartTime {
 
-    private final Long startTime;
-    private String output;
+    private Long startTime;
 
-    public UpCommand(Long startTime) {
+    @Override
+    public void setStartTime(Long startTime) {
         this.startTime = startTime;
     }
 
     @Override
     public void execute() {
+        if (startTime == null) throw new IllegalExecutionException();
         long t = Instant.now().getEpochSecond() - startTime;
         long sec = t % 60;
         long min = t % 3600 / 60;
         long hour = t % 86400 / 3600;
         long day = t / 86400;
 
-        output = "I've been up for " + t + " seconds." + System.getProperty("line.separator");
+        String output = "I've been up for " + t + " seconds." + System.getProperty("line.separator");
         output += "That's " + day + " days, " + hour + " hours, " + min + " minutes and " + sec + " seconds.";
-    }
-
-    @Override
-    public String getOutput() {
-        return output;
+        setOutput(output);
     }
 
     @Override
     public String getName() {
-        return "up";
+        return Commands.up;
+    }
+
+    @Override
+    public String toString() {
+        return "UpCommand{" +
+                "startTime=" + startTime +
+                "} ";
     }
 }

@@ -1,19 +1,21 @@
 package bot.commands;
 
-public class NiceCommand implements Command {
+import bot.Commands;
+
+public class NiceCommand extends Command {
 
     @Override
     public void execute() {
-        // nothing to do here
-    }
-
-    @Override
-    public String getOutput() {
-        return "nice";
+        setOutput("nice");
     }
 
     @Override
     public String getName() {
-        return "nice";
+        return Commands.nice;
+    }
+
+    @Override
+    public String toString() {
+        return "NiceCommand{}";
     }
 }

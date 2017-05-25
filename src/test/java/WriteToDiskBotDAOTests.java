@@ -1,5 +1,5 @@
-import com.fasterxml.jackson.databind.util.ArrayIterator;
 import dao.BotDAO;
+import dao.Privacy;
 import dao.WriteToDiskBotDAO;
 import javac.Compiled;
 import org.junit.After;
@@ -10,11 +10,13 @@ import java.io.IOException;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.*;
+import java.util.Arrays;
+import java.util.HashMap;
+import java.util.Map;
+import java.util.Set;
 
-import static dao.BotDAO.Privacy;
-import static dao.BotDAO.Privacy.CHAT;
-import static dao.BotDAO.Privacy.USER;
+import static dao.Privacy.CHAT;
+import static dao.Privacy.USER;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 

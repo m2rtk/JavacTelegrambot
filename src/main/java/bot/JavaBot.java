@@ -1,10 +1,12 @@
 package bot;
 
-import bot.commands.*;
+import bot.commands.Command;
+import bot.commands.interfaces.NeedsDAO;
+import bot.commands.interfaces.StartTime;
+import bot.commands.parameters.Parameter;
+import bot.commands.parameters.PrivacyParameter;
 import dao.BotDAO;
 import dao.WriteToDiskBotDAO;
-import javac.Code;
-import javac.Compiled;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -12,48 +14,22 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 import parser.CommandParser;
 import parser.ParserException;
-import parser.Token;
 
-import java.io.IOException;
-import java.nio.file.Files;
-import java.nio.file.Paths;
 import java.time.Instant;
-import java.util.*;
-import java.util.stream.Collectors;
+import java.util.Map;
 
-import static dao.BotDAO.Privacy;
-import static dao.BotDAO.Privacy.CHAT;
-import static dao.BotDAO.Privacy.USER;
+import static dao.Privacy.CHAT;
+import static dao.Privacy.USER;
 
 public class JavaBot extends TelegramLongPollingBot {
     private static final String TAG = "JAVABOT";
 
-    // Non-final for testing purposes.
     private static BotDAO dao = new WriteToDiskBotDAO();
 
     private final long startTime;
     public JavaBot() {
         startTime = Instant.now().getEpochSecond();
-
-        Thread consoleInputThread = new Thread(() -> {
-            try (Scanner scanner = new Scanner(System.in)) {
-                while (true) {
-                    String reply = scanner.nextLine();
-                    String[] pieces = reply.split(" ");
-                    if (pieces.length > 2 && pieces[0].equals("send")) {
-                        try {
-                            Long chatId = Long.parseLong(pieces[1]);
-                            StringBuilder sb = new StringBuilder();
-                            for (int i = 2; i < pieces.length; i++) sb.append(pieces[i]).append(" ");
-                            sendMessage(sb.toString(), chatId);
-                        } catch (Exception e) {
-                            e.printStackTrace();
-                        }
-                    }
-                }
-            }
-        });
-        consoleInputThread.start();
+        new DirectInputThread(this).start();
     }
 
     @Override
@@ -75,7 +51,9 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 Command command = getCommand(update);
+                System.out.println(command);
                 command.execute();
+                System.out.println(command);
                 BotLogger.info(TAG, "Executed command " + command.getName()
                         + " in chat " + chat
                         + " with output " + command.getOutput()
@@ -90,38 +68,28 @@ public class JavaBot extends TelegramLongPollingBot {
     private Command getCommand(Update update) {
         CommandParser parser = new CommandParser(update.getMessage().getText());
         parser.parse();
-        String command = parser.getCommand().getValue();
 
+        long chatId = update.getMessage().getChatId();
+        long userId = update.getMessage().getFrom().getId();
 
-        if (command.equals(Commands.help))  return new HelpCommand();
-        if (command.equals(Commands.nice))  return new NiceCommand();
-        if (command.equals(Commands.up))    return new UpCommand(startTime);
+        Command command = parser.getCommand();
+        Map<String, Parameter> parameters = parser.getParameters();
 
-        // the following commands make use of parameters
-        Map<String, Token.ParameterToken> parameters = parser.getParameters();
+        if (parameters.containsKey(Commands.privacyParameter))
+            ((PrivacyParameter) parameters.get(Commands.privacyParameter)).setPrivacy(USER, userId);
+        else
+            parameters.put(Commands.privacyParameter, new PrivacyParameter().set(CHAT, chatId));
 
-        Privacy privacy = parameters.containsKey(Commands.privacyParam) ? USER : CHAT;
-        Long id = privacy == CHAT ? update.getMessage().getChatId() : new Long(update.getMessage().getFrom().getId());
+        parameters.values().forEach(command::acceptParameter);
 
-        if (command.equals(Commands.list))   return new ListCommand(privacy, id, dao);
+        if (command instanceof NeedsDAO)  ((NeedsDAO)  command).setDAO(dao);
+        if (command instanceof StartTime) ((StartTime) command).setStartTime(startTime);
 
-        // the following commands take arguments
-        String argument = parser.getCommand().getArgument();
-
-        if (command.equals(Commands.delete)) return new DeleteCommand(argument, privacy, id, dao);
-        if (command.equals(Commands.java))   return new JavaCommand(argument, privacy, id, dao);
-
-        // javac can make use of -m parameter
-        String name = null;
-        if (parameters.containsKey(Commands.mainParam)) name = parameters.get(Commands.mainParam).getArgument();
-
-        if (command.equals(Commands.javac))  return new JavacCommand(argument, name, privacy, id, dao);
-
-        throw new RuntimeException();
+        return command;
     }
 
-    private void sendMessage(String message, Long chatId) {
-        BotLogger.info(TAG, "Sending message '" + message + "' to chat: " + chatId);
+    public void sendMessage(String message, Long chatId) {
+        BotLogger.info(TAG, "Sending message \n" + message + "\nto chat: " + chatId);
         try {
             SendMessage sendMessage = new SendMessage();
             sendMessage.setChatId(chatId);

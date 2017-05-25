@@ -4,7 +4,7 @@ import javac.Compiled;
 import java.util.Set;
 
 /**
- * Created on 4.04.2017.
+ * todo replace this with a static write to disk class. Maybe
  */
 public interface BotDAO {
 
@@ -19,8 +19,4 @@ public interface BotDAO {
     Set<Compiled> getAll(Long id, Privacy privacy);
 
     Compiled get(String name, Long id, Privacy privacy);
-
-    enum Privacy {
-        CHAT, USER
-    }
 }

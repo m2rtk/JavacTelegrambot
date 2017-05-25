@@ -1,5 +1,6 @@
 import bot.JavaBot;
 import dao.BotDAO;
+import dao.Privacy;
 import javac.Compiled;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,9 +16,8 @@ import java.util.logging.FileHandler;
 import java.util.logging.Handler;
 import java.util.logging.SimpleFormatter;
 
-import static dao.BotDAO.Privacy;
-import static dao.BotDAO.Privacy.CHAT;
-import static dao.BotDAO.Privacy.USER;
+import static dao.Privacy.CHAT;
+import static dao.Privacy.USER;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
@@ -30,12 +30,26 @@ public class BotTests {
     private static final String TEST_LOG = "test.log";
     private static BotDAO dao;
 
+    private static Compiled c1;
+    private static Compiled c2;
+    private static Compiled c3;
+    private static Compiled c4;
+
+            static  {
+                try {
+                    c1 = new Compiled(Utils.readOut("Test"), "Test");
+                    c2 = new Compiled(Utils.readOut("Sum"), "Sum");
+                    c3 = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
+                    c4 = new Compiled(Utils.readOut("M8"), "M8");
+                } catch (Exception ignored) {}
+            }
+
     @Before
     public void init() throws Exception {
-        dao = Utils.changeDAO(bot);
-        byte[] bytecode = Utils.readOut("Test");
-        dao.add(new Compiled(bytecode, "Test"), USER_2, USER);
-        dao.add(new Compiled(bytecode, "Test"), CHAT_2, CHAT);
+        dao = Utils.changeDAO(bot); // change dao to InMemoryBotDAO
+        dao.add(c1, USER_2, USER);
+        dao.add(c1, CHAT_2, CHAT);
+
         Handler handler = new FileHandler(TEST_LOG);
         handler.setFormatter(new SimpleFormatter());
         BotLogger.registerLogger(handler);
@@ -49,9 +63,9 @@ public class BotTests {
         Update mockUpdate = mock(Update.class);
         when(mockUpdate.getMessage()).thenReturn(mockMessage);
         mockBot.onUpdateReceived(mockUpdate);
-        verify(mockBot, times(1)).onUpdateReceived(mockUpdate);
+        verify(mockBot, times(1)).onUpdateReceived(mockUpdate);// this is stupid
     }
-
+    
     @Test
     public void javacNoParamsTest1() throws Exception {
         javacNoParamsTest("M8");
@@ -89,6 +103,20 @@ public class BotTests {
     public void javacWith_m_p_ParamsWorldTest() throws Exception {
         String name = "HelloWorld";
         String content = "/javac -m HelloWorld -p System.out.println(\"Hello World!\");";
+
+        Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);
+        bot.onUpdateReceived(update);
+
+        assertTrue(dao.contains(name, USER_1, USER));
+    }
+
+    @Test
+    public void javacWith_m_p_ParamsWorldTestLonger() throws Exception {
+        String name = "HelloWorld";
+        String content = "/javac -m HelloWorld -p " +
+                "System.out.println(\"Hello World!\"); " +
+                "System.out.println(\"Hello World!2\");" +
+                "for (int i = 0; i < 10; i++) System.out.println(i);";
 
         Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);
         bot.onUpdateReceived(update);
@@ -166,7 +194,7 @@ public class BotTests {
         setCorrectTestClasspaths();
         bot.onUpdateReceived(update);
 
-        String expectedOutput = "Executed command java in chat " + chat + " with output " + output;
+        String expectedOutput = "Executed command /java in chat " + chat + " with output " + output;
 
         testLogContains(expectedOutput);
     }
@@ -181,8 +209,6 @@ public class BotTests {
         assertTrue(Arrays.equals(targetByteCode, (dao.get(sourceName, CHAT_1, CHAT).getByteCode())));
     }
 
-    // I feel that this is a bad way of doing things but it is what it is
-    // TODO: 14.04.2017 find a better solution to do this
     private void testLogContains(String expected) throws Exception {
         List<String> lines = Files.readAllLines(Paths.get(TEST_LOG));
         boolean passed = false;

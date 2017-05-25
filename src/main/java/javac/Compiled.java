@@ -1,10 +1,11 @@
 package javac;
 
+import dao.Privacy;
+
 import java.io.IOException;
 import java.util.Arrays;
 import java.util.concurrent.*;
 
-import static dao.BotDAO.Privacy;
 
 public class Compiled {
     private String name;
@@ -69,6 +70,7 @@ public class Compiled {
             System.arraycopy(args, 0, completeArgs, 2, args.length);
         }
 
+        System.out.println(String.join(" ", (Arrays.asList(completeArgs))));
         pb.command(completeArgs);
         pb.redirectErrorStream(true);
         String out = null;
@@ -119,5 +121,15 @@ public class Compiled {
             throw new NullPointerException("Privacy and id should not be null at this point.");
 
         setClassPath("cache/" + privacy + "/" + id);
+    }
+
+    @Override
+    public String toString() {
+        return "Compiled{" +
+                "name='" + name + '\'' +
+                ", privacy=" + privacy +
+                ", id=" + id +
+                ", classPath='" + classPath + '\'' +
+                '}';
     }
 }

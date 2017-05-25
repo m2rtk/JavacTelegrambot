@@ -1,6 +1,11 @@
 package bot.commands;
 
+import bot.Commands;
+import bot.commands.interfaces.IllegalExecutionException;
+import bot.commands.interfaces.NeedsDAO;
+import bot.commands.interfaces.Private;
 import dao.BotDAO;
+import dao.Privacy;
 import javac.Compiled;
 
 import java.util.ArrayList;
@@ -8,27 +13,19 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
-import static dao.BotDAO.Privacy;
+import static dao.Privacy.CHAT;
 
 /**
  * Created on 18.05.2017.
  */
-public class ListCommand implements Command {
-
-    private Privacy privacy;
+public class ListCommand extends Command implements Private, NeedsDAO {
     private BotDAO dao;
+    private Privacy privacy;
     private Long id;
-
-    private String output;
-
-    public ListCommand(Privacy privacy, Long id, BotDAO dao) {
-        this.privacy = privacy;
-        this.id = id;
-        this.dao = dao;
-    }
 
     @Override
     public void execute() {
+        if (dao == null || privacy == null || id == null) throw new IllegalExecutionException();
         StringBuilder sb = new StringBuilder();
         List<String> names = new ArrayList<>();
 
@@ -42,16 +39,48 @@ public class ListCommand implements Command {
         sb.append("List: ").append(System.getProperty("line.separator"));
         for (String name : names) sb.append(name).append(System.getProperty("line.separator"));
 
-        output = sb.toString();
-    }
-
-    @Override
-    public String getOutput() {
-        return output;
+        setOutput(sb.toString());
     }
 
     @Override
     public String getName() {
-        return "list";
+        return Commands.list;
+    }
+
+    @Override
+    public void setPrivacy(Privacy privacy, Long id) {
+        this.privacy = privacy;
+        this.id = id;
+    }
+
+    @Override
+    public void setDAO(BotDAO dao) {
+        this.dao = dao;
+    }
+
+    @Override
+    public String toString() {
+        return "ListCommand{" +
+                "dao=" + dao +
+                ", privacy=" + privacy +
+                ", id=" + id +
+                "} ";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof ListCommand)) return false;
+        return  ((((ListCommand) obj).dao       == null && this.dao       == null)  || (((ListCommand) obj).dao.equals(this.dao))) &&
+                ((((ListCommand) obj).id        == null && this.id        == null)  || (((ListCommand) obj).id.equals(this.id))) &&
+                ((((ListCommand) obj).privacy   == null && this.privacy   == null)  || (((ListCommand) obj).privacy.equals(this.privacy)));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 11;
+        result = 31 * result + (this.dao       == null ? 0 : this.dao.hashCode()); //dao - as I ever really use 2 different instances of dao, this should be okList     result = 31 * result + (this.id        == null ? 0 : Long.hashCode(this.id)); //id
+        result = 31 * result + (this.privacy   == null ? 0 : (this.privacy.equals(CHAT) ? 1 : 0)); //privacy
+        return result;
     }
 }

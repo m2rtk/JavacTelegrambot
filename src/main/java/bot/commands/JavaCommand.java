@@ -1,48 +1,98 @@
 package bot.commands;
 
+import bot.Commands;
+import bot.commands.interfaces.Argument;
+import bot.commands.interfaces.IllegalExecutionException;
+import bot.commands.interfaces.NeedsDAO;
+import bot.commands.interfaces.Private;
 import dao.BotDAO;
+import dao.Privacy;
 import javac.Compiled;
 
-public class JavaCommand implements Command {
-    private final String className;
-    private final String[] args;
-    private final BotDAO.Privacy privacy;
-    private final Long id;
-    private final BotDAO dao;
+import java.util.Arrays;
 
-    private String output;
+import static dao.Privacy.CHAT;
 
-    public JavaCommand(String argument, BotDAO.Privacy privacy, Long id, BotDAO dao) {
-        String[] pieces = argument.split(" ");
-        this.className = pieces[0];
-        this.args = new String[pieces.length - 1];
-        System.arraycopy(pieces, 1, this.args, 0, pieces.length - 1);
-        this.privacy = privacy;
-        this.id = id;
-        this.dao = dao;
-    }
+public class JavaCommand extends Command implements Argument, Private, NeedsDAO {
+    private BotDAO dao;
+    private String className;
+    private String[] args;
+    private Privacy privacy;
+    private Long id;
 
     @Override
     public void execute() {
+        if (args == null || id == null || privacy == null || dao == null || className == null) throw new IllegalExecutionException();
         Compiled compiled = dao.get(className, id, privacy);
 
         if (compiled == null) {
-            output = "Database doesn't contain script named '" + className + "'";
+            setOutput("Database doesn't contain script named '" + className + "'");
             return;
         }
 
         compiled.run(args);
 
-        output = compiled.getOut();
-    }
-
-    @Override
-    public String getOutput() {
-        return output;
+        setOutput(compiled.getOut());
     }
 
     @Override
     public String getName() {
-        return "java";
+        return Commands.java;
+    }
+
+    @Override
+    public void setPrivacy(Privacy privacy, Long id) {
+        this.privacy = privacy;
+        this.id = id;
+    }
+
+    @Override
+    public void setArgument(String argument) {
+        String[] pieces = argument.split(" ");
+        this.className = pieces[0];
+        this.args = new String[pieces.length - 1];
+        System.arraycopy(pieces, 1, this.args, 0, pieces.length - 1);
+    }
+
+    @Override
+    public boolean hasArgument() {
+        return this.className != null && this.args != null;
+    }
+
+    @Override
+    public void setDAO(BotDAO dao) {
+        this.dao = dao;
+    }
+
+    @Override
+    public String toString() {
+        return "JavaCommand{" +
+                "className='" + className + '\'' +
+                ", args=" + Arrays.toString(args) +
+                ", privacy=" + privacy +
+                ", id=" + id +
+                '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof JavaCommand)) return false;
+        return  ((((JavaCommand) obj).dao       == null && this.dao       == null)  || (((JavaCommand) obj).dao.equals(this.dao))) &&
+                ((((JavaCommand) obj).className == null && this.className == null)  || (((JavaCommand) obj).className.equals(this.className))) &&
+                ((((JavaCommand) obj).args      == null && this.args      == null)  || (Arrays.equals(((JavaCommand) obj).args, this.args))) &&
+                ((((JavaCommand) obj).id        == null && this.id        == null)  || (((JavaCommand) obj).id.equals(this.id))) &&
+                ((((JavaCommand) obj).privacy   == null && this.privacy   == null)  || (((JavaCommand) obj).privacy.equals(this.privacy)));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 11;
+        result = 31 * result + (this.dao       == null ? 0 : this.dao.hashCode()); //dao - as I ever really use 2 different instances of dao, this should be ok
+        result = 31 * result + (this.className == null ? 0 : this.className.hashCode()); //className
+        result = 31 * result + (this.args      == null ? 0 : Arrays.hashCode(this.args)); //args
+        result = 31 * result + (this.id        == null ? 0 : Long.hashCode(this.id)); //id
+        result = 31 * result + (this.privacy   == null ? 0 : (this.privacy.equals(CHAT) ? 1 : 0)); //privacy
+        return result;
     }
 }
