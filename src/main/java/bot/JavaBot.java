@@ -1,16 +1,11 @@
 package bot;
 
-import bot.commands.*;
-import bot.commands.interfaces.Argument;
 import bot.commands.Command;
 import bot.commands.interfaces.NeedsDAO;
-import bot.commands.interfaces.Private;
 import bot.commands.interfaces.StartTime;
-import bot.commands.parameters.MainParameter;
 import bot.commands.parameters.Parameter;
 import bot.commands.parameters.PrivacyParameter;
 import dao.BotDAO;
-import dao.Privacy;
 import dao.WriteToDiskBotDAO;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -19,11 +14,9 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 import parser.CommandParser;
 import parser.ParserException;
-import parser.data.ParameterToken;
 
 import java.time.Instant;
 import java.util.Map;
-import java.util.Set;
 
 import static dao.Privacy.CHAT;
 import static dao.Privacy.USER;

@@ -6,7 +6,6 @@ import bot.commands.interfaces.Private;
 import dao.Privacy;
 
 import static dao.Privacy.CHAT;
-import static dao.Privacy.USER;
 
 public class PrivacyParameter extends Parameter implements Private {
     private Long id;

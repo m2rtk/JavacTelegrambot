@@ -1,7 +1,10 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.*;
+import bot.commands.interfaces.Argument;
+import bot.commands.interfaces.IllegalExecutionException;
+import bot.commands.interfaces.NeedsDAO;
+import bot.commands.interfaces.Private;
 import dao.BotDAO;
 import dao.Privacy;
 import javac.Compiled;
