@@ -80,7 +80,7 @@ public class JavaBot extends TelegramLongPollingBot {
         else
             parameters.put(Commands.privacyParameter, new PrivacyParameter().set(CHAT, chatId));
 
-        for (Parameter parameter : parameters.values()) command.acceptParameter(parameter);
+        parameters.values().forEach(command::acceptParameter);
 
         if (command instanceof NeedsDAO)  ((NeedsDAO)  command).setDAO(dao);
         if (command instanceof StartTime) ((StartTime) command).setStartTime(startTime);

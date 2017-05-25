@@ -70,6 +70,7 @@ public class Compiled {
             System.arraycopy(args, 0, completeArgs, 2, args.length);
         }
 
+        System.out.println(String.join(" ", (Arrays.asList(completeArgs))));
         pb.command(completeArgs);
         pb.redirectErrorStream(true);
         String out = null;

@@ -84,11 +84,10 @@ public class CommandParser {
         token = token.replace("@BotMcBotfaceBot", ""); //todo write tests for this
 
         if (Commands.allCommands.containsKey(token)) {
-            this.command = castCommand(Commands.allCommands.get(token));
+            this.command = (Command) construct(Commands.allCommands.get(token));
             this.state = State.FREE;
         } else {
             // unknown command, lets assume its a special case of /java
-            // command to JavaCommand and add token + rest of input as argument.
             this.command = new JavaCommand();
             end(token.substring(1));
         }
@@ -101,7 +100,7 @@ public class CommandParser {
         }
 
         if (Commands.allParameters.keySet().contains(token)) {
-            Parameter parameter = castParameter(Commands.allParameters.get(token));
+            Parameter parameter = (Parameter) construct(Commands.allParameters.get(token));
 
             if (parameter instanceof Argument) {
                 this.state = State.ARG;
@@ -125,6 +124,11 @@ public class CommandParser {
         this.state = State.FREE;
     }
 
+    /**
+     * Ends the parsing.
+     * If command needs argument, sets token + remaining input as argument.
+     * @param token current token.
+     */
     private void end(String token) {
         if (command instanceof Argument) {
             if (input.trim().isEmpty()) ((Argument) command).setArgument(token);
@@ -133,17 +137,9 @@ public class CommandParser {
         needsNext = false;
     }
 
-    private static Command castCommand(Class commandClass) {
+    private static Object construct(Class c) {
         try {
-            return (Command) commandClass.getConstructors()[0].newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Cant cast command " + e);
-        }
-    }
-
-    private static Parameter castParameter(Class parameterClass) {
-        try {
-            return (Parameter) parameterClass.getConstructors()[0].newInstance();
+            return c.getConstructors()[0].newInstance();
         } catch (Exception e) {
             throw new RuntimeException("Cant cast parameter " + e);
         }

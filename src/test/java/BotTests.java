@@ -30,12 +30,26 @@ public class BotTests {
     private static final String TEST_LOG = "test.log";
     private static BotDAO dao;
 
+    private static Compiled c1;
+    private static Compiled c2;
+    private static Compiled c3;
+    private static Compiled c4;
+
+            static  {
+                try {
+                    c1 = new Compiled(Utils.readOut("Test"), "Test");
+                    c2 = new Compiled(Utils.readOut("Sum"), "Sum");
+                    c3 = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
+                    c4 = new Compiled(Utils.readOut("M8"), "M8");
+                } catch (Exception ignored) {}
+            }
+
     @Before
     public void init() throws Exception {
-        dao = Utils.changeDAO(bot);
-        byte[] bytecode = Utils.readOut("Test");
-        dao.add(new Compiled(bytecode, "Test"), USER_2, USER);
-        dao.add(new Compiled(bytecode, "Test"), CHAT_2, CHAT);
+        dao = Utils.changeDAO(bot); // change dao to InMemoryBotDAO
+        dao.add(c1, USER_2, USER);
+        dao.add(c1, CHAT_2, CHAT);
+
         Handler handler = new FileHandler(TEST_LOG);
         handler.setFormatter(new SimpleFormatter());
         BotLogger.registerLogger(handler);
@@ -195,8 +209,6 @@ public class BotTests {
         assertTrue(Arrays.equals(targetByteCode, (dao.get(sourceName, CHAT_1, CHAT).getByteCode())));
     }
 
-    // I feel that this is a bad way of doing things but it is what it is
-    // TODO: 14.04.2017 find a better solution to do this
     private void testLogContains(String expected) throws Exception {
         List<String> lines = Files.readAllLines(Paths.get(TEST_LOG));
         boolean passed = false;
