@@ -18,5 +18,4 @@ public class Main {
             BotLogger.error(TAG, e);
         }
     }
-
 }

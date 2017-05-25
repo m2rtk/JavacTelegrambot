@@ -4,9 +4,13 @@ import bot.commands.*;
 import bot.commands.interfaces.Argument;
 import bot.commands.Command;
 import bot.commands.interfaces.NeedsDAO;
+import bot.commands.interfaces.Private;
+import bot.commands.interfaces.StartTime;
 import bot.commands.parameters.MainParameter;
+import bot.commands.parameters.Parameter;
 import bot.commands.parameters.PrivacyParameter;
 import dao.BotDAO;
+import dao.Privacy;
 import dao.WriteToDiskBotDAO;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -19,6 +23,10 @@ import parser.data.ParameterToken;
 
 import java.time.Instant;
 import java.util.Map;
+import java.util.Set;
+
+import static dao.Privacy.CHAT;
+import static dao.Privacy.USER;
 
 public class JavaBot extends TelegramLongPollingBot {
     private static final String TAG = "JAVABOT";
@@ -68,52 +76,21 @@ public class JavaBot extends TelegramLongPollingBot {
         CommandParser parser = new CommandParser(update.getMessage().getText());
         parser.parse();
 
-        Map<String, ParameterToken> parameters = parser.getParameters();
         long chatId = update.getMessage().getChatId();
+        long userId = update.getMessage().getFrom().getId();
 
-        Command command = null;
+        Command command = parser.getCommand();
+        Map<String, Parameter> parameters = parser.getParameters();
 
-        switch (parser.getCommand().getValue()) {
-            case Commands.help:
-                command = new HelpCommand();
-                break;
-            case Commands.nice:
-                command = new NiceCommand();
-                break;
-            case Commands.up:
-                command = new UpCommand(startTime);
-                break;
-            case Commands.list:
-                command = new ListCommand(chatId);
-                break;
-            case Commands.delete:
-                command = new DeleteCommand(chatId);
-                break;
-            case Commands.java:
-                command = new JavaCommand(chatId);
-                break;
-            case Commands.javac:
-                command = new JavacCommand(chatId);
-                break;
-        }
+        if (parameters.containsKey(Commands.privacyParameter))
+            ((PrivacyParameter) parameters.get(Commands.privacyParameter)).setPrivacy(USER, userId);
+        else
+            parameters.put(Commands.privacyParameter, new PrivacyParameter().set(CHAT, chatId));
 
-        assert command != null;
+        for (Parameter parameter : parameters.values()) command.acceptParameter(parameter);
 
-        if (command instanceof NeedsDAO)
-            ((NeedsDAO) command).setDAO(dao);
-
-
-        if (command instanceof Argument)
-            ((Argument) command).setArgument(parser.getCommand().getArgument());
-
-
-        if (parameters.containsKey(Commands.privacyParam))
-            command.acceptParameter(new PrivacyParameter(update.getMessage().getFrom().getId()));
-
-
-        if (parameters.containsKey(Commands.mainParam))
-            command.acceptParameter(new MainParameter().set(parameters.get(Commands.mainParam).getArgument()));
-
+        if (command instanceof NeedsDAO)  ((NeedsDAO)  command).setDAO(dao);
+        if (command instanceof StartTime) ((StartTime) command).setStartTime(startTime);
 
         return command;
     }

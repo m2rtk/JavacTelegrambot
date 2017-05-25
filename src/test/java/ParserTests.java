@@ -1,186 +1,232 @@
-import parser.CommandParser;
+import bot.commands.*;
+import bot.commands.interfaces.Argument;
+import bot.commands.parameters.MainParameter;
+import bot.commands.parameters.Parameter;
+import bot.commands.parameters.PrivacyParameter;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.ExpectedException;
+import parser.CommandParser;
 import parser.ParserException;
-import parser.data.ParameterToken;
-import parser.data.Token;
 
-import java.util.Map;
+import java.util.Collections;
+import java.util.HashSet;
+import java.util.Set;
 
+import static bot.Commands.initChar;
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
 
-/**
- * Created on 18.05.2017.
- */
 public class ParserTests {
 
-    @Test(expected = ParserException.class, timeout = 500)
-    public void invalidCommandTest() {
-        test("/unknown", null);
-    }
+    @Rule
+    public ExpectedException thrown = ExpectedException.none();
 
-    @Test(expected = ParserException.class, timeout = 500)
-    public void unknownCommandTest() {
-        test("java", null);
-    }
-
-    @Test(expected = ParserException.class, timeout = 500)
-    public void noParamArgumentTest() {
-        test("/java -m", null);
-    }
-
-    @Test(expected = ParserException.class, timeout = 500)
-    public void noParamArgumentTest2() {
-        test("/java -m -p", null);
-    }
-
-    @Test(expected = ParserException.class, timeout = 500)
-    public void unknownParamTest() {
-        test("/java -s", null);
-    }
-
-    @Test(expected = ParserException.class, timeout = 500)
-    public void unknownParamTest2() {
-        test("/java -s Shit", null);
-    }
-
-    @Test(expected = ParserException.class, timeout = 500)
+    @Test
     public void noInputTest() {
+        thrown.expect(ParserException.class);
+        thrown.expectMessage("Reached end of input");
         test("", null);
     }
 
-    @Test(timeout = 500)
-    public void validJavaTest() {
-        test("/java -p Shit",
-                Token.command("/java", "Shit"),
-                Token.parameter("-p")
-        );
-
-        test("/java Shit",
-                Token.command("/java", "Shit")
-        );
-
-        test("/java  Decide A B C D",
-                Token.command("/java", "Decide A B C D")
-        );
-
-        test("/java                Decide    A          B  C            D",
-                Token.command("/java", "Decide A          B  C            D")
-        );
+    @Test
+    public void noInitCharTest() {
+        thrown.expect(ParserException.class);
+        thrown.expectMessage("Command must start with");
+        test("asd", null);
     }
 
-    @Test(timeout = 500)
-    public void validJavacTest() {
-        test("/javac -p -m Shit System.out.println(\"asd\")",
-                Token.command("/javac", "System.out.println(\"asd\")"),
-                Token.parameter("-p"),
-                Token.parameter("-m", "Shit")
-        );
-
-        test("/javac -m Shit -p System.out.println(\"asd\")",
-                Token.command("/javac", "System.out.println(\"asd\")"),
-                Token.parameter("-p"),
-                Token.parameter("-m", "Shit")
-        );
-
-        test("/javac -m Shit System.out.println(\"asd\")",
-                Token.command("/javac", "System.out.println(\"asd\")"),
-                Token.parameter("-m", "Shit")
-        );
-
-        test("/javac -p public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }",
-                Token.command("/javac", "public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }"),
-                Token.parameter("-p")
-        );
-
-        test("/javac public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }",
-                Token.parameter("/javac", "public class Shit { public static void main(String[] args) { System.out.println(\"asd\") } }")
-        );
-
-        test("/javac         -p         public     class     Shit { public static void main(String[  ] args    ) { System.out.println(\"asd      \") } }",
-                Token.command("/javac", "public class     Shit { public static void main(String[  ] args    ) { System.out.println(\"asd      \") } }"),
-                Token.parameter("-p")
-        );
-
-        test("/javac public class  Shit {       public static void      main(String[] args) { System.out.println(\"     asd\") } }",
-                Token.parameter("/javac", "public class  Shit {       public static void      main(String[] args) { System.out.println(\"     asd\") } }")
-        );
+    @Test
+    public void noParameterArgumentTest0() {
+        thrown.expect(ParserException.class);
+        thrown.expectMessage("Expected parameter argument. Reached end of input.");
+        test("/javac -m", null);
     }
 
-    @Test(timeout = 500)
-    public void validDeleteTest() {
-        test("/delete -p Shit",
-                Token.command("/delete", "Shit"),
-                Token.parameter("-p")
-        );
-
-        test("/delete Shit",
-                Token.command("/delete", "Shit")
-        );
+    @Test
+    public void noArgumentTest0() {
+        thrown.expect(ParserException.class);
+        thrown.expectMessage("Expected argument for command. Reached end of input.");
+        test("/javac -m Test", null);
     }
 
-
-    @Test(timeout = 500)
-    public void ValidListTest() {
-        test("/list -p",
-                Token.command("/list"),
-                Token.parameter("-p")
-        );
-
-        test("/list",
-                Token.command("/list")
-        );
+    @Test
+    public void noArgumentTest1() {
+        thrown.expect(ParserException.class);
+        thrown.expectMessage("Expected argument for command. Reached end of input.");
+        test("/javac", null);
     }
 
-    @Test(timeout = 500)
-    public void validSimpleTest() {
-        test("/up",
-                Token.command("/up")
-        );
-
-        test("/help",
-                Token.command("/help")
-        );
-
-        test("/nice",
-                Token.command("/nice")
-        );
+    @Test
+    public void noArgumentTest2() {
+        thrown.expect(ParserException.class);
+        thrown.expectMessage("Expected argument for command. Reached end of input.");
+        test("/delete", null);
     }
 
-    @Test(timeout = 500)
-    public void validWrongsTest() {
-        test("/java Shit -s",
-                Token.command("/java", "Shit -s")
-        );
-
-        test("/list Shit -s",
-                Token.command("/list")
-        );
-
-        test("/delete this is whatever",
-                Token.command("/delete", "this is whatever")
-        );
+    @Test
+    public void noParameterArgumentTest1() {
+        thrown.expect(ParserException.class);
+        thrown.expectMessage("Expected parameter argument. Got parameter ");
+        test("/javac -m -p System.out.println(1);", null);
     }
 
-    private void test(String input, Token command, Token... parameters) {
+    @Test
+    public void javaTest0() {
+        javaTest("Test", true); // /java -p Test
+        javaTest("Test", false);// /java Test
+    }
+
+    @Test
+    public void javaTest1() {
+        javaTest("Sum 1 2 3", true);
+        javaTest("Sum 1 2 3", false);
+    }
+
+    @Test
+    public void javaTest2() {
+        javaTest("Decide to_be not_to_be       1 2 3", true);
+        javaTest("Decide to_be not_to_be       1 2 3", false);
+    }
+
+    @Test
+    public void javaSpecialCaseTest0() throws Exception {
+        javaSpecialCaseTest("/Test");
+    }
+
+    @Test
+    public void javaSpecialCaseTest1() throws Exception {
+        javaSpecialCaseTest("/Sum 1 2 3");
+    }
+
+    @Test
+    public void javaSpecialCaseTest2() throws Exception {
+        javaSpecialCaseTest("/Decide to_be not_to_be    ");
+    }
+
+    @Test
+    public void javacTest0() {
+        JavacCommand javacCommand = new JavacCommand();
+        javacCommand.setArgument("public class Test { public static void main(String[] args) { System.out.println(1); }}");
+        test("/javac public class Test { public static void main(String[] args) { System.out.println(1); }}", javacCommand);
+    }
+
+    @Test
+    public void javacTest1() {
+        JavacCommand javacCommand = new JavacCommand();
+        javacCommand.setArgument(
+                "public class Test {" +
+                        "   public static void main(String[] args) {\n" +
+                        "        System.out.println(123);\n" +
+                        "        for (int i = 0; i < 10; i++) {\n" +
+                        "            i =  i + 1;\n" +
+                        "            System.out.println(i);\n" +
+                        "        }\n" +
+                        "    }" +
+                        "}"
+        );
+        test("/javac " +
+                "public class Test {" +
+                "   public static void main(String[] args) {\n" +
+                "        System.out.println(123);\n" +
+                "        for (int i = 0; i < 10; i++) {\n" +
+                "            i =  i + 1;\n" +
+                "            System.out.println(i);\n" +
+                "        }\n" +
+                "    }" +
+                "}"
+                , javacCommand);
+    }
+
+    @Test
+    public void javacMainTest0() throws Exception {
+        javacMainTest("/javac -m Test System.out.println(1);", "System.out.println(1);", "Test");
+    }
+
+    @Test
+    public void javacMainTest1() throws Exception {
+        String content = "int sum = 0; for (int i = 0; i < args.length; i++) sum += Integer.parseInt(args[i]); System.out.println(sum);";
+        javacMainTest("/javac -m Sum " + content, content, "Sum");
+    }
+
+    @Test
+    public void deleteTest() throws Exception {
+        test("/delete Asd", c(DeleteCommand.class, "Asd"));
+        test("/delete Asdasdasd asdasd", c(DeleteCommand.class, "Asdasdasd asdasd"));
+    }
+
+    @Test
+    public void helpTest() throws Exception {
+        test("/help", c(HelpCommand.class));
+        test("/help asd", c(HelpCommand.class));
+    }
+
+    @Test
+    public void listTest() throws Exception {
+        test("/list", c(ListCommand.class));
+        test("/list asd", c(ListCommand.class));
+    }
+
+    @Test
+    public void listWithPrivacyTest() throws Exception {
+        test("/list -p", c(ListCommand.class), new PrivacyParameter());
+        test("/list -p asd asd", c(ListCommand.class), new PrivacyParameter());
+    }
+
+    @Test
+    public void niceTest() throws Exception {
+        test("/nice", c(NiceCommand.class));
+        test("/nice asd", c(NiceCommand.class));
+    }
+
+    @Test
+    public void upTest() throws Exception {
+        test("/up", c(UpCommand.class));
+        test("/up asd", c(UpCommand.class));
+    }
+
+    private static void javacMainTest(String input, String commandArgument, String parameterArgument) throws Exception {
+        test(input, c(JavacCommand.class, commandArgument), p(MainParameter.class, parameterArgument));
+    }
+
+    private static void javaSpecialCaseTest(String input) throws Exception {
+        test(input, c(JavaCommand.class, input.substring(1).trim()));
+    }
+
+    private static void javaTest(String argument, boolean isPrivate) {
+        JavaCommand javaCommand = new JavaCommand();
+        javaCommand.setArgument(argument);
+        String input = "/java" + (isPrivate ? " -p " : " ") + argument;
+        if (isPrivate) test(input, javaCommand, new PrivacyParameter());
+        else test(input, javaCommand);
+    }
+
+    private static void test(String input, Command expectedCommand, Parameter... expectedParameters) {
         CommandParser parser = new CommandParser(input);
         parser.parse();
 
-        assertEquals(command.getValue(), parser.getCommand().getValue());
-        assertEquals(command.getArgument(), parser.getCommand().getArgument());
+        Set<Parameter> expectedParametersSet = new HashSet<>();
+        Collections.addAll(expectedParametersSet, expectedParameters);
 
-        Map<String, ParameterToken> parserParameters = parser.getParameters();
+        assertEquals(expectedCommand, parser.getCommand());
+        assertEquals(expectedParametersSet, new HashSet<>(parser.getParameters().values()));
+    }
 
-        assertEquals(parameters.length, parserParameters.size());
 
-        for (Token param : parameters) {
-            if (parserParameters.containsKey(param.getValue())) {
-                if (param.getArgument() == null) assertTrue(parserParameters.get(param.getValue()).getArgument() == null);
-                else assertEquals(param.getArgument(), parserParameters.get(param.getValue()).getArgument());
-            } else {
-                fail();
-            }
-        }
+    private static Argument a(Class c, String arg) throws Exception {
+        Argument argument = (Argument) c.getConstructors()[0].newInstance();
+        argument.setArgument(arg);
+        return argument;
+    }
+
+    private static Command c(Class c, String arg) throws Exception {
+        return (Command) a(c, arg);
+    }
+
+    private static Command c(Class c) throws Exception {
+        return (Command) c.getConstructors()[0].newInstance();
+    }
+
+    private static Parameter p(Class c, String arg) throws Exception {
+        return (Parameter) a(c, arg);
     }
 }

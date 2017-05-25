@@ -1,40 +1,40 @@
 package parser;
 
-import parser.data.CommandToken;
-import parser.data.ParameterToken;
-import parser.data.Token;
+import bot.Commands;
+import bot.commands.Command;
+import bot.commands.JavaCommand;
+import bot.commands.interfaces.Argument;
+import bot.commands.parameters.Parameter;
 
-import java.util.*;
+import java.util.HashMap;
+import java.util.HashSet;
+import java.util.Map;
+import java.util.Set;
 
-import static bot.Commands.*;
+import static bot.Commands.initChar;
+import static bot.Commands.paramInitChar;
 
-/**
- *   /COMMAND( PARAMETER (ARGUMENT)?)? ARGUMENT?
- * /\/[a-zA-Z]+( -[a-zA-Z]( [a-zA-Z]+)?) [a-zA-Z]+?/g
- */
-
-// TODO: 19.05.2017 maybe rewrite this to be command and parameter agnostic
 public class CommandParser {
-    private final static String TERMINATOR = "\0";
     private String input;
     private State state;
-    private boolean needsNext, needsArgument;
+    private boolean needsNext, parseCalled;
 
-    private CommandToken command;
-    private Map<String, ParameterToken> parameters; // TODO: 19.05.2017 Maybe replace with Map<String, String> <parameter, argument>
+    //output
+    private Command command;
+    private Map<String, Parameter> parameters;
 
-    private ParameterToken lastParameter;
+    private Argument lastParameter;
 
     private enum State {
         START, FREE, ARG
     }
 
     public CommandParser(String input) {
-        this.input = input + TERMINATOR;
+        this.input = input;
         this.state = State.START;
 
         this.needsNext = true;
-        this.needsArgument = false;
+        this.parseCalled = false;
 
         this.parameters = new HashMap<>();
     }
@@ -52,6 +52,7 @@ public class CommandParser {
     }
 
     public void parse() {
+        parseCalled = true;
         String token;
         while (needsNext) {
             token = nextToken();
@@ -69,7 +70,10 @@ public class CommandParser {
                     throw new RuntimeException("Invalid state. Not possible. I hope.");
             }
         }
-        if (needsArgument) throw new ParserException("Expected argument for command.");
+
+        if (command instanceof Argument)
+            if (!((Argument) command).hasArgument())
+                throw new ParserException("Expected argument for command. Reached end of input.");
     }
 
     private void handleStart(String token) {
@@ -81,24 +85,15 @@ public class CommandParser {
 
         token = token.replace("@BotMcBotfaceBot", ""); //todo write tests for this
 
-        switch (token) {
-            case up:
-            case help:
-            case nice:
-                needsNext = false;
-                break;
-            case delete:
-            case javac:
-            case java:
-                needsArgument = true;
-            case list:
-                state = State.FREE;
-                break;
-            default:
-                throw new ParserException("Unknown command " + token);
+        if (Commands.allCommands.containsKey(token)) {
+            this.command = castCommand(Commands.allCommands.get(token));
+            this.state = State.FREE;
+        } else {
+            // unknown command, lets assume its a special case of /java
+            // command to JavaCommand and add token + rest of input as argument.
+            this.command = new JavaCommand();
+            end(token.substring(1));
         }
-
-        command = Token.command(token);
     }
 
     private void handleFree(String token) {
@@ -107,25 +102,17 @@ public class CommandParser {
             return;
         }
 
-        if (token.charAt(0) == paramInitChar) {
-            switch (token) {
-                case mainParam:
-                    state = State.ARG;
-                case privacyParam:
-                    break;
-                default:
-                    throw new ParserException("Unknown parameter " + token);
+        if (Commands.allParameters.keySet().contains(token)) {
+            Parameter parameter = castParameter(Commands.allParameters.get(token));
+
+            if (parameter instanceof Argument) {
+                this.state = State.ARG;
+                this.lastParameter = (Argument) parameter;
             }
-            ParameterToken param = Token.parameter(token);
-            lastParameter = param;
-            parameters.put(token, param);
-        } else { // if not parameter, then argument for command
-            if (needsArgument) {
-                if (!input.isEmpty()) command.setArgument(token + " " + input.replace(TERMINATOR, ""));
-                else command.setArgument(token);
-                needsArgument = false;
-            }
-            needsNext = false;
+
+            this.parameters.put(token, parameter);
+        } else { // not a parameter -> must be command argument
+           end(token);
         }
     }
 
@@ -136,15 +123,41 @@ public class CommandParser {
         if (token.charAt(0) == paramInitChar)
             throw new ParserException("Expected parameter argument. Got parameter " + token);
 
-        lastParameter.setArgument(token);
-        state = State.FREE;
+        this.lastParameter.setArgument(token);
+        this.state = State.FREE;
     }
 
-    public CommandToken getCommand() {
+    private void end(String token) {
+        if (command instanceof Argument) {
+            if (input.trim().isEmpty()) ((Argument) command).setArgument(token);
+            else ((Argument) command).setArgument(token + " " + input.trim());
+        }
+        needsNext = false;
+    }
+
+    private static Command castCommand(Class commandClass) {
+        try {
+            return (Command) commandClass.getConstructors()[0].newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Cant cast command " + e);
+        }
+    }
+
+    private static Parameter castParameter(Class parameterClass) {
+        try {
+            return (Parameter) parameterClass.getConstructors()[0].newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Cant cast parameter " + e);
+        }
+    }
+
+    public Command getCommand() {
+        if (!parseCalled) throw new RuntimeException("Parse must be called before this method.");
         return command;
     }
 
-    public Map<String, ParameterToken> getParameters() {
+    public Map<String, Parameter> getParameters() {
+        if (!parseCalled) throw new RuntimeException("Parse must be called before this method.");
         return parameters;
     }
 }

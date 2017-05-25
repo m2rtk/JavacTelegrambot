@@ -31,6 +31,10 @@ public abstract class Command {
         return output;
     }
 
+    /**
+     * Set output of command.
+     * @param output new output.
+     */
     void setOutput(String output) {
         this.output = output;
     }
@@ -40,4 +44,17 @@ public abstract class Command {
      * @return Command name.
      */
     public abstract String getName();
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof Command)) return false;
+        return ((Command) obj).output == null && this.output == null || ((Command) obj).output.equals(this.output);
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 11;
+        return result * 31 + (this.output == null ? 0 : this.output.hashCode());
+    }
 }

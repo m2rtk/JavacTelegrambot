@@ -5,6 +5,8 @@ import bot.commands.interfaces.*;
 import dao.BotDAO;
 import dao.Privacy;
 
+import java.util.Arrays;
+
 import static dao.Privacy.CHAT;
 
 
@@ -13,11 +15,6 @@ public class DeleteCommand extends Command implements Private, Argument, NeedsDA
     private String argument;
     private Privacy privacy;
     private Long id;
-
-    public DeleteCommand(Long chatId) {
-        this.privacy = CHAT;
-        this.id = chatId;
-    }
 
     @Override
     public void execute() {
@@ -34,7 +31,7 @@ public class DeleteCommand extends Command implements Private, Argument, NeedsDA
     }
 
     @Override
-    public void setPrivacy(Privacy privacy, long id) {
+    public void setPrivacy(Privacy privacy, Long id) {
         this.privacy = privacy;
         this.id = id;
     }
@@ -42,6 +39,11 @@ public class DeleteCommand extends Command implements Private, Argument, NeedsDA
     @Override
     public void setArgument(String argument) {
         this.argument = argument;
+    }
+
+    @Override
+    public boolean hasArgument() {
+        return this.argument != null;
     }
 
     @Override
@@ -56,6 +58,24 @@ public class DeleteCommand extends Command implements Private, Argument, NeedsDA
                 ", argument='" + argument + '\'' +
                 ", privacy=" + privacy +
                 ", id=" + id +
-                "} " + super.toString();
+                "} ";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof DeleteCommand)) return false;
+        return  ((((DeleteCommand) obj).dao       == null && this.dao       == null)  || (((DeleteCommand) obj).dao.equals(this.dao))) &&
+                ((((DeleteCommand) obj).id        == null && this.id        == null)  || (((DeleteCommand) obj).id.equals(this.id))) &&
+                ((((DeleteCommand) obj).privacy   == null && this.privacy   == null)  || (((DeleteCommand) obj).privacy.equals(this.privacy)));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 11;
+        result = 31 * result + (this.dao       == null ? 0 : this.dao.hashCode()); //dao - as I ever really use 2 different instances of dao, this should be ok
+        result = 31 * result + (this.id        == null ? 0 : Long.hashCode(this.id)); //id
+        result = 31 * result + (this.privacy   == null ? 0 : (this.privacy.equals(CHAT) ? 1 : 0)); //privacy
+        return result;
     }
 }

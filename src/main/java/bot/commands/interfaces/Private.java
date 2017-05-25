@@ -9,5 +9,6 @@ public interface Private {
      * @param privacy new privacy.
      * @param id new id corresponding to new privacy (chat id for CHAT and user id for USER).
      */
-    void setPrivacy(Privacy privacy, long id);
+    void setPrivacy(Privacy privacy, Long id);
+
 }

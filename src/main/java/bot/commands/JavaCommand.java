@@ -17,11 +17,6 @@ public class JavaCommand extends Command implements Argument, Private, NeedsDAO 
     private Privacy privacy;
     private Long id;
 
-    public JavaCommand(Long id) {
-        this.privacy = CHAT;
-        this.id = id;
-    }
-
     @Override
     public void execute() {
         if (args == null || id == null || privacy == null || dao == null || className == null) throw new IllegalExecutionException();
@@ -43,7 +38,7 @@ public class JavaCommand extends Command implements Argument, Private, NeedsDAO 
     }
 
     @Override
-    public void setPrivacy(Privacy privacy, long id) {
+    public void setPrivacy(Privacy privacy, Long id) {
         this.privacy = privacy;
         this.id = id;
     }
@@ -54,6 +49,11 @@ public class JavaCommand extends Command implements Argument, Private, NeedsDAO 
         this.className = pieces[0];
         this.args = new String[pieces.length - 1];
         System.arraycopy(pieces, 1, this.args, 0, pieces.length - 1);
+    }
+
+    @Override
+    public boolean hasArgument() {
+        return this.className != null && this.args != null;
     }
 
     @Override
@@ -69,5 +69,27 @@ public class JavaCommand extends Command implements Argument, Private, NeedsDAO 
                 ", privacy=" + privacy +
                 ", id=" + id +
                 '}';
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof JavaCommand)) return false;
+        return  ((((JavaCommand) obj).dao       == null && this.dao       == null)  || (((JavaCommand) obj).dao.equals(this.dao))) &&
+                ((((JavaCommand) obj).className == null && this.className == null)  || (((JavaCommand) obj).className.equals(this.className))) &&
+                ((((JavaCommand) obj).args      == null && this.args      == null)  || (Arrays.equals(((JavaCommand) obj).args, this.args))) &&
+                ((((JavaCommand) obj).id        == null && this.id        == null)  || (((JavaCommand) obj).id.equals(this.id))) &&
+                ((((JavaCommand) obj).privacy   == null && this.privacy   == null)  || (((JavaCommand) obj).privacy.equals(this.privacy)));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 11;
+        result = 31 * result + (this.dao       == null ? 0 : this.dao.hashCode()); //dao - as I ever really use 2 different instances of dao, this should be ok
+        result = 31 * result + (this.className == null ? 0 : this.className.hashCode()); //className
+        result = 31 * result + (this.args      == null ? 0 : Arrays.hashCode(this.args)); //args
+        result = 31 * result + (this.id        == null ? 0 : Long.hashCode(this.id)); //id
+        result = 31 * result + (this.privacy   == null ? 0 : (this.privacy.equals(CHAT) ? 1 : 0)); //privacy
+        return result;
     }
 }

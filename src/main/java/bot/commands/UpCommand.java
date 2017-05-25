@@ -1,19 +1,23 @@
 package bot.commands;
 
 import bot.Commands;
+import bot.commands.interfaces.IllegalExecutionException;
+import bot.commands.interfaces.StartTime;
 
 import java.time.Instant;
 
-public class UpCommand extends Command {
+public class UpCommand extends Command implements StartTime {
 
-    private final long startTime;
+    private Long startTime;
 
-    public UpCommand(long startTime) {
+    @Override
+    public void setStartTime(Long startTime) {
         this.startTime = startTime;
     }
 
     @Override
     public void execute() {
+        if (startTime == null) throw new IllegalExecutionException();
         long t = Instant.now().getEpochSecond() - startTime;
         long sec = t % 60;
         long min = t % 3600 / 60;
@@ -34,6 +38,6 @@ public class UpCommand extends Command {
     public String toString() {
         return "UpCommand{" +
                 "startTime=" + startTime +
-                "} " + super.toString();
+                "} ";
     }
 }

@@ -6,6 +6,8 @@ import dao.BotDAO;
 import dao.Privacy;
 import javac.Code;
 
+import java.util.Arrays;
+
 import static dao.Privacy.CHAT;
 
 public class JavacCommand extends Command implements Argument, Private, NeedsDAO {
@@ -13,11 +15,6 @@ public class JavacCommand extends Command implements Argument, Private, NeedsDAO
     private String content;
     private Privacy privacy;
     private Long id;
-
-    public JavacCommand(long id) {
-        this.privacy = CHAT;
-        this.id = id;
-    }
 
     public void wrapContentInMain(String classname) {
         if (content == null) throw new NullPointerException("Content/argument must be set before calling this method.");
@@ -46,7 +43,7 @@ public class JavacCommand extends Command implements Argument, Private, NeedsDAO
     }
 
     @Override
-    public void setPrivacy(Privacy privacy, long id) {
+    public void setPrivacy(Privacy privacy, Long id) {
         this.privacy = privacy;
         this.id = id;
     }
@@ -54,6 +51,11 @@ public class JavacCommand extends Command implements Argument, Private, NeedsDAO
     @Override
     public void setArgument(String argument) {
         this.content = argument;
+    }
+
+    @Override
+    public boolean hasArgument() {
+        return this.content != null;
     }
 
     @Override
@@ -68,6 +70,26 @@ public class JavacCommand extends Command implements Argument, Private, NeedsDAO
                 ", content='" + content + '\'' +
                 ", privacy=" + privacy +
                 ", id=" + id +
-                "} " + super.toString();
+                "} ";
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        if (obj == this) return true;
+        if (!(obj instanceof JavacCommand)) return false;
+        return  ((((JavacCommand) obj).dao       == null && this.dao       == null)  || (((JavacCommand) obj).dao.equals(this.dao))) &&
+                ((((JavacCommand) obj).content   == null && this.content   == null)  || (((JavacCommand) obj).content.equals(this.content))) &&
+                ((((JavacCommand) obj).id        == null && this.id        == null)  || (((JavacCommand) obj).id.equals(this.id))) &&
+                ((((JavacCommand) obj).privacy   == null && this.privacy   == null)  || (((JavacCommand) obj).privacy.equals(this.privacy)));
+    }
+
+    @Override
+    public int hashCode() {
+        int result = 11;
+        result = 31 * result + (this.dao       == null ? 0 : this.dao.hashCode()); //dao - as I ever really use 2 different instances of dao, this should be ok
+        result = 31 * result + (this.content   == null ? 0 : this.content.hashCode()); //className
+        result = 31 * result + (this.id        == null ? 0 : Long.hashCode(this.id)); //id
+        result = 31 * result + (this.privacy   == null ? 0 : (this.privacy.equals(CHAT) ? 1 : 0)); //privacy
+        return result;
     }
 }
