@@ -1,7 +1,6 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.IllegalExecutionException;
 import bot.commands.interfaces.StartTime;
 
 import java.time.Instant;

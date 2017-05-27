@@ -1,7 +1,6 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.IllegalExecutionException;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.Private;
 import dao.BotDAO;
@@ -70,7 +69,7 @@ public class ListCommand extends Command implements Private, NeedsDAO {
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof ListCommand)) return false;
+        else if (!(obj instanceof ListCommand)) return false;
         return  ((((ListCommand) obj).dao       == null && this.dao       == null)  || (((ListCommand) obj).dao.equals(this.dao))) &&
                 ((((ListCommand) obj).id        == null && this.id        == null)  || (((ListCommand) obj).id.equals(this.id))) &&
                 ((((ListCommand) obj).privacy   == null && this.privacy   == null)  || (((ListCommand) obj).privacy.equals(this.privacy)));

@@ -1,6 +1,5 @@
 package bot.commands;
 
-import bot.commands.interfaces.IllegalExecutionException;
 import bot.commands.parameters.Parameter;
 
 public abstract class Command {
@@ -48,7 +47,7 @@ public abstract class Command {
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof Command)) return false;
+        else if (!(obj instanceof Command)) return false;
         return ((Command) obj).output == null && this.output == null || ((Command) obj).output.equals(this.output);
     }
 

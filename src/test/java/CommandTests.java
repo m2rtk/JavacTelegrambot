@@ -1,10 +1,9 @@
 import bot.Commands;
 import bot.commands.*;
-import bot.commands.interfaces.IllegalExecutionException;
+import bot.commands.IllegalExecutionException;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import javac.Compiled;
-import javassist.compiler.Javac;
 import org.junit.Before;
 import org.junit.Test;
 

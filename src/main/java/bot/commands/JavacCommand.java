@@ -2,7 +2,6 @@ package bot.commands;
 
 import bot.Commands;
 import bot.commands.interfaces.Argument;
-import bot.commands.interfaces.IllegalExecutionException;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.Private;
 import dao.BotDAO;
@@ -77,7 +76,7 @@ public class JavacCommand extends Command implements Argument, Private, NeedsDAO
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof JavacCommand)) return false;
+        else if (!(obj instanceof JavacCommand)) return false;
         return  ((((JavacCommand) obj).dao       == null && this.dao       == null)  || (((JavacCommand) obj).dao.equals(this.dao))) &&
                 ((((JavacCommand) obj).content   == null && this.content   == null)  || (((JavacCommand) obj).content.equals(this.content))) &&
                 ((((JavacCommand) obj).id        == null && this.id        == null)  || (((JavacCommand) obj).id.equals(this.id))) &&

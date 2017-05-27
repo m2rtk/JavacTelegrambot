@@ -1,4 +1,4 @@
-package bot.commands.interfaces;
+package bot.commands;
 
 /**
  * Thrown when Command.execute() is called without proper setup.

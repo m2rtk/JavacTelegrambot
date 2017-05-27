@@ -2,7 +2,6 @@ package bot.commands;
 
 import bot.Commands;
 import bot.commands.interfaces.Argument;
-import bot.commands.interfaces.IllegalExecutionException;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.Private;
 import dao.BotDAO;
@@ -65,7 +64,7 @@ public class DeleteCommand extends Command implements Private, Argument, NeedsDA
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof DeleteCommand)) return false;
+        else if (!(obj instanceof DeleteCommand)) return false;
         return  ((((DeleteCommand) obj).dao       == null && this.dao       == null)  || (((DeleteCommand) obj).dao.equals(this.dao))) &&
                 ((((DeleteCommand) obj).id        == null && this.id        == null)  || (((DeleteCommand) obj).id.equals(this.id))) &&
                 ((((DeleteCommand) obj).privacy   == null && this.privacy   == null)  || (((DeleteCommand) obj).privacy.equals(this.privacy)));
