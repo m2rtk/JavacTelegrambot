@@ -1,12 +1,10 @@
 package bot;
 
 import bot.commands.Command;
-import bot.commands.interfaces.CommandVisitor;
 import bot.commands.parameters.Parameter;
 import bot.commands.parameters.PrivacyParameter;
 import bot.commands.visitors.DAOVisitor;
 import bot.commands.visitors.StartTimeVisitor;
-import dao.BotDAO;
 import dao.WriteToDiskBotDAO;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
@@ -17,9 +15,6 @@ import parser.CommandParser;
 import parser.ParserException;
 
 import java.time.Instant;
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 import java.util.Map;
 
 import static dao.Privacy.CHAT;
@@ -85,6 +80,7 @@ public class JavaBot extends TelegramLongPollingBot {
         return command;
     }
 
+    // I don't like this solution
     private void setPrivacy(Map<String, Parameter> parameters, Update update) {
         long chatId = update.getMessage().getChatId();
         long userId = update.getMessage().getFrom().getId();

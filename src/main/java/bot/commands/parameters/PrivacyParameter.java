@@ -2,18 +2,18 @@ package bot.commands.parameters;
 
 import bot.Commands;
 import bot.commands.Command;
-import bot.commands.interfaces.Private;
+import bot.commands.interfaces.NeedsPrivacy;
 import dao.Privacy;
 
 import static dao.Privacy.CHAT;
 
-public class PrivacyParameter extends Parameter implements Private {
+public class PrivacyParameter extends Parameter implements NeedsPrivacy {
     private Long id;
     private Privacy privacy;
 
     @Override
     public void visit(Command command) {
-        if (command instanceof Private) ((Private) command).setPrivacy(privacy, id);
+        if (command instanceof NeedsPrivacy) ((NeedsPrivacy) command).setPrivacy(privacy, id);
     }
 
     @Override

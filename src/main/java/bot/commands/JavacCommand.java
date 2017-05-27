@@ -1,16 +1,16 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.Argument;
+import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
-import bot.commands.interfaces.Private;
+import bot.commands.interfaces.NeedsPrivacy;
 import dao.BotDAO;
 import dao.Privacy;
 import javac.Code;
 
 import static dao.Privacy.CHAT;
 
-public class JavacCommand extends Command implements Argument, Private, NeedsDAO {
+public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy, NeedsDAO {
     private BotDAO dao;
     private String content;
     private Privacy privacy;

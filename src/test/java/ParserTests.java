@@ -1,5 +1,5 @@
 import bot.commands.*;
-import bot.commands.interfaces.Argument;
+import bot.commands.interfaces.NeedsArgument;
 import bot.commands.parameters.MainParameter;
 import bot.commands.parameters.Parameter;
 import bot.commands.parameters.PrivacyParameter;
@@ -13,7 +13,6 @@ import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
-import static bot.Commands.initChar;
 import static org.junit.Assert.assertEquals;
 
 public class ParserTests {
@@ -212,8 +211,8 @@ public class ParserTests {
     }
 
 
-    private static Argument a(Class c, String arg) throws Exception {
-        Argument argument = (Argument) c.getConstructors()[0].newInstance();
+    private static NeedsArgument a(Class c, String arg) throws Exception {
+        NeedsArgument argument = (NeedsArgument) c.getConstructors()[0].newInstance();
         argument.setArgument(arg);
         return argument;
     }

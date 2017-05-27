@@ -1,17 +1,14 @@
 package bot.commands.parameters;
 
 import bot.Commands;
-import bot.commands.DeleteCommand;
-import bot.commands.interfaces.Argument;
+import bot.commands.interfaces.NeedsArgument;
 import bot.commands.Command;
 import bot.commands.JavacCommand;
-
-import static dao.Privacy.CHAT;
 
 /**
  * Works only on javac
  */
-public class MainParameter extends Parameter implements Argument {
+public class MainParameter extends Parameter implements NeedsArgument {
     private String classname;
 
 

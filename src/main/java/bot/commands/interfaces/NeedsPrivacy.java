@@ -2,7 +2,7 @@ package bot.commands.interfaces;
 
 import dao.Privacy;
 
-public interface Private {
+public interface NeedsPrivacy {
 
     /**
      * Set privacy and corresponding id of implementing object.

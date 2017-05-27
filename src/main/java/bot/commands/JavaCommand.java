@@ -1,9 +1,9 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.Argument;
+import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
-import bot.commands.interfaces.Private;
+import bot.commands.interfaces.NeedsPrivacy;
 import dao.BotDAO;
 import dao.Privacy;
 import javac.Compiled;
@@ -12,7 +12,7 @@ import java.util.Arrays;
 
 import static dao.Privacy.CHAT;
 
-public class JavaCommand extends Command implements Argument, Private, NeedsDAO {
+public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy, NeedsDAO {
     private BotDAO dao;
     private String className;
     private String[] args;

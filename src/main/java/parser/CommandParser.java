@@ -3,8 +3,7 @@ package parser;
 import bot.Commands;
 import bot.commands.Command;
 import bot.commands.JavaCommand;
-import bot.commands.interfaces.Argument;
-import bot.commands.interfaces.Private;
+import bot.commands.interfaces.NeedsArgument;
 import bot.commands.parameters.Parameter;
 
 import java.util.HashMap;
@@ -22,7 +21,7 @@ public class CommandParser {
     private Command command;
     private Map<String, Parameter> parameters;
 
-    private Argument lastParameter;
+    private NeedsArgument lastParameter;
 
     private enum State {
         START, FREE, ARG
@@ -70,8 +69,8 @@ public class CommandParser {
             }
         }
 
-        if (command instanceof Argument)
-            if (!((Argument) command).hasArgument())
+        if (command instanceof NeedsArgument)
+            if (!((NeedsArgument) command).hasArgument())
                 throw new ParserException("Expected argument for command. Reached end of input.");
     }
 
@@ -103,9 +102,9 @@ public class CommandParser {
         if (Commands.allParameters.keySet().contains(token)) {
             Parameter parameter = (Parameter) construct(Commands.allParameters.get(token));
 
-            if (parameter instanceof Argument) {
+            if (parameter instanceof NeedsArgument) {
                 this.state = State.ARG;
-                this.lastParameter = (Argument) parameter;
+                this.lastParameter = (NeedsArgument) parameter;
             }
 
             this.parameters.put(token, parameter);
@@ -131,9 +130,9 @@ public class CommandParser {
      * @param token current token.
      */
     private void end(String token) {
-        if (command instanceof Argument) {
-            if (input.trim().isEmpty()) ((Argument) command).setArgument(token);
-            else ((Argument) command).setArgument(token + " " + input.trim());
+        if (command instanceof NeedsArgument) {
+            if (input.trim().isEmpty()) ((NeedsArgument) command).setArgument(token);
+            else ((NeedsArgument) command).setArgument(token + " " + input.trim());
         }
         needsNext = false;
     }

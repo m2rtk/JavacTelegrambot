@@ -49,7 +49,7 @@ class Utils {
     static String getLines(InputStream is) throws IOException {
         String line;
         StringBuilder sb = new StringBuilder();
-        BufferedReader in = new BufferedReader(new InputStreamReader(is));
+        BufferedReader in = new BufferedReader(new InputStreamReader(is)); //todo add charset
         while ((line = in.readLine()) != null) {
             sb.append(line);
             sb.append(System.getProperty("line.separator"));

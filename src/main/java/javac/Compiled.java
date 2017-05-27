@@ -18,7 +18,7 @@ public class Compiled {
     private String classPath;
 
     public Compiled(byte[] byteCode, String name) {
-        this.byteCode = byteCode;
+        this.byteCode = byteCode; // todo store copy instead
         this.name = name;
     }
 
@@ -94,7 +94,7 @@ public class Compiled {
     }
 
     public byte[] getByteCode() {
-        return byteCode;
+        return byteCode; //todo return copy
     }
 
     public Privacy getPrivacy() {

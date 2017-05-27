@@ -2,7 +2,7 @@ package bot.commands;
 
 import bot.Commands;
 import bot.commands.interfaces.NeedsDAO;
-import bot.commands.interfaces.Private;
+import bot.commands.interfaces.NeedsPrivacy;
 import dao.BotDAO;
 import dao.Privacy;
 import javac.Compiled;
@@ -17,7 +17,7 @@ import static dao.Privacy.CHAT;
 /**
  * Created on 18.05.2017.
  */
-public class ListCommand extends Command implements Private, NeedsDAO {
+public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
     private BotDAO dao;
     private Privacy privacy;
     private Long id;

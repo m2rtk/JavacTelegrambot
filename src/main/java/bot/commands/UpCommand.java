@@ -1,11 +1,11 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.StartTime;
+import bot.commands.interfaces.NeedsStartTime;
 
 import java.time.Instant;
 
-public class UpCommand extends Command implements StartTime {
+public class UpCommand extends Command implements NeedsStartTime {
 
     private Long startTime;
 

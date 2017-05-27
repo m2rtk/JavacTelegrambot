@@ -17,7 +17,7 @@ public class DirectInputThread implements Runnable {
 
     @Override
     public void run() {
-        try (Scanner scanner = new Scanner(System.in)) {
+        try (Scanner scanner = new Scanner(System.in, "utf-8")) {
             while (true) {
                 String reply = scanner.nextLine();
                 String[] pieces = reply.split(" ");

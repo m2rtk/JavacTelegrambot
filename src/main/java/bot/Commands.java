@@ -3,11 +3,9 @@ package bot;
 import bot.commands.*;
 import bot.commands.parameters.MainParameter;
 import bot.commands.parameters.PrivacyParameter;
+import com.google.common.collect.ImmutableMap;
 
-import java.util.Arrays;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 public class Commands {
 
@@ -49,17 +47,19 @@ public class Commands {
     public static final Map<String, Class> allParameters;
 
     static {
-        allCommands = new HashMap<>();
-        allCommands.put(help, helpCommandClass);
-        allCommands.put(nice, niceCommandClass);
-        allCommands.put(java, javaCommandClass);
-        allCommands.put(javac, javacCommandClass);
-        allCommands.put(list, listCommandClass);
-        allCommands.put(delete, deleteCommandClass);
-        allCommands.put(up, upCommandClass);
+        Map<String, Class> commands = new HashMap<>();
+        commands.put(help, helpCommandClass);
+        commands.put(nice, niceCommandClass);
+        commands.put(java, javaCommandClass);
+        commands.put(javac, javacCommandClass);
+        commands.put(list, listCommandClass);
+        commands.put(delete, deleteCommandClass);
+        commands.put(up, upCommandClass);
+        allCommands = Collections.unmodifiableMap(commands);
 
-        allParameters = new HashMap<>();
-        allParameters.put(privacyParameter, privacyParameterClass);
-        allParameters.put(mainParameter, mainParameterClass);
+        Map<String, Class> parameters = new HashMap<>();
+        parameters.put(privacyParameter, privacyParameterClass);
+        parameters.put(mainParameter, mainParameterClass);
+        allParameters = Collections.unmodifiableMap(parameters);
     }
 }

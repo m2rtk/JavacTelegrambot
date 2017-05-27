@@ -2,7 +2,7 @@ package bot.commands.visitors;
 
 import bot.commands.Command;
 import bot.commands.interfaces.CommandVisitor;
-import bot.commands.interfaces.StartTime;
+import bot.commands.interfaces.NeedsStartTime;
 
 public class StartTimeVisitor implements CommandVisitor{
     private final long startTime;
@@ -13,6 +13,6 @@ public class StartTimeVisitor implements CommandVisitor{
 
     @Override
     public void visit(Command command) {
-        if (command instanceof StartTime) ((StartTime) command).setStartTime(this.startTime);
+        if (command instanceof NeedsStartTime) ((NeedsStartTime) command).setStartTime(this.startTime);
     }
 }

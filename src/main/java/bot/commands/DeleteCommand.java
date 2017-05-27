@@ -1,16 +1,16 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.interfaces.Argument;
+import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
-import bot.commands.interfaces.Private;
+import bot.commands.interfaces.NeedsPrivacy;
 import dao.BotDAO;
 import dao.Privacy;
 
 import static dao.Privacy.CHAT;
 
 
-public class DeleteCommand extends Command implements Private, Argument, NeedsDAO {
+public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgument, NeedsDAO {
     private BotDAO dao;
     private String argument;
     private Privacy privacy;

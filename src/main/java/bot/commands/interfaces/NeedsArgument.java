@@ -1,6 +1,6 @@
 package bot.commands.interfaces;
 
-public interface Argument {
+public interface NeedsArgument {
 
     /**
      * Set argument for object.
