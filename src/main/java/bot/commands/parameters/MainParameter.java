@@ -17,9 +17,7 @@ public class MainParameter extends Parameter implements Argument {
 
     @Override
     public void visit(Command command) {
-        if (command instanceof JavacCommand) {
-            ((JavacCommand) command).wrapContentInMain(classname);
-        }
+        if (command instanceof JavacCommand) ((JavacCommand) command).wrapContentInMain(classname);
     }
 
     @Override
@@ -46,7 +44,7 @@ public class MainParameter extends Parameter implements Argument {
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof MainParameter)) return false;
+        else if (!(obj instanceof MainParameter)) return false;
         return (((MainParameter) obj).classname == null && this.classname == null)  || (((MainParameter) obj).classname.equals(this.classname));
     }
 

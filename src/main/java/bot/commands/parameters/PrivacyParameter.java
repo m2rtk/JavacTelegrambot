@@ -25,7 +25,7 @@ public class PrivacyParameter extends Parameter implements Private {
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;
-        if (!(obj instanceof PrivacyParameter)) return false;
+        else if (!(obj instanceof PrivacyParameter)) return false;
         return  ((((PrivacyParameter) obj).id      == null && this.id      == null) || (((PrivacyParameter) obj).id.equals(this.id))) &&
                 ((((PrivacyParameter) obj).privacy == null && this.privacy == null) || (((PrivacyParameter) obj).privacy.equals(this.privacy)));
     }

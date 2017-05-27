@@ -1,4 +1,5 @@
 import bot.JavaBot;
+import bot.commands.visitors.DAOVisitor;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import org.telegram.telegrambots.api.objects.Message;
@@ -20,10 +21,11 @@ class Utils {
 
     static BotDAO changeDAO(JavaBot bot) throws Exception {
         BotDAO dao = new InMemoryBotDAO();
+        DAOVisitor daoVisitor = new DAOVisitor(dao);
 
-        Field field = JavaBot.class.getDeclaredField("dao");
+        Field field = JavaBot.class.getDeclaredField("daoVisitor");
         field.setAccessible(true);
-        field.set(bot, dao);
+        field.set(bot, daoVisitor);
 
         return dao;
     }

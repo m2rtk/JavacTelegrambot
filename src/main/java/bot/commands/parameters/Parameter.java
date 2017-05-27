@@ -1,8 +1,9 @@
 package bot.commands.parameters;
 
 import bot.commands.Command;
+import bot.commands.interfaces.CommandVisitor;
 
-public abstract class Parameter {
+public abstract class Parameter implements CommandVisitor {
 
     /**
      * Visits command.

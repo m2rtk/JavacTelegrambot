@@ -4,6 +4,7 @@ import bot.Commands;
 import bot.commands.Command;
 import bot.commands.JavaCommand;
 import bot.commands.interfaces.Argument;
+import bot.commands.interfaces.Private;
 import bot.commands.parameters.Parameter;
 
 import java.util.HashMap;

@@ -1,16 +1,16 @@
 package bot.commands;
 
-import bot.commands.parameters.Parameter;
+import bot.commands.interfaces.CommandVisitor;
 
 public abstract class Command {
     private String output;
 
     /**
      * Accepts visitor parameter.
-     * @param parameterVisitor visitor.
+     * @param visitor visitor.
      */
-    public void acceptParameter(Parameter parameterVisitor) {
-        parameterVisitor.visit(this);
+    public void accept(CommandVisitor visitor) {
+        visitor.visit(this);
     }
 
     /**

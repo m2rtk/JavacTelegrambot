@@ -1,10 +1,11 @@
 package bot;
 
 import bot.commands.Command;
-import bot.commands.interfaces.NeedsDAO;
-import bot.commands.interfaces.StartTime;
+import bot.commands.interfaces.CommandVisitor;
 import bot.commands.parameters.Parameter;
 import bot.commands.parameters.PrivacyParameter;
+import bot.commands.visitors.DAOVisitor;
+import bot.commands.visitors.StartTimeVisitor;
 import dao.BotDAO;
 import dao.WriteToDiskBotDAO;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -16,6 +17,9 @@ import parser.CommandParser;
 import parser.ParserException;
 
 import java.time.Instant;
+import java.util.ArrayList;
+import java.util.Arrays;
+import java.util.List;
 import java.util.Map;
 
 import static dao.Privacy.CHAT;
@@ -24,11 +28,13 @@ import static dao.Privacy.USER;
 public class JavaBot extends TelegramLongPollingBot {
     private static final String TAG = "JAVABOT";
 
-    private static BotDAO dao = new WriteToDiskBotDAO();
+    private final DAOVisitor daoVisitor;
+    private final StartTimeVisitor startTimeVisitor;
 
-    private final long startTime;
     public JavaBot() {
-        startTime = Instant.now().getEpochSecond();
+        this.daoVisitor       = new DAOVisitor(new WriteToDiskBotDAO());
+        this.startTimeVisitor = new StartTimeVisitor(Instant.now().getEpochSecond());
+
         new DirectInputThread(this).start();
     }
 
@@ -41,7 +47,7 @@ public class JavaBot extends TelegramLongPollingBot {
             return;
         }
 
-        Long chat = update.getMessage().getChatId();
+        long chatId = update.getMessage().getChatId();
 
         if (update.getMessage().isCommand()) {
             BotLogger.info(TAG, "Update from chat: " + update.getMessage().getChatId()
@@ -51,16 +57,14 @@ public class JavaBot extends TelegramLongPollingBot {
 
             try {
                 Command command = getCommand(update);
-                System.out.println(command);
                 command.execute();
-                System.out.println(command);
                 BotLogger.info(TAG, "Executed command " + command.getName()
-                        + " in chat " + chat
+                        + " in chat " + chatId
                         + " with output " + command.getOutput()
                 );
-                sendMessage(command.getOutput(), chat);
+                sendMessage(command.getOutput(), chatId);
             } catch (ParserException e) {
-                sendMessage("Invalid command: " + e.getMessage(), chat);
+                sendMessage("Invalid command: " + e.getMessage(), chatId);
             }
         }
     }
@@ -69,23 +73,26 @@ public class JavaBot extends TelegramLongPollingBot {
         CommandParser parser = new CommandParser(update.getMessage().getText());
         parser.parse();
 
-        long chatId = update.getMessage().getChatId();
-        long userId = update.getMessage().getFrom().getId();
-
         Command command = parser.getCommand();
         Map<String, Parameter> parameters = parser.getParameters();
+
+        setPrivacy(parameters, update);
+
+        for (Parameter parameter : parameters.values()) command.accept(parameter);
+        command.accept(daoVisitor);
+        command.accept(startTimeVisitor);
+
+        return command;
+    }
+
+    private void setPrivacy(Map<String, Parameter> parameters, Update update) {
+        long chatId = update.getMessage().getChatId();
+        long userId = update.getMessage().getFrom().getId();
 
         if (parameters.containsKey(Commands.privacyParameter))
             ((PrivacyParameter) parameters.get(Commands.privacyParameter)).setPrivacy(USER, userId);
         else
             parameters.put(Commands.privacyParameter, new PrivacyParameter().set(CHAT, chatId));
-
-        parameters.values().forEach(command::acceptParameter);
-
-        if (command instanceof NeedsDAO)  ((NeedsDAO)  command).setDAO(dao);
-        if (command instanceof StartTime) ((StartTime) command).setStartTime(startTime);
-
-        return command;
     }
 
     public void sendMessage(String message, Long chatId) {
