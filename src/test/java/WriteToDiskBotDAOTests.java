@@ -36,10 +36,10 @@ public class WriteToDiskBotDAOTests {
     @Before
     public void init() throws Exception {
         testFiles = new HashMap<>();
-        c1 = new Compiled(Utils.readOut("Test"), "Test");
+        c1 = new Compiled(Utils.readOut("Print"), "Print");
         c2 = new Compiled(Utils.readOut("Sum"), "Sum");
         c3 = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
-        testFiles.put("Test", c1);
+        testFiles.put("Print", c1);
         testFiles.put("Sum",  c2);
         testFiles.put("HelloWorld", c3);
     }
@@ -76,14 +76,14 @@ public class WriteToDiskBotDAOTests {
 
     @Test
     public void removeSuccessTest1() {
-        createCacheFile("Test", USER_1, USER);
-        removeTest("Test", USER_1, USER, true);
+        createCacheFile("Print", USER_1, USER);
+        removeTest("Print", USER_1, USER, true);
     }
 
     @Test
     public void removeSuccessTest2() {
-        createCacheFile("Test", USER_2, USER);
-        removeTest("Test", USER_2, USER, true);
+        createCacheFile("Print", USER_2, USER);
+        removeTest("Print", USER_2, USER, true);
     }
 
     @Test
@@ -100,7 +100,7 @@ public class WriteToDiskBotDAOTests {
 
     @Test
     public void removeFailTest1() {
-        removeTest("Test", USER_1, USER, false);
+        removeTest("Print", USER_1, USER, false);
     }
 
     @Test
@@ -126,8 +126,8 @@ public class WriteToDiskBotDAOTests {
 
     @Test
     public void getSuccessTest() {
-        createCacheFile("Test", CHAT_1, CHAT);
-        getTest("Test", CHAT_1, CHAT, true);
+        createCacheFile("Print", CHAT_1, CHAT);
+        getTest("Print", CHAT_1, CHAT, true);
     }
 
     @Test
@@ -137,13 +137,13 @@ public class WriteToDiskBotDAOTests {
 
     @Test
     public void getMiscTest() {
-        createCacheFile("Test", CHAT_1, CHAT);
-        createCacheFile("Test", USER_1, USER);
+        createCacheFile("Print", CHAT_1, CHAT);
+        createCacheFile("Print", USER_1, USER);
         createCacheFile("Sum",  USER_2, USER);
 
         getTest("HelloWorld", CHAT_2, CHAT, false);
-        getTest("Test", CHAT_2, CHAT, false);
-        getTest("Test", USER_2, USER, false);
+        getTest("Print", CHAT_2, CHAT, false);
+        getTest("Print", USER_2, USER, false);
         getTest("Sum", CHAT_2, CHAT, false);
         getTest("Sum", USER_2, USER, true);
         getTest("Sum", USER_1, USER, false);
@@ -151,16 +151,16 @@ public class WriteToDiskBotDAOTests {
 
     @Test
     public void getAllTest1() {
-        createCacheFile("Test", CHAT_1, CHAT);
-        getAllTest(CHAT_1, CHAT, new Compiled[]{testFiles.get("Test")});
+        createCacheFile("Print", CHAT_1, CHAT);
+        getAllTest(CHAT_1, CHAT, new Compiled[]{testFiles.get("Print")});
     }
 
     @Test
     public void getAllTest2() {
-        createCacheFile("Test", CHAT_1, CHAT);
+        createCacheFile("Print", CHAT_1, CHAT);
         createCacheFile("Sum",  CHAT_1, CHAT);
         createCacheFile("HelloWorld",  CHAT_2, CHAT);
-        getAllTest(CHAT_1, CHAT, new Compiled[]{testFiles.get("Test"), testFiles.get("Sum")});
+        getAllTest(CHAT_1, CHAT, new Compiled[]{testFiles.get("Print"), testFiles.get("Sum")});
         getAllTest(CHAT_2, CHAT, new Compiled[]{testFiles.get("HelloWorld")});
     }
 
@@ -179,18 +179,18 @@ public class WriteToDiskBotDAOTests {
         createCacheFile("HelloWorld", USER_2, USER);
         createCacheFile("Sum",  USER_1, USER);
         createCacheFile("Sum",  USER_2, USER);
-        createCacheFile("Test",  USER_1, USER);
-        createCacheFile("Test",  USER_2, USER);
+        createCacheFile("Print",  USER_1, USER);
+        createCacheFile("Print",  USER_2, USER);
         createCacheFile("HelloWorld", CHAT_1, CHAT);
         createCacheFile("HelloWorld", CHAT_2, CHAT);
         createCacheFile("Sum",  CHAT_1, CHAT);
         createCacheFile("Sum",  CHAT_2, CHAT);
-        createCacheFile("Test",  CHAT_1, CHAT);
-        createCacheFile("Test",  CHAT_2, CHAT);
-        getAllTest(USER_1, USER, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Test")});
-        getAllTest(USER_2, USER, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Test")});
-        getAllTest(CHAT_1, CHAT, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Test")});
-        getAllTest(CHAT_2, CHAT, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Test")});
+        createCacheFile("Print",  CHAT_1, CHAT);
+        createCacheFile("Print",  CHAT_2, CHAT);
+        getAllTest(USER_1, USER, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
+        getAllTest(USER_2, USER, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
+        getAllTest(CHAT_1, CHAT, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
+        getAllTest(CHAT_2, CHAT, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
     }
 
     @Test
@@ -211,8 +211,8 @@ public class WriteToDiskBotDAOTests {
 
     @Test
     public void isEmptyTest2() {
-        createCacheFile("Test", USER_1, USER);
-        createCacheFile("Test", CHAT_1, CHAT);
+        createCacheFile("Print", USER_1, USER);
+        createCacheFile("Print", CHAT_1, CHAT);
         isEmptyTest(USER_1, USER, false);
         isEmptyTest(USER_2, USER, true);
         isEmptyTest(CHAT_1, CHAT, false);
@@ -221,20 +221,20 @@ public class WriteToDiskBotDAOTests {
 
     @Test
     public void containsTest1() {
-        containsTest("Test", USER_1, USER, false);
-        containsTest("Test", USER_2, USER, false);
-        containsTest("Test", CHAT_1, CHAT, false);
-        containsTest("Test", CHAT_2, CHAT, false);
+        containsTest("Print", USER_1, USER, false);
+        containsTest("Print", USER_2, USER, false);
+        containsTest("Print", CHAT_1, CHAT, false);
+        containsTest("Print", CHAT_2, CHAT, false);
     }
 
     @Test
     public void containsTest2() {
-        createCacheFile("Test", USER_1, USER);
-        createCacheFile("Test", CHAT_1, CHAT);
-        containsTest("Test", USER_1, USER, true);
-        containsTest("Test", USER_2, USER, false);
-        containsTest("Test", CHAT_1, CHAT, true);
-        containsTest("Test", CHAT_2, CHAT, false);
+        createCacheFile("Print", USER_1, USER);
+        createCacheFile("Print", CHAT_1, CHAT);
+        containsTest("Print", USER_1, USER, true);
+        containsTest("Print", USER_2, USER, false);
+        containsTest("Print", CHAT_1, CHAT, true);
+        containsTest("Print", CHAT_2, CHAT, false);
     }
 
     private void containsTest(String name, Long id, Privacy privacy, boolean expected) {

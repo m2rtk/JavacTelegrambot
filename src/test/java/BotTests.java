@@ -37,11 +37,14 @@ public class BotTests {
 
             static  {
                 try {
-                    c1 = new Compiled(Utils.readOut("Test"), "Test");
+                    c1 = new Compiled(Utils.readOut("Print"), "Print");
                     c2 = new Compiled(Utils.readOut("Sum"), "Sum");
                     c3 = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
                     c4 = new Compiled(Utils.readOut("M8"), "M8");
-                } catch (Exception ignored) {}
+                } catch (Exception e) {
+                    System.out.println("Failed to load compiled from out.");
+                    e.printStackTrace();
+                }
             }
 
     @Before
@@ -65,7 +68,7 @@ public class BotTests {
         mockBot.onUpdateReceived(mockUpdate);
         verify(mockBot, times(1)).onUpdateReceived(mockUpdate);// this is stupid
     }
-    
+
     @Test
     public void javacNoParamsTest1() throws Exception {
         javacNoParamsTest("M8");
@@ -126,62 +129,62 @@ public class BotTests {
 
     @Test
     public void deleteCodeChatTest() throws Exception {
-        assertTrue(dao.contains("Test", USER_2, USER));
-        assertTrue(dao.contains("Test", CHAT_2, CHAT));
-        String content = "/delete -p Test";
+        assertTrue(dao.contains("Print", USER_2, USER));
+        assertTrue(dao.contains("Print", CHAT_2, CHAT));
+        String content = "/delete -p Print";
         Update update = Utils.createMockUpdateWithTextContent(content, USER_2, CHAT_2);
         bot.onUpdateReceived(update);
 
-        assertTrue(!dao.contains("Test", USER_2, USER));
-        assertTrue( dao.contains("Test", CHAT_2, CHAT));
+        assertTrue(!dao.contains("Print", USER_2, USER));
+        assertTrue( dao.contains("Print", CHAT_2, CHAT));
     }
 
     @Test
     public void deleteCodeUserTest() throws Exception {
-        assertTrue(dao.contains("Test", USER_2, USER));
-        assertTrue(dao.contains("Test", CHAT_2, CHAT));
-        String content = "/delete Test";
+        assertTrue(dao.contains("Print", USER_2, USER));
+        assertTrue(dao.contains("Print", CHAT_2, CHAT));
+        String content = "/delete Print";
         Update update = Utils.createMockUpdateWithTextContent(content, USER_2, CHAT_2);
         bot.onUpdateReceived(update);
 
-        assertTrue( dao.contains("Test", USER_2, USER));
-        assertTrue(!dao.contains("Test", CHAT_2, CHAT));
+        assertTrue( dao.contains("Print", USER_2, USER));
+        assertTrue(!dao.contains("Print", CHAT_2, CHAT));
     }
 
     @Test
     public void javaCodeChatSuccessTest() throws Exception {
-        javaTest("Test", new String[]{"wow"}, CHAT, USER_1, CHAT_2, "wow");
+        javaTest("Print", new String[]{"wow"}, CHAT, USER_1, CHAT_2, "wow");
     }
 
     @Test
     public void javaCodeChatFailTest() throws Exception {
-        javaTest("Test", new String[0], CHAT, USER_1, CHAT_1, "Database doesn't contain script named 'Test'");
+        javaTest("Print", new String[0], CHAT, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
     }
 
     @Test
     public void javaCodeUserSuccessTest() throws Exception {
-        javaTest("Test", new String[]{"wow"}, USER, USER_2, CHAT_1, "wow");
+        javaTest("Print", new String[]{"wow"}, USER, USER_2, CHAT_1, "wow");
     }
 
     @Test
     public void javaCodeChatFailTest1() throws Exception {
-        javaTest("Test", new String[0], USER, USER_1, CHAT_2, "Database doesn't contain script named 'Test'");
+        javaTest("Print", new String[0], USER, USER_1, CHAT_2, "Database doesn't contain script named 'Print'");
     }
 
     @Test
     public void javaCodeChatFailTest2() throws Exception {
-        javaTest("Test", new String[0], USER, USER_1, CHAT_1, "Database doesn't contain script named 'Test'");
+        javaTest("Print", new String[0], USER, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
     }
 
     @Test
     public void javaCodeWithArgumentsTest() throws Exception {
-        javaTest("Test", new String[]{"wow"}, USER, USER_2, CHAT_2, "wow");
+        javaTest("Print", new String[]{"wow"}, USER, USER_2, CHAT_2, "wow");
     }
 
     private void setCorrectTestClasspaths() throws Exception {
         String path = getClass().getClassLoader().getResource("out/").getPath();
-        Utils.setObjectField(dao.get("Test", CHAT_2, CHAT), "classPath", path);
-        Utils.setObjectField(dao.get("Test", USER_2, USER), "classPath", path);
+        Utils.setObjectField(dao.get("Print", CHAT_2, CHAT), "classPath", path);
+        Utils.setObjectField(dao.get("Print", USER_2, USER), "classPath", path);
     }
 
     private void javaTest(String sourceName, String[] args, Privacy privacy, Long user, Long chat, String output) throws Exception {

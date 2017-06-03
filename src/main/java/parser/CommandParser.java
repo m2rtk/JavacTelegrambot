@@ -1,10 +1,10 @@
 package parser;
 
 import bot.Commands;
-import bot.commands.Command;
+import bot.commands.visitors.Command;
 import bot.commands.JavaCommand;
 import bot.commands.interfaces.NeedsArgument;
-import bot.commands.parameters.Parameter;
+import bot.commands.visitors.Parameter;
 
 import java.util.HashMap;
 import java.util.Map;

@@ -1,5 +1,6 @@
-package bot.commands;
+package bot.commands.visitors;
 
+import bot.commands.IllegalExecutionException;
 import bot.commands.interfaces.CommandVisitor;
 
 public abstract class Command {
@@ -34,7 +35,7 @@ public abstract class Command {
      * Set output of command.
      * @param output new output.
      */
-    void setOutput(String output) {
+    public void setOutput(String output) {
         this.output = output;
     }
 

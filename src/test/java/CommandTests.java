@@ -1,6 +1,5 @@
 import bot.Commands;
 import bot.commands.*;
-import bot.commands.IllegalExecutionException;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import javac.Compiled;
@@ -26,7 +25,7 @@ public class CommandTests {
 
     static  {
         try {
-            c1 = new Compiled(Utils.readOut("Test"), "Test"); // 1 arg
+            c1 = new Compiled(Utils.readOut("Print"), "Print"); // 1 arg
             c2 = new Compiled(Utils.readOut("Sum"),  "Sum");  // 2 args
             c3 = new Compiled(Utils.readOut("M8"),   "M8");   // * args
         } catch (Exception ignored) {}
@@ -89,8 +88,8 @@ public class CommandTests {
 
         String expectedOutput = "List: " + System.getProperty("line.separator");
         expectedOutput += "M8" + System.getProperty("line.separator");
+        expectedOutput += "Print" + System.getProperty("line.separator");
         expectedOutput += "Sum" + System.getProperty("line.separator");
-        expectedOutput += "Test" + System.getProperty("line.separator");
 
         assertEquals(expectedOutput, listCommand.getOutput());
         assertEquals(Commands.list, listCommand.getName());
@@ -107,16 +106,16 @@ public class CommandTests {
         DeleteCommand deleteCommand = new DeleteCommand();
         deleteCommand.setPrivacy(CHAT, CHAT_1);
         deleteCommand.setDAO(dao);
-        deleteCommand.setArgument("Test");
+        deleteCommand.setArgument("Print");
         deleteCommand.execute();
 
-        String expectedOutput = "Successfully deleted Test";
+        String expectedOutput = "Successfully deleted Print";
 
         assertEquals(expectedOutput, deleteCommand.getOutput());
         assertEquals(Commands.delete, deleteCommand.getName());
 
         assertTrue(dao.getAll(CHAT_1, CHAT).size() == 2);
-        assertTrue(!dao.contains("Test", CHAT_1, CHAT));
+        assertTrue(!dao.contains("Print", CHAT_1, CHAT));
         assertTrue( dao.contains("Sum", CHAT_1, CHAT));
         assertTrue( dao.contains("M8", CHAT_1, CHAT));
     }
@@ -131,11 +130,12 @@ public class CommandTests {
         JavaCommand javaCommand = new JavaCommand();
         javaCommand.setPrivacy(CHAT, CHAT_1);
         javaCommand.setDAO(dao);
-        javaCommand.setArgument("Test");
+        javaCommand.setArgument("Print");
         javaCommand.execute();
 
         // error because the command tries to execute Test in cache/CHAT/CHAT_1 folder which is empty
-        String expectedOutput = "Error: Could not find or load main class Test" + System.getProperty("line.separator");
+        // todo redirect cache folder for tests or something like that
+        String expectedOutput = "Error: Could not find or load main class Print" + System.getProperty("line.separator");
 
         assertEquals(expectedOutput, javaCommand.getOutput());
         assertEquals(Commands.java, javaCommand.getName());

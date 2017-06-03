@@ -3,7 +3,6 @@ package bot;
 import bot.commands.*;
 import bot.commands.parameters.MainParameter;
 import bot.commands.parameters.PrivacyParameter;
-import com.google.common.collect.ImmutableMap;
 
 import java.util.*;
 

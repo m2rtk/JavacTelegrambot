@@ -10,7 +10,7 @@ import static org.junit.Assert.assertTrue;
 public class JavacTests {
     @Test
     public void compileTest1() throws Exception {
-        compileTest("Test");
+        compileTest("Print");
     }
 
     @Test
@@ -30,7 +30,7 @@ public class JavacTests {
 
     @Test
     public void runTest2() throws Exception {
-        runTest("Test", new String[]{"wow"}, "wow");
+        runTest("Print", new String[]{"wow"}, "wow");
     }
 
     @Test

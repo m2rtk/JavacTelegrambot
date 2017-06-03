@@ -1,6 +1,5 @@
 package bot.commands.visitors;
 
-import bot.commands.Command;
 import bot.commands.interfaces.CommandVisitor;
 import bot.commands.interfaces.NeedsStartTime;
 

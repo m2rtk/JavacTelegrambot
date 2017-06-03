@@ -1,7 +1,7 @@
 package bot;
 
-import bot.commands.Command;
-import bot.commands.parameters.Parameter;
+import bot.commands.visitors.Command;
+import bot.commands.visitors.Parameter;
 import bot.commands.parameters.PrivacyParameter;
 import bot.commands.visitors.DAOVisitor;
 import bot.commands.visitors.StartTimeVisitor;
@@ -29,8 +29,6 @@ public class JavaBot extends TelegramLongPollingBot {
     public JavaBot() {
         this.daoVisitor       = new DAOVisitor(new WriteToDiskBotDAO());
         this.startTimeVisitor = new StartTimeVisitor(Instant.now().getEpochSecond());
-
-        new DirectInputThread(this).start();
     }
 
     @Override
@@ -70,7 +68,6 @@ public class JavaBot extends TelegramLongPollingBot {
 
         Command command = parser.getCommand();
         Map<String, Parameter> parameters = parser.getParameters();
-
         setPrivacy(parameters, update);
 
         for (Parameter parameter : parameters.values()) command.accept(parameter);
