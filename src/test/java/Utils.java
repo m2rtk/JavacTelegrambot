@@ -19,15 +19,14 @@ class Utils {
 
     private Utils() {} // prevent instantiation
 
-    static BotDAO changeDAO(JavaBot bot) throws Exception {
-        BotDAO dao = new InMemoryBotDAO();
-        DAOVisitor daoVisitor = new DAOVisitor(dao);
+    static BotDAO changeBotDAO(JavaBot bot, BotDAO newDAO) throws Exception {
+        DAOVisitor daoVisitor = new DAOVisitor(newDAO);
 
         Field field = JavaBot.class.getDeclaredField("daoVisitor");
         field.setAccessible(true);
         field.set(bot, daoVisitor);
 
-        return dao;
+        return newDAO;
     }
 
     static void setObjectField(Object object, String fieldName, Object newValue) throws Exception {

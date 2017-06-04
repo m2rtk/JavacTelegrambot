@@ -1,13 +1,18 @@
 import bot.JavaBot;
 import dao.BotDAO;
+import dao.InMemoryBotDAO;
 import dao.Privacy;
 import javac.Compiled;
+import org.junit.After;
 import org.junit.Before;
+import org.junit.Rule;
 import org.junit.Test;
+import org.junit.rules.TemporaryFolder;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.logging.BotLogger;
 
+import java.io.File;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.Arrays;
@@ -28,32 +33,37 @@ public class BotTests {
     private static final Long USER_1 =  1L;
     private static final Long USER_2 =  2L;
     private static final String TEST_LOG = "test.log";
+    private static File testLogFile;
     private static BotDAO dao;
 
-    private static Compiled c1;
-    private static Compiled c2;
-    private static Compiled c3;
-    private static Compiled c4;
+    private static Compiled print;
+    private static Compiled sum;
+    private static Compiled helloWorld;
 
             static  {
                 try {
-                    c1 = new Compiled(Utils.readOut("Print"), "Print");
-                    c2 = new Compiled(Utils.readOut("Sum"), "Sum");
-                    c3 = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
-                    c4 = new Compiled(Utils.readOut("M8"), "M8");
+                    print = new Compiled(Utils.readOut("Print"), "Print");
+                    sum = new Compiled(Utils.readOut("Sum"), "Sum");
+                    helloWorld = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
                 } catch (Exception e) {
                     System.out.println("Failed to load compiled from out.");
                     e.printStackTrace();
                 }
             }
 
+
+    @Rule
+    public TemporaryFolder folder = new TemporaryFolder();
+
     @Before
     public void init() throws Exception {
-        dao = Utils.changeDAO(bot); // change dao to InMemoryBotDAO
-        dao.add(c1, USER_2, USER);
-        dao.add(c1, CHAT_2, CHAT);
+        dao = Utils.changeBotDAO(bot, new InMemoryBotDAO());
+        dao.add(print, USER_2, USER);
+        dao.add(print, CHAT_2, CHAT);
 
-        Handler handler = new FileHandler(TEST_LOG);
+        // setup test.log file as logging target
+        testLogFile = folder.newFile(TEST_LOG);
+        Handler handler = new FileHandler(testLogFile.getAbsolutePath());
         handler.setFormatter(new SimpleFormatter());
         BotLogger.registerLogger(handler);
     }
@@ -70,17 +80,17 @@ public class BotTests {
     }
 
     @Test
-    public void javacNoParamsTest1() throws Exception {
-        javacNoParamsTest("M8");
+    public void javacSumShouldCompile() throws Exception {
+        javacNoParamsTest(sum);
     }
 
     @Test
-    public void javacNoParamsTest2() throws Exception {
-        javacNoParamsTest("HelloWorld");
+    public void javacHelloWorldShouldCompile() throws Exception {
+        javacNoParamsTest(helloWorld);
     }
 
     @Test
-    public void javacWith_m_ParamTest() throws Exception {
+    public void javacHelloWorldWithMainParamShouldCompile() throws Exception {
         String name = "HelloWorld";
         String content = "/javac -m HelloWorld System.out.println(\"Hello World!\");";
         Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);
@@ -90,7 +100,7 @@ public class BotTests {
     }
 
     @Test
-    public void javacWith_p_ParamTest() throws Exception {
+    public void javacHelloWorldWithPrivacyParamShouldCompile() throws Exception {
         String name = "HelloWorld";
         String content = "/javac -p " + Utils.readSource(name);
 
@@ -103,7 +113,7 @@ public class BotTests {
     }
 
     @Test
-    public void javacWith_m_p_ParamsWorldTest() throws Exception {
+    public void javacHelloWorldWithMainPrivacyParamsShouldCompile() throws Exception {
         String name = "HelloWorld";
         String content = "/javac -m HelloWorld -p System.out.println(\"Hello World!\");";
 
@@ -114,7 +124,7 @@ public class BotTests {
     }
 
     @Test
-    public void javacWith_m_p_ParamsWorldTestLonger() throws Exception {
+    public void javacWitMainPrivacyParamsShouldCompile() throws Exception {
         String name = "HelloWorld";
         String content = "/javac -m HelloWorld -p " +
                 "System.out.println(\"Hello World!\"); " +
@@ -128,7 +138,7 @@ public class BotTests {
     }
 
     @Test
-    public void deleteCodeChatTest() throws Exception {
+    public void deleteCodeFromChat() throws Exception {
         assertTrue(dao.contains("Print", USER_2, USER));
         assertTrue(dao.contains("Print", CHAT_2, CHAT));
         String content = "/delete -p Print";
@@ -140,7 +150,7 @@ public class BotTests {
     }
 
     @Test
-    public void deleteCodeUserTest() throws Exception {
+    public void deleteCodeFromUser() throws Exception {
         assertTrue(dao.contains("Print", USER_2, USER));
         assertTrue(dao.contains("Print", CHAT_2, CHAT));
         String content = "/delete Print";
@@ -152,27 +162,23 @@ public class BotTests {
     }
 
     @Test
-    public void javaCodeChatSuccessTest() throws Exception {
+    public void javaPrintWithChatPrivacySuccess() throws Exception {
         javaTest("Print", new String[]{"wow"}, CHAT, USER_1, CHAT_2, "wow");
     }
 
     @Test
-    public void javaCodeChatFailTest() throws Exception {
+    public void javaPrintWithChatPrivacyFail() throws Exception {
         javaTest("Print", new String[0], CHAT, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
     }
 
     @Test
-    public void javaCodeUserSuccessTest() throws Exception {
+    public void javaPrintWithUserPrivacySuccess() throws Exception {
         javaTest("Print", new String[]{"wow"}, USER, USER_2, CHAT_1, "wow");
     }
 
     @Test
-    public void javaCodeChatFailTest1() throws Exception {
+    public void javaPrintWithUserPrivacyFail() throws Exception {
         javaTest("Print", new String[0], USER, USER_1, CHAT_2, "Database doesn't contain script named 'Print'");
-    }
-
-    @Test
-    public void javaCodeChatFailTest2() throws Exception {
         javaTest("Print", new String[0], USER, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
     }
 
@@ -187,7 +193,7 @@ public class BotTests {
         Utils.setObjectField(dao.get("Print", USER_2, USER), "classPath", path);
     }
 
-    private void javaTest(String sourceName, String[] args, Privacy privacy, Long user, Long chat, String output) throws Exception {
+    private void javaTest(String sourceName, String[] args, Privacy privacy, Long user, Long chat, String expected) throws Exception {
         String content = "/java ";
         if (privacy == USER) content += "-p ";
         content += sourceName;
@@ -197,12 +203,13 @@ public class BotTests {
         setCorrectTestClasspaths();
         bot.onUpdateReceived(update);
 
-        String expectedOutput = "Executed command /java in chat " + chat + " with output " + output;
+        String expectedOutput = "Executed command /java in chat " + chat + " with output " + expected;
 
         testLogContains(expectedOutput);
     }
 
-    private void javacNoParamsTest(String sourceName) throws Exception {
+    private void javacNoParamsTest(Compiled compiled) throws Exception {
+        String sourceName = compiled.getName();
         String content = "/javac " + Utils.readSource(sourceName);
         byte[] targetByteCode = Utils.readOut(sourceName);
         Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);
@@ -213,7 +220,7 @@ public class BotTests {
     }
 
     private void testLogContains(String expected) throws Exception {
-        List<String> lines = Files.readAllLines(Paths.get(TEST_LOG));
+        List<String> lines = Files.readAllLines(Paths.get(testLogFile.getAbsolutePath()));
         boolean passed = false;
         for (String line : lines) {
             if (line.contains(expected)) {
