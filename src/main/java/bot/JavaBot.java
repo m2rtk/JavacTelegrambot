@@ -70,7 +70,7 @@ public class JavaBot extends TelegramLongPollingBot {
         Map<String, Parameter> parameters = parser.getParameters();
         setPrivacy(parameters, update);
 
-        for (Parameter parameter : parameters.values()) command.accept(parameter);
+        parameters.values().forEach(command::accept);
         command.accept(daoVisitor);
         command.accept(startTimeVisitor);
 

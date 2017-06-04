@@ -40,16 +40,16 @@ public class BotTests {
     private static Compiled sum;
     private static Compiled helloWorld;
 
-            static  {
-                try {
-                    print = new Compiled(Utils.readOut("Print"), "Print");
-                    sum = new Compiled(Utils.readOut("Sum"), "Sum");
-                    helloWorld = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
-                } catch (Exception e) {
-                    System.out.println("Failed to load compiled from out.");
-                    e.printStackTrace();
-                }
-            }
+    static  {
+        try {
+            print = new Compiled(Utils.readOut("Print"), "Print");
+            sum = new Compiled(Utils.readOut("Sum"), "Sum");
+            helloWorld = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
+        } catch (Exception e) {
+            System.out.println("Failed to load compiled from out.");
+            e.printStackTrace();
+        }
+    }
 
 
     @Rule
