@@ -77,7 +77,7 @@ public class JavaBot extends TelegramLongPollingBot {
         return command;
     }
 
-    // I don't like this solution
+    // I don't like this solution todo fix
     private void setPrivacy(Map<String, Parameter> parameters, Update update) {
         long chatId = update.getMessage().getChatId();
         long userId = update.getMessage().getFrom().getId();

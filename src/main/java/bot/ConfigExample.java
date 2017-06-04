@@ -1,6 +1,6 @@
 package bot;
 
-class ConfigExample { //todo rename to 'Config'
+class ConfigExample { //todo create copy with classname 'Config'
     private ConfigExample() {}
 
     static final String JAVABOT_USER = "<CHANGE_ME>";
