@@ -20,9 +20,6 @@ import static dao.Privacy.USER;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 
-/**
- * Created on 14.04.2017.
- */
 public class WriteToDiskBotDAOTests {
     private static final BotDAO dao = new WriteToDiskBotDAO();
     private static final Long CHAT_1 = -1L;

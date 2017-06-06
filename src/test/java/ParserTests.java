@@ -211,7 +211,6 @@ public class ParserTests {
         assertEquals(expectedParametersSet, new HashSet<>(parser.getParameters().values()));
     }
 
-
     private static NeedsArgument a(Class c, String arg) throws Exception {
         NeedsArgument argument = (NeedsArgument) c.getConstructors()[0].newInstance();
         argument.setArgument(arg);

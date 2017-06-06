@@ -3,7 +3,6 @@ import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import dao.Privacy;
 import javac.Compiled;
-import org.junit.After;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -26,13 +25,17 @@ import static dao.Privacy.USER;
 import static junit.framework.Assert.assertTrue;
 import static org.mockito.Mockito.*;
 
+
+//// TODO: 07.06.2017 This class seems to be pointless because all the functionality in this class is already tested by
+//// TODO: 07.06.2017 other test classes.
 public class BotTests {
-    private static final JavaBot bot = new JavaBot();
     private static final Long CHAT_1 = -1L;
     private static final Long CHAT_2 = -2L;
     private static final Long USER_1 =  1L;
     private static final Long USER_2 =  2L;
     private static final String TEST_LOG = "test.log";
+
+    private static  JavaBot bot;
     private static File testLogFile;
     private static BotDAO dao;
 
@@ -42,21 +45,20 @@ public class BotTests {
 
     static  {
         try {
-            print = new Compiled(Utils.readOut("Print"), "Print");
-            sum = new Compiled(Utils.readOut("Sum"), "Sum");
-            helloWorld = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
+            print       = new Compiled(Utils.readOut("Print"), "Print");
+            sum         = new Compiled(Utils.readOut("Sum"), "Sum");
+            helloWorld  = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
         } catch (Exception e) {
-            System.out.println("Failed to load compiled from out.");
-            e.printStackTrace();
+            throw new RuntimeException("Failed to load compiled from out.");
         }
     }
-
 
     @Rule
     public TemporaryFolder folder = new TemporaryFolder();
 
     @Before
     public void init() throws Exception {
+        bot = Utils.createSpyOfBotThatDoesNotSendMessages();
         dao = Utils.changeBotDAO(bot, new InMemoryBotDAO());
         dao.add(print, USER_2, USER);
         dao.add(print, CHAT_2, CHAT);
@@ -164,30 +166,48 @@ public class BotTests {
     @Test
     public void javaPrintWithChatPrivacySuccess() throws Exception {
         javaTest("Print", new String[]{"wow"}, CHAT, USER_1, CHAT_2, "wow");
+        javaTest("Print", new String[]{"wow"}, CHAT, USER_2, CHAT_2, "wow");
     }
 
     @Test
     public void javaPrintWithChatPrivacyFail() throws Exception {
-        javaTest("Print", new String[0], CHAT, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
+        javaTest("Print", new String[]{"wow"}, CHAT, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
+        javaTest("Print", new String[]{"wow"}, CHAT, USER_2, CHAT_1, "Database doesn't contain script named 'Print'");
     }
 
     @Test
     public void javaPrintWithUserPrivacySuccess() throws Exception {
         javaTest("Print", new String[]{"wow"}, USER, USER_2, CHAT_1, "wow");
+        javaTest("Print", new String[]{"wow"}, USER, USER_2, CHAT_2, "wow");
     }
 
     @Test
     public void javaPrintWithUserPrivacyFail() throws Exception {
-        javaTest("Print", new String[0], USER, USER_1, CHAT_2, "Database doesn't contain script named 'Print'");
-        javaTest("Print", new String[0], USER, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
+        javaTest("Print", new String[]{"wow"}, USER, USER_1, CHAT_2, "Database doesn't contain script named 'Print'");
+        javaTest("Print", new String[]{"wow"}, USER, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
     }
 
     @Test
-    public void javaCodeWithArgumentsTest() throws Exception {
-        javaTest("Print", new String[]{"wow"}, USER, USER_2, CHAT_2, "wow");
+    public void allCorrectCommandsAreExecuted() throws Exception {
+        isExecutedTest("/help");
+        isExecutedTest("/up");
+        isExecutedTest("/list");
+        isExecutedTest("/nice");
+        isExecutedTest("/java Print wow");
+        isExecutedTest("/java Sum 1 2 3");
+        isExecutedTest("/javac -m Test1 System.out.println(\"123\");");
+        isExecutedTest("/javac -m Test2");
+        isExecutedTest("/delete Print");
+        isExecutedTest("/delete Sum");
     }
 
-    private void setCorrectTestClasspaths() throws Exception {
+    private void isExecutedTest(String command) throws Exception {
+        Update update = Utils.createMockUpdateWithTextContent(command, USER_1, CHAT_1);
+        bot.onUpdateReceived(update);
+        testLogContains("Executed command " + command.split(" ")[0]);
+    }
+
+    private void setCorrectTestClassPaths() throws Exception {
         String path = getClass().getClassLoader().getResource("out/").getPath();
         Utils.setObjectField(dao.get("Print", CHAT_2, CHAT), "classPath", path);
         Utils.setObjectField(dao.get("Print", USER_2, USER), "classPath", path);
@@ -200,7 +220,7 @@ public class BotTests {
         for (String arg : args) content += " " + arg;
         Update update = Utils.createMockUpdateWithTextContent(content, user, chat);
 
-        setCorrectTestClasspaths();
+        setCorrectTestClassPaths();
         bot.onUpdateReceived(update);
 
         String expectedOutput = "Executed command /java in chat " + chat + " with output " + expected;

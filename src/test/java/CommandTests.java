@@ -1,11 +1,16 @@
 import bot.Commands;
 import bot.commands.*;
+import bot.commands.interfaces.NeedsArgument;
+import bot.commands.interfaces.NeedsDAO;
+import bot.commands.interfaces.NeedsPrivacy;
+import bot.commands.visitors.Command;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import javac.Compiled;
 import org.junit.Before;
 import org.junit.Test;
 
+import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.regex.Matcher;
@@ -14,6 +19,7 @@ import java.util.regex.Pattern;
 import static dao.Privacy.CHAT;
 import static org.junit.Assert.assertEquals;
 import static org.junit.Assert.assertTrue;
+import static org.junit.Assert.fail;
 
 public class CommandTests {
     private BotDAO dao;
@@ -28,7 +34,9 @@ public class CommandTests {
             c1 = new Compiled(Utils.readOut("Print"), "Print"); // 1 arg
             c2 = new Compiled(Utils.readOut("Sum"),  "Sum");  // 2 args
             c3 = new Compiled(Utils.readOut("M8"),   "M8");   // * args
-        } catch (Exception ignored) {}
+        } catch (Exception e) {
+            throw new RuntimeException("Failed to load compiled from out.");
+        }
     }
 
     @Before
@@ -40,7 +48,7 @@ public class CommandTests {
     }
 
     @Test
-    public void upCommandTest() {
+    public void correctUpCommandTest() {
         UpCommand upCommand = new UpCommand();
         upCommand.setStartTime(0L);
         upCommand.execute();
@@ -52,13 +60,13 @@ public class CommandTests {
         assertEquals(Commands.up, upCommand.getName());
     }
 
-    @Test(expected = IllegalExecutionException.class)
-    public void upCommandIllegalExecutionTest() {
-        new UpCommand().execute();
+    @Test
+    public void IllegalExecutionUpCommandTest() {
+        illegalExecutionTest(UpCommand.class, false, false, false);
     }
 
     @Test
-    public void niceCommandTest() {
+    public void correctNiceCommandTest() {
         NiceCommand niceCommand = new NiceCommand();
         niceCommand.execute();
 
@@ -67,7 +75,7 @@ public class CommandTests {
     }
 
     @Test
-    public void helpCommandTest() throws Exception {
+    public void correctHelpCommandTest() throws Exception {
         HelpCommand helpCommand = new HelpCommand();
         helpCommand.execute();
 
@@ -80,7 +88,7 @@ public class CommandTests {
     }
 
     @Test
-    public void listCommandTest() {
+    public void correctListCommandTest() {
         ListCommand listCommand = new ListCommand();
         listCommand.setPrivacy(CHAT, CHAT_1);
         listCommand.setDAO(dao);
@@ -95,13 +103,15 @@ public class CommandTests {
         assertEquals(Commands.list, listCommand.getName());
     }
 
-    @Test(expected = IllegalExecutionException.class)
-    public void listCommandIllegalExecutionTest() {
-        new ListCommand().execute();
+    @Test
+    public void IllegalExecutionListCommandTest() {
+        illegalExecutionTest(ListCommand.class, false, false, false);
+        illegalExecutionTest(ListCommand.class, false, true, false);
+        illegalExecutionTest(ListCommand.class, true, false, false);
     }
 
     @Test
-    public void deleteCommandTest() {
+    public void correctDeleteCommandTest() {
         assertTrue(dao.getAll(CHAT_1, CHAT).size() == 3);
         DeleteCommand deleteCommand = new DeleteCommand();
         deleteCommand.setPrivacy(CHAT, CHAT_1);
@@ -120,13 +130,19 @@ public class CommandTests {
         assertTrue( dao.contains("M8", CHAT_1, CHAT));
     }
 
-    @Test(expected = IllegalExecutionException.class)
-    public void deleteCommandIllegalExecutionTest() {
-        new DeleteCommand().execute();
+    @Test
+    public void IllegalExecutionDeleteCommandTest() {
+        illegalExecutionTest(DeleteCommand.class, true, true, false);
+        illegalExecutionTest(DeleteCommand.class, true, false, true);
+        illegalExecutionTest(DeleteCommand.class, false, true, true);
+        illegalExecutionTest(DeleteCommand.class, false, false, true);
+        illegalExecutionTest(DeleteCommand.class, false, true, false);
+        illegalExecutionTest(DeleteCommand.class, true, false, false);
+        illegalExecutionTest(DeleteCommand.class, false, false, false);
     }
 
     @Test
-    public void javaCommandTest() throws Exception {
+    public void correctJavaCommandTest() throws Exception {
         JavaCommand javaCommand = new JavaCommand();
         javaCommand.setPrivacy(CHAT, CHAT_1);
         javaCommand.setDAO(dao);
@@ -141,13 +157,19 @@ public class CommandTests {
         assertEquals(Commands.java, javaCommand.getName());
     }
 
-    @Test(expected = IllegalExecutionException.class)
-    public void javaCommandIllegalExecutionTest() {
-        new JavaCommand().execute();
+    @Test
+    public void IllegalExecutionJavaCommandTest() {
+        illegalExecutionTest(JavaCommand.class, true, true, false);
+        illegalExecutionTest(JavaCommand.class, true, false, true);
+        illegalExecutionTest(JavaCommand.class, false, true, true);
+        illegalExecutionTest(JavaCommand.class, false, false, true);
+        illegalExecutionTest(JavaCommand.class, false, true, false);
+        illegalExecutionTest(JavaCommand.class, true, false, false);
+        illegalExecutionTest(JavaCommand.class, false, false, false);
     }
 
     @Test
-    public void javacCommandTest() {
+    public void correctJavacCommandTest() {
         JavacCommand javacCommand = new JavacCommand();
         javacCommand.setPrivacy(CHAT, CHAT_1);
         javacCommand.setDAO(dao);
@@ -161,9 +183,33 @@ public class CommandTests {
         assertEquals(Commands.javac, javacCommand.getName());
     }
 
-    @Test(expected = IllegalExecutionException.class)
-    public void javacCommandIllegalExecutionTest() {
-        new JavaCommand().execute();
+    @Test
+    public void IllegalExecutionJavacCommandTest() {
+        illegalExecutionTest(JavacCommand.class, true, true, false);
+        illegalExecutionTest(JavacCommand.class, true, false, true);
+        illegalExecutionTest(JavacCommand.class, false, true, true);
+        illegalExecutionTest(JavacCommand.class, false, false, true);
+        illegalExecutionTest(JavacCommand.class, false, true, false);
+        illegalExecutionTest(JavacCommand.class, true, false, false);
+        illegalExecutionTest(JavacCommand.class, false, false, false);
     }
 
+    private void illegalExecutionTest(Class c, boolean dao, boolean privacy, boolean argument) {
+        try {
+            Command command = (Command) c.getConstructors()[0].newInstance();
+
+            if (dao && command instanceof NeedsDAO) ((NeedsDAO) command).setDAO(this.dao);
+            if (privacy && command instanceof NeedsPrivacy) ((NeedsPrivacy) command).setPrivacy(CHAT, CHAT_1);
+            if (argument && command instanceof NeedsArgument) ((NeedsArgument) command).setArgument("test");
+
+            try {
+                command.execute();
+                fail();
+            } catch (IllegalExecutionException ignored) {
+                // test passes if this block is executed
+            }
+        } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
+            throw new RuntimeException(e); // better to e.printStackTrace(); ?
+        }
+    }
 }
