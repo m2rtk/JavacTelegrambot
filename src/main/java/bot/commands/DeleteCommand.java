@@ -19,7 +19,7 @@ public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgumen
 
     @Override
     public void execute() {
-        if (argument == null || id == null || privacy == null || dao == null) throw new IllegalExecutionException();
+        if (argument == null || argument.isEmpty() || id == null || privacy == null || dao == null) throw new IllegalExecutionException();
         boolean successful = dao.remove(argument, id, privacy);
 
         if (successful) setOutput("Successfully deleted " + argument);

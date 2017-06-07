@@ -24,7 +24,7 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
 
     @Override
     public void execute() {
-        if (content == null || id == null || privacy == null || dao == null) throw new IllegalExecutionException();
+        if (content == null || content.isEmpty() || id == null || privacy == null || dao == null) throw new IllegalExecutionException();
         Code code = new Code(content, privacy, id);
 
         if (code.compile()) {

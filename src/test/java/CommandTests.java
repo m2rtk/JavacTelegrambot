@@ -6,6 +6,7 @@ import bot.commands.interfaces.NeedsPrivacy;
 import bot.commands.visitors.Command;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
+import dao.Privacy;
 import javac.Compiled;
 import org.junit.Before;
 import org.junit.Test;
@@ -25,15 +26,15 @@ public class CommandTests {
     private BotDAO dao;
     private static final Long CHAT_1 = -1L;
 
-    private static Compiled c1;
-    private static Compiled c2;
-    private static Compiled c3;
+    private static Compiled print;
+    private static Compiled sum;
+    private static Compiled M8;
 
     static  {
         try {
-            c1 = new Compiled(Utils.readOut("Print"), "Print"); // 1 arg
-            c2 = new Compiled(Utils.readOut("Sum"),  "Sum");  // 2 args
-            c3 = new Compiled(Utils.readOut("M8"),   "M8");   // * args
+            print = new Compiled(Utils.readOut("Print"), "Print"); // 1 arg
+            sum = new Compiled(Utils.readOut("Sum"),  "Sum");  // 2 args
+            M8 = new Compiled(Utils.readOut("M8"),   "M8");   // * args
         } catch (Exception e) {
             throw new RuntimeException("Failed to load compiled from out.");
         }
@@ -41,16 +42,17 @@ public class CommandTests {
 
     @Before
     public void init() {
-        this.dao = new InMemoryBotDAO();
-        dao.add(c1, CHAT_1, CHAT);
-        dao.add(c2, CHAT_1, CHAT);
-        dao.add(c3, CHAT_1, CHAT);
+        dao = new InMemoryBotDAO();
+        dao.add(print, CHAT_1, CHAT);
+        dao.add(sum, CHAT_1, CHAT);
+        dao.add(M8, CHAT_1, CHAT);
     }
 
     @Test
-    public void correctUpCommandTest() {
-        UpCommand upCommand = new UpCommand();
-        upCommand.setStartTime(0L);
+    public void upCommandWithCorrectContentOutputsUpTime() {
+        UpCommand upCommand = new UpCommand(){{
+            setStartTime(0L);
+        }};
         upCommand.execute();
 
         String pattern = "I've been up for [0-9]+ seconds.";
@@ -61,12 +63,12 @@ public class CommandTests {
     }
 
     @Test
-    public void IllegalExecutionUpCommandTest() {
+    public void upCommandWithMissingContentThrowsException() {
         illegalExecutionTest(UpCommand.class, false, false, false);
     }
 
     @Test
-    public void correctNiceCommandTest() {
+    public void niceCommandOutputsNice() {
         NiceCommand niceCommand = new NiceCommand();
         niceCommand.execute();
 
@@ -75,7 +77,7 @@ public class CommandTests {
     }
 
     @Test
-    public void correctHelpCommandTest() throws Exception {
+    public void helpCommandOutputsHelp() throws Exception {
         HelpCommand helpCommand = new HelpCommand();
         helpCommand.execute();
 
@@ -88,12 +90,14 @@ public class CommandTests {
     }
 
     @Test
-    public void correctListCommandTest() {
-        ListCommand listCommand = new ListCommand();
-        listCommand.setPrivacy(CHAT, CHAT_1);
-        listCommand.setDAO(dao);
+    public void listCommandWithCorrectContentOutputsListOfMethods() {
+        ListCommand listCommand = new ListCommand(){{
+            setPrivacy(CHAT, CHAT_1);
+            setDAO(dao);
+        }};
         listCommand.execute();
 
+        // TODO: 07.06.2017 Compare sets instead of strings
         String expectedOutput = "List: " + System.getProperty("line.separator");
         expectedOutput += "M8" + System.getProperty("line.separator");
         expectedOutput += "Print" + System.getProperty("line.separator");
@@ -104,19 +108,20 @@ public class CommandTests {
     }
 
     @Test
-    public void IllegalExecutionListCommandTest() {
+    public void listCommandWithMissingContentThrowsException() {
         illegalExecutionTest(ListCommand.class, false, false, false);
         illegalExecutionTest(ListCommand.class, false, true, false);
         illegalExecutionTest(ListCommand.class, true, false, false);
     }
 
     @Test
-    public void correctDeleteCommandTest() {
+    public void deleteCommandWithCorrectContentDeletesMethod() {
         assertTrue(dao.getAll(CHAT_1, CHAT).size() == 3);
-        DeleteCommand deleteCommand = new DeleteCommand();
-        deleteCommand.setPrivacy(CHAT, CHAT_1);
-        deleteCommand.setDAO(dao);
-        deleteCommand.setArgument("Print");
+        DeleteCommand deleteCommand = new DeleteCommand(){{
+            setPrivacy(CHAT, CHAT_1);
+            setDAO(dao);
+            setArgument("Print");
+        }};
         deleteCommand.execute();
 
         String expectedOutput = "Successfully deleted Print";
@@ -130,8 +135,19 @@ public class CommandTests {
         assertTrue( dao.contains("M8", CHAT_1, CHAT));
     }
 
+    @Test(expected = IllegalExecutionException.class)
+    public void deleteCommandWithEmptyArgumentThrowsException() {
+        DeleteCommand deleteCommand = new DeleteCommand(){{
+            setPrivacy(CHAT, CHAT_1);
+            setDAO(dao);
+            setArgument("");
+        }};
+        deleteCommand.execute();
+    }
+
+
     @Test
-    public void IllegalExecutionDeleteCommandTest() {
+    public void deleteCommandWithMissingContentThrowsException() {
         illegalExecutionTest(DeleteCommand.class, true, true, false);
         illegalExecutionTest(DeleteCommand.class, true, false, true);
         illegalExecutionTest(DeleteCommand.class, false, true, true);
@@ -142,11 +158,12 @@ public class CommandTests {
     }
 
     @Test
-    public void correctJavaCommandTest() throws Exception {
-        JavaCommand javaCommand = new JavaCommand();
-        javaCommand.setPrivacy(CHAT, CHAT_1);
-        javaCommand.setDAO(dao);
-        javaCommand.setArgument("Print");
+    public void javaCommandWithCorrectContentExecutesSuccessfully() throws Exception {
+        JavaCommand javaCommand = new JavaCommand(){{
+            setPrivacy(CHAT, CHAT_1);
+            setDAO(dao);
+            setArgument("Print");
+        }};
         javaCommand.execute();
 
         // error because the command tries to execute Test in cache/CHAT/CHAT_1 folder which is empty
@@ -157,8 +174,18 @@ public class CommandTests {
         assertEquals(Commands.java, javaCommand.getName());
     }
 
+    @Test(expected = IllegalExecutionException.class)
+    public void javaCommandWithEmptyArgumentThrowsException() {
+        JavaCommand javaCommand = new JavaCommand(){{
+            setPrivacy(CHAT, CHAT_1);
+            setDAO(dao);
+            setArgument("");
+        }};
+        javaCommand.execute();
+    }
+
     @Test
-    public void IllegalExecutionJavaCommandTest() {
+    public void javaCommandWithMissingContentThrowsException() {
         illegalExecutionTest(JavaCommand.class, true, true, false);
         illegalExecutionTest(JavaCommand.class, true, false, true);
         illegalExecutionTest(JavaCommand.class, false, true, true);
@@ -169,12 +196,13 @@ public class CommandTests {
     }
 
     @Test
-    public void correctJavacCommandTest() {
-        JavacCommand javacCommand = new JavacCommand();
-        javacCommand.setPrivacy(CHAT, CHAT_1);
-        javacCommand.setDAO(dao);
-        javacCommand.setArgument("System.out.println(1);");
-        javacCommand.wrapContentInMain("Test4");
+    public void javacCommandWithCorrectContentExecutesSuccessfully() {
+        JavacCommand javacCommand = new JavacCommand(){{
+            setPrivacy(CHAT, CHAT_1);
+            setDAO(dao);
+            setArgument("System.out.println(1);");
+            wrapContentInMain("Test4");
+        }};
         javacCommand.execute();
 
         String expectedOutput = "Successfully compiled!";
@@ -184,7 +212,33 @@ public class CommandTests {
     }
 
     @Test
-    public void IllegalExecutionJavacCommandTest() {
+    public void javacCommandWithNoMainMethodContentExecutesSuccessfully() {
+        JavacCommand javacCommand = new JavacCommand(){{
+            setPrivacy(CHAT, CHAT_1);
+            setDAO(dao);
+            setArgument("");
+            wrapContentInMain("Test4");
+        }};
+        javacCommand.execute();
+
+        String expectedOutput = "Successfully compiled!";
+
+        assertEquals(expectedOutput, javacCommand.getOutput());
+        assertEquals(Commands.javac, javacCommand.getName());
+    }
+
+    @Test(expected = IllegalExecutionException.class)
+    public void javacCommandWithEmptyArgumentThrowsException() {
+        JavacCommand javacCommand = new JavacCommand(){{
+            setPrivacy(CHAT, CHAT_1);
+            setDAO(dao);
+            setArgument("");
+        }};
+        javacCommand.execute();
+    }
+
+    @Test
+    public void javacCommandWithMissingContentThrowsException() {
         illegalExecutionTest(JavacCommand.class, true, true, false);
         illegalExecutionTest(JavacCommand.class, true, false, true);
         illegalExecutionTest(JavacCommand.class, false, true, true);
@@ -194,20 +248,34 @@ public class CommandTests {
         illegalExecutionTest(JavacCommand.class, false, false, false);
     }
 
-    private void illegalExecutionTest(Class c, boolean dao, boolean privacy, boolean argument) {
+    private void illegalExecutionTest(Class c, boolean daoIsSet, boolean privacyIsSet, boolean argumentIsSet) {
+        try {
+            BotDAO dao = null; Privacy privacy = null; Long id = null; String argument = null;
+            if (daoIsSet)       dao      = this.dao;
+            if (privacyIsSet) { privacy  = CHAT; id = CHAT_1; }
+            if (argumentIsSet)  argument = "test";
+
+            createCommand(c, dao, privacy, id, argument).execute();
+            fail();
+        } catch (IllegalExecutionException ignored) {
+            // test passes if this block is executed
+        }
+    }
+
+    private Command createCommand(Class c, BotDAO dao, Privacy privacy, Long id, String argument) {
         try {
             Command command = (Command) c.getConstructors()[0].newInstance();
 
-            if (dao && command instanceof NeedsDAO) ((NeedsDAO) command).setDAO(this.dao);
-            if (privacy && command instanceof NeedsPrivacy) ((NeedsPrivacy) command).setPrivacy(CHAT, CHAT_1);
-            if (argument && command instanceof NeedsArgument) ((NeedsArgument) command).setArgument("test");
+            if (dao != null && command instanceof NeedsDAO)
+                ((NeedsDAO) command).setDAO(dao);
 
-            try {
-                command.execute();
-                fail();
-            } catch (IllegalExecutionException ignored) {
-                // test passes if this block is executed
-            }
+            if (privacy != null && id != null  && command instanceof NeedsPrivacy)
+                ((NeedsPrivacy) command).setPrivacy(privacy, id);
+
+            if (argument != null && command instanceof NeedsArgument)
+                ((NeedsArgument) command).setArgument(argument);
+
+            return command;
         } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {
             throw new RuntimeException(e); // better to e.printStackTrace(); ?
         }

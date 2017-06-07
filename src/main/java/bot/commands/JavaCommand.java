@@ -22,7 +22,7 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
 
     @Override
     public void execute() {
-        if (args == null || id == null || privacy == null || dao == null || className == null) throw new IllegalExecutionException();
+        if (args == null || id == null || privacy == null || dao == null || className == null || className.isEmpty()) throw new IllegalExecutionException();
         Compiled compiled = dao.get(className, id, privacy);
 
         if (compiled == null) {
