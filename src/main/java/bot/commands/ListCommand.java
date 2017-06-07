@@ -6,7 +6,7 @@ import bot.commands.interfaces.NeedsPrivacy;
 import bot.commands.visitors.Command;
 import dao.BotDAO;
 import dao.Privacy;
-import javac.Compiled;
+import javac.ClassFile;
 
 import java.util.ArrayList;
 import java.util.Collections;
@@ -31,7 +31,7 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
 
         if (dao.getAll(id, privacy) != null) {
             names = dao.getAll(id, privacy).stream()
-                    .map(Compiled::getName)
+                    .map(ClassFile::getClassName)
                     .collect(Collectors.toList());
             Collections.sort(names);
         }

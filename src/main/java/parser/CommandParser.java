@@ -1,9 +1,9 @@
 package parser;
 
 import bot.Commands;
-import bot.commands.visitors.Command;
 import bot.commands.JavaCommand;
 import bot.commands.interfaces.NeedsArgument;
+import bot.commands.visitors.Command;
 import bot.commands.visitors.Parameter;
 
 import java.util.HashMap;
@@ -15,7 +15,7 @@ import static bot.Commands.paramInitChar;
 public class CommandParser {
     private String input;
     private State state;
-    private boolean needsNext, parseCalled;
+    private boolean needsNext, parsed;
 
     //output
     private Command command;
@@ -32,7 +32,7 @@ public class CommandParser {
         this.state = State.START;
 
         this.needsNext = true;
-        this.parseCalled = false;
+        this.parsed = false;
 
         this.parameters = new HashMap<>();
     }
@@ -49,8 +49,10 @@ public class CommandParser {
         return token.trim();
     }
 
+    /**
+     * Starts the parsing process.
+     */
     public void parse() {
-        parseCalled = true;
         String token;
         while (needsNext) {
             token = nextToken();
@@ -72,6 +74,8 @@ public class CommandParser {
         if (command instanceof NeedsArgument)
             if (!((NeedsArgument) command).hasArgument())
                 throw new ParserException("Expected argument for command. Reached end of input.");
+
+        parsed = true;
     }
 
     private void handleStart(String token) {
@@ -137,6 +141,13 @@ public class CommandParser {
         needsNext = false;
     }
 
+    /**
+     * Constructs an object of Class c.
+     * Assumes that Class c has a constructor that takes 0 arguments.
+     * Is meant to be used only for subclasses of Command or Parameter class.
+     * @param c class of object to construct.
+     * @return Instance of class c
+     */
     private static Object construct(Class c) {
         try {
             return c.getConstructors()[0].newInstance();
@@ -145,13 +156,23 @@ public class CommandParser {
         }
     }
 
+    /**
+     * Output method.
+     * @return parsed Command
+     * @throws RuntimeException if called before parse() method.
+     */
     public Command getCommand() {
-        if (!parseCalled) throw new RuntimeException("Parse must be called before this method.");
+        if (!parsed) throw new RuntimeException("Parse must be called before this method.");
         return command;
     }
 
+    /**
+     * Output method.
+     * @return map of parsed Parameters
+     * @throws RuntimeException if called before parse() method.
+     */
     public Map<String, Parameter> getParameters() {
-        if (!parseCalled) throw new RuntimeException("Parse must be called before this method.");
+        if (!parsed) throw new RuntimeException("Parse must be called before this method.");
         return parameters;
     }
 }

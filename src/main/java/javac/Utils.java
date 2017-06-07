@@ -13,6 +13,19 @@ class Utils {
         Files.write(Paths.get(aFileName), aBytes); //creates, overwrites
     }
 
+    static void write(ClassFile classFile) throws IOException {
+        Files.write(Paths.get(classFile.getClassName() + ".class"), classFile.getByteCode());
+    }
+
+    static void write(JavaFile javaFile) throws IOException {
+        Files.write(Paths.get(javaFile.getClassName()  + ".java"), javaFile.getSource().getBytes());
+    }
+
+    static void delete(JavaFile javaFile) throws IOException {
+        Files.delete(Paths.get(javaFile.getClassName() + ".java"));
+        Files.delete(Paths.get(javaFile.getClassName() + ".class"));
+    }
+
     static byte[] readSmallBinaryFile(String aFileName) throws IOException {
         return Files.readAllBytes(Paths.get(aFileName));
     }

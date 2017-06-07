@@ -1,6 +1,6 @@
 package dao;
 
-import javac.Compiled;
+import javac.ClassFile;
 import org.telegram.telegrambots.logging.BotLogger;
 
 import java.io.IOException;
@@ -19,20 +19,20 @@ public class WriteToDiskBotDAO implements BotDAO {
     private static final String DIR = "cache";
 
     @Override
-    public void add(Compiled compiled, Long id, Privacy privacy) {
+    public void add(ClassFile classFile, Long id, Privacy privacy) {
         try {
             Files.createDirectories(getFolderPath(id, privacy));
-            Files.write(getFilePath(compiled.getName(), id, privacy), compiled.getByteCode());
+            Files.write(getFilePath(classFile.getClassName(), id, privacy), classFile.getByteCode());
         } catch (IOException e) {
             BotLogger.error(TAG, e);
         }
     }
 
     @Override
-    public boolean remove(String name, Long id, Privacy privacy) {
-        if (Files.exists(getFilePath(name, id, privacy))) {
+    public boolean remove(String className, Long id, Privacy privacy) {
+        if (Files.exists(getFilePath(className, id, privacy))) {
             try {
-                Files.delete(getFilePath(name, id, privacy));
+                Files.delete(getFilePath(className, id, privacy));
                 return true;
             } catch (IOException e) {
                 BotLogger.error(TAG, e);
@@ -54,20 +54,19 @@ public class WriteToDiskBotDAO implements BotDAO {
     }
 
     @Override
-    public boolean contains(String name, Long id, Privacy privacy) {
-        return Files.exists(getFilePath(name, id, privacy));
+    public boolean contains(String className, Long id, Privacy privacy) {
+        return Files.exists(getFilePath(className, id, privacy));
     }
 
     @Override
-    public Set<Compiled> getAll(Long id, Privacy privacy) {
-        Set<Compiled> result = new HashSet<>();
-        Compiled compiled;
+    public Set<ClassFile> getAll(Long id, Privacy privacy) {
+        Set<ClassFile> result = new HashSet<>();
+        ClassFile classFile;
         if (Files.exists(getFolderPath(id, privacy))) {
             try(DirectoryStream<Path> dirStream = Files.newDirectoryStream(getFolderPath(id, privacy))) {
                 for (Path path : dirStream) {
-                    compiled = new Compiled(Files.readAllBytes(path), path.toFile().getName().replace(".class", ""));
-                    compiled.setPrivacyAndId(privacy, id);
-                    result.add(compiled);
+                    classFile = new ClassFile(path.toFile().getName().replace(".class", ""), Files.readAllBytes(path));
+                    result.add(classFile);
                 }
             } catch (IOException e) {
                 BotLogger.error(TAG, e);
@@ -77,18 +76,17 @@ public class WriteToDiskBotDAO implements BotDAO {
     }
 
     @Override
-    public Compiled get(String name, Long id, Privacy privacy) {
-        if (Files.exists(getFilePath(name, id, privacy))) {
+    public ClassFile get(String className, Long id, Privacy privacy) {
+        if (Files.exists(getFilePath(className, id, privacy))) {
             try {
-                Compiled compiled = new Compiled(Files.readAllBytes(getFilePath(name, id, privacy)), name);
-                compiled.setPrivacyAndId(privacy, id);
-                return compiled;
+                return new ClassFile(className, Files.readAllBytes(getFilePath(className, id, privacy)));
             } catch (IOException e) {
                 BotLogger.error(TAG, e);
             }
         }
         return null;
     }
+
     private Path getFilePath(String name, Long id, Privacy privacy) {
         return Paths.get(DIR + "/" + privacy + "/" + id + "/" + name + ".class");
     }

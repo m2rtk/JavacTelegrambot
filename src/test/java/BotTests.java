@@ -2,7 +2,7 @@ import bot.JavaBot;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import dao.Privacy;
-import javac.Compiled;
+import javac.ClassFile;
 import org.junit.Before;
 import org.junit.Rule;
 import org.junit.Test;
@@ -28,6 +28,7 @@ import static org.mockito.Mockito.*;
 
 //// TODO: 07.06.2017 This class seems to be pointless because all the functionality in this class is already tested by
 //// TODO: 07.06.2017 other test classes.
+// TODO: 08.06.2017 rewrite this bs
 public class BotTests {
     private static final Long CHAT_1 = -1L;
     private static final Long CHAT_2 = -2L;
@@ -39,15 +40,15 @@ public class BotTests {
     private static File testLogFile;
     private static BotDAO dao;
 
-    private static Compiled print;
-    private static Compiled sum;
-    private static Compiled helloWorld;
+    private static ClassFile print;
+    private static ClassFile sum;
+    private static ClassFile helloWorld;
 
     static  {
         try {
-            print       = new Compiled(Utils.readOut("Print"), "Print");
-            sum         = new Compiled(Utils.readOut("Sum"), "Sum");
-            helloWorld  = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
+            print = new ClassFile("Print", Utils.readOut("Print"));
+            sum = new ClassFile("Sum", Utils.readOut("Sum"));
+            helloWorld = new ClassFile("HelloWorld", Utils.readOut("HelloWorld"));
         } catch (Exception e) {
             throw new RuntimeException("Failed to load compiled from out.");
         }
@@ -220,7 +221,7 @@ public class BotTests {
         for (String arg : args) content += " " + arg;
         Update update = Utils.createMockUpdateWithTextContent(content, user, chat);
 
-        setCorrectTestClassPaths();
+//        setCorrectTestClassPaths();
         bot.onUpdateReceived(update);
 
         String expectedOutput = "Executed command /java in chat " + chat + " with output " + expected;
@@ -228,8 +229,8 @@ public class BotTests {
         testLogContains(expectedOutput);
     }
 
-    private void javacNoParamsTest(Compiled compiled) throws Exception {
-        String sourceName = compiled.getName();
+    private void javacNoParamsTest(ClassFile compiled) throws Exception {
+        String sourceName = compiled.getClassName();
         String content = "/javac " + Utils.readSource(sourceName);
         byte[] targetByteCode = Utils.readOut(sourceName);
         Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);

@@ -1,9 +1,9 @@
 import bot.commands.*;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.parameters.MainParameter;
-import bot.commands.visitors.Parameter;
 import bot.commands.parameters.PrivacyParameter;
 import bot.commands.visitors.Command;
+import bot.commands.visitors.Parameter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;

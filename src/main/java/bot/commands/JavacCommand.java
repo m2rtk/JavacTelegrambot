@@ -7,7 +7,8 @@ import bot.commands.interfaces.NeedsPrivacy;
 import bot.commands.visitors.Command;
 import dao.BotDAO;
 import dao.Privacy;
-import javac.Code;
+import javac.Compiler;
+import javac.JavaFile;
 
 import static dao.Privacy.CHAT;
 
@@ -25,16 +26,18 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
     @Override
     public void execute() {
         if (content == null || content.isEmpty() || id == null || privacy == null || dao == null) throw new IllegalExecutionException();
-        Code code = new Code(content, privacy, id);
+        JavaFile javaFile = new JavaFile(content);
+        Compiler compiler = new Compiler(javaFile);
+        compiler.setClassPath(privacy, id);
 
-        if (code.compile()) {
-            if (dao.get(code.getName(), id, privacy) != null) {
-                dao.remove(code.getName(), id, privacy);
+        if (compiler.compile()) {
+            if (dao.get(javaFile.getClassName(), id, privacy) != null) {
+                dao.remove(javaFile.getClassName(), id, privacy);
             }
-            dao.add(code.getCompiled(), id, privacy);
+            dao.add(compiler.getOutputClass(), id, privacy);
             setOutput("Successfully compiled!");
         } else {
-            setOutput("Compilation failed " + System.getProperty("line.separator") + code.getOut());
+            setOutput("Compilation failed " + System.getProperty("line.separator") + compiler.getOutputMessage());
         }
     }
 

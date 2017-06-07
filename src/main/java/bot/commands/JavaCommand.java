@@ -7,7 +7,8 @@ import bot.commands.interfaces.NeedsPrivacy;
 import bot.commands.visitors.Command;
 import dao.BotDAO;
 import dao.Privacy;
-import javac.Compiled;
+import javac.ClassFile;
+import javac.Executor;
 
 import java.util.Arrays;
 
@@ -23,16 +24,19 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
     @Override
     public void execute() {
         if (args == null || id == null || privacy == null || dao == null || className == null || className.isEmpty()) throw new IllegalExecutionException();
-        Compiled compiled = dao.get(className, id, privacy);
+        ClassFile classFile = dao.get(className, id, privacy);
 
-        if (compiled == null) {
+        if (classFile == null) {
             setOutput("Database doesn't contain script named '" + className + "'");
             return;
         }
 
-        compiled.run(args);
+        Executor executor = new Executor(classFile);
+        executor.setClassPath(privacy, id);
 
-        setOutput(compiled.getOut());
+        executor.run(args);
+
+        setOutput(executor.getOutputMessage());
     }
 
     @Override

@@ -1,12 +1,9 @@
 import bot.JavaBot;
 import bot.commands.visitors.DAOVisitor;
 import dao.BotDAO;
-import dao.InMemoryBotDAO;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
 
 import java.lang.reflect.Field;
 import java.lang.reflect.Modifier;
@@ -14,7 +11,6 @@ import java.nio.file.Files;
 import java.nio.file.Paths;
 import java.util.stream.Collectors;
 
-import static org.mockito.Matchers.any;
 import static org.mockito.Mockito.*;
 
 class Utils {

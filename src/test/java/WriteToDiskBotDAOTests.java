@@ -1,7 +1,7 @@
 import dao.BotDAO;
 import dao.Privacy;
 import dao.WriteToDiskBotDAO;
-import javac.Compiled;
+import javac.ClassFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,15 +27,15 @@ public class WriteToDiskBotDAOTests {
     private static final Long USER_1 =  1L;
     private static final Long USER_2 =  2L;
 
-    private Compiled c1, c2, c3;
-    private Map<String, Compiled> testFiles;
+    private ClassFile c1, c2, c3;
+    private Map<String, ClassFile> testFiles;
 
     @Before
     public void init() throws Exception {
         testFiles = new HashMap<>();
-        c1 = new Compiled(Utils.readOut("Print"), "Print");
-        c2 = new Compiled(Utils.readOut("Sum"), "Sum");
-        c3 = new Compiled(Utils.readOut("HelloWorld"), "HelloWorld");
+        c1 = new ClassFile("Print", Utils.readOut("Print"));
+        c2 = new ClassFile("Sum", Utils.readOut("Sum"));
+        c3 = new ClassFile("HelloWorld", Utils.readOut("HelloWorld"));
         testFiles.put("Print", c1);
         testFiles.put("Sum",  c2);
         testFiles.put("HelloWorld", c3);
@@ -149,7 +149,7 @@ public class WriteToDiskBotDAOTests {
     @Test
     public void getAllTest1() {
         createCacheFile("Print", CHAT_1, CHAT);
-        getAllTest(CHAT_1, CHAT, new Compiled[]{testFiles.get("Print")});
+        getAllTest(CHAT_1, CHAT, new ClassFile[]{testFiles.get("Print")});
     }
 
     @Test
@@ -157,8 +157,8 @@ public class WriteToDiskBotDAOTests {
         createCacheFile("Print", CHAT_1, CHAT);
         createCacheFile("Sum",  CHAT_1, CHAT);
         createCacheFile("HelloWorld",  CHAT_2, CHAT);
-        getAllTest(CHAT_1, CHAT, new Compiled[]{testFiles.get("Print"), testFiles.get("Sum")});
-        getAllTest(CHAT_2, CHAT, new Compiled[]{testFiles.get("HelloWorld")});
+        getAllTest(CHAT_1, CHAT, new ClassFile[]{testFiles.get("Print"), testFiles.get("Sum")});
+        getAllTest(CHAT_2, CHAT, new ClassFile[]{testFiles.get("HelloWorld")});
     }
 
     @Test
@@ -166,8 +166,8 @@ public class WriteToDiskBotDAOTests {
         createCacheFile("HelloWorld", USER_1, USER);
         createCacheFile("HelloWorld", USER_2, USER);
         createCacheFile("Sum",  USER_1, USER);
-        getAllTest(USER_1, USER, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum")});
-        getAllTest(USER_2, USER, new Compiled[]{testFiles.get("HelloWorld")});
+        getAllTest(USER_1, USER, new ClassFile[]{testFiles.get("HelloWorld"), testFiles.get("Sum")});
+        getAllTest(USER_2, USER, new ClassFile[]{testFiles.get("HelloWorld")});
     }
 
     @Test
@@ -184,18 +184,18 @@ public class WriteToDiskBotDAOTests {
         createCacheFile("Sum",  CHAT_2, CHAT);
         createCacheFile("Print",  CHAT_1, CHAT);
         createCacheFile("Print",  CHAT_2, CHAT);
-        getAllTest(USER_1, USER, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
-        getAllTest(USER_2, USER, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
-        getAllTest(CHAT_1, CHAT, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
-        getAllTest(CHAT_2, CHAT, new Compiled[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
+        getAllTest(USER_1, USER, new ClassFile[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
+        getAllTest(USER_2, USER, new ClassFile[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
+        getAllTest(CHAT_1, CHAT, new ClassFile[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
+        getAllTest(CHAT_2, CHAT, new ClassFile[]{testFiles.get("HelloWorld"), testFiles.get("Sum"), testFiles.get("Print")});
     }
 
     @Test
     public void getAllNoFilesTest() {
-        getAllTest(USER_1, USER, new Compiled[0]);
-        getAllTest(USER_2, USER, new Compiled[0]);
-        getAllTest(CHAT_1, CHAT, new Compiled[0]);
-        getAllTest(CHAT_2, CHAT, new Compiled[0]);
+        getAllTest(USER_1, USER, new ClassFile[0]);
+        getAllTest(USER_2, USER, new ClassFile[0]);
+        getAllTest(CHAT_1, CHAT, new ClassFile[0]);
+        getAllTest(CHAT_2, CHAT, new ClassFile[0]);
     }
 
     @Test
@@ -242,12 +242,12 @@ public class WriteToDiskBotDAOTests {
         assertEquals(expected, dao.isEmpty(id, privacy));
     }
 
-    private void getAllTest(Long id, Privacy privacy, Compiled[] expected) {
-        Set<Compiled> compileds = dao.getAll(id, privacy);
-        assertEquals("getAll set and expected set are not equal in length.",expected.length, compileds.size());
+    private void getAllTest(Long id, Privacy privacy, ClassFile[] expected) {
+        Set<ClassFile> classFiles = dao.getAll(id, privacy);
+        assertEquals("getAll set and expected set are not equal in length.",expected.length, classFiles.size());
         int c = 0;
-        for (Compiled c1 : compileds) {
-            for (Compiled c2 : expected) {
+        for (ClassFile c1 : classFiles) {
+            for (ClassFile c2 : expected) {
                 if (Arrays.equals(c1.getByteCode(), c2.getByteCode())) c++;
             }
         }
@@ -255,21 +255,21 @@ public class WriteToDiskBotDAOTests {
     }
 
     private void getTest(String name, Long id, Privacy privacy, boolean expected) {
-        Compiled compiled = dao.get(name, id, privacy);
+        ClassFile compiled = dao.get(name, id, privacy);
         assertEquals(expected, compiled != null);
         if (expected) {
-            assertEquals("Get returned invalid name.", compiled.getName(), name);
+            assertEquals("Get returned invalid name.", compiled.getClassName(), name);
             assertTrue("Get returned invalid bytecode.", Arrays.equals(compiled.getByteCode(), testFiles.get(name).getByteCode()));
         }
     }
 
-    private void addTest(Compiled compiled, Long id, Privacy privacy) {
+    private void addTest(ClassFile compiled, Long id, Privacy privacy) {
         dao.add(compiled, id, privacy);
         Path path = Paths.get("cache/" + privacy + "/" + id);
         assertTrue("File doesn't exist after add", Files.exists(path));
         try {
-            if (Files.exists(path.resolve(compiled.getName() + ".class")))
-                Files.delete(path.resolve(compiled.getName() + ".class"));
+            if (Files.exists(path.resolve(compiled.getClassName() + ".class")))
+                Files.delete(path.resolve(compiled.getClassName() + ".class"));
         } catch (IOException e) {
             e.printStackTrace();
         }

@@ -7,7 +7,7 @@ import bot.commands.visitors.Command;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import dao.Privacy;
-import javac.Compiled;
+import javac.ClassFile;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -18,23 +18,21 @@ import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
 import static dao.Privacy.CHAT;
-import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
-import static org.junit.Assert.fail;
+import static org.junit.Assert.*;
 
 public class CommandTests {
     private BotDAO dao;
     private static final Long CHAT_1 = -1L;
 
-    private static Compiled print;
-    private static Compiled sum;
-    private static Compiled M8;
+    private static ClassFile print;
+    private static ClassFile sum;
+    private static ClassFile M8;
 
     static  {
         try {
-            print = new Compiled(Utils.readOut("Print"), "Print"); // 1 arg
-            sum = new Compiled(Utils.readOut("Sum"),  "Sum");  // 2 args
-            M8 = new Compiled(Utils.readOut("M8"),   "M8");   // * args
+            print = new ClassFile("Print", Utils.readOut("Print")); // 1 arg
+            sum = new ClassFile("Sum", Utils.readOut("Sum"));  // 2 args
+            M8 = new ClassFile("M8", Utils.readOut("M8"));   // * args
         } catch (Exception e) {
             throw new RuntimeException("Failed to load compiled from out.");
         }

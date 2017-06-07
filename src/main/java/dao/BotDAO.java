@@ -1,6 +1,7 @@
 package dao;
 
-import javac.Compiled;
+import javac.ClassFile;
+
 import java.util.Set;
 
 /**
@@ -8,15 +9,15 @@ import java.util.Set;
  */
 public interface BotDAO {
 
-    void add(Compiled compiled, Long id, Privacy privacy);
+    void add(ClassFile classFile, Long id, Privacy privacy);
 
-    boolean remove(String name, Long id, Privacy privacy);
+    boolean remove(String className, Long id, Privacy privacy);
 
     boolean isEmpty(Long id, Privacy privacy);
 
-    boolean contains(String name, Long id, Privacy privacy);
+    boolean contains(String className, Long id, Privacy privacy);
 
-    Set<Compiled> getAll(Long id, Privacy privacy);
+    Set<ClassFile> getAll(Long id, Privacy privacy);
 
-    Compiled get(String name, Long id, Privacy privacy);
+    ClassFile get(String className, Long id, Privacy privacy);
 }

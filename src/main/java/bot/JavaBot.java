@@ -1,9 +1,9 @@
 package bot;
 
-import bot.commands.visitors.Command;
-import bot.commands.visitors.Parameter;
 import bot.commands.parameters.PrivacyParameter;
+import bot.commands.visitors.Command;
 import bot.commands.visitors.DAOVisitor;
+import bot.commands.visitors.Parameter;
 import bot.commands.visitors.StartTimeVisitor;
 import dao.WriteToDiskBotDAO;
 import org.telegram.telegrambots.api.methods.send.SendMessage;

@@ -4,7 +4,9 @@ import bot.commands.*;
 import bot.commands.parameters.MainParameter;
 import bot.commands.parameters.PrivacyParameter;
 
-import java.util.*;
+import java.util.Collections;
+import java.util.HashMap;
+import java.util.Map;
 
 public class Commands {
 

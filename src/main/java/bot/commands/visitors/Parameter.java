@@ -1,6 +1,5 @@
 package bot.commands.visitors;
 
-import bot.commands.visitors.Command;
 import bot.commands.interfaces.CommandVisitor;
 
 public abstract class Parameter implements CommandVisitor {
