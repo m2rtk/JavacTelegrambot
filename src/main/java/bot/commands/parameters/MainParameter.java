@@ -40,16 +40,17 @@ public class MainParameter extends Parameter implements NeedsArgument {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        else if (!(obj instanceof MainParameter)) return false;
-        return (((MainParameter) obj).classname == null && this.classname == null)  || (((MainParameter) obj).classname.equals(this.classname));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        MainParameter that = (MainParameter) o;
+
+        return classname != null ? classname.equals(that.classname) : that.classname == null;
     }
 
     @Override
     public int hashCode() {
-        int result = 11;
-        result = 31 * result + (this.classname == null ? 0 : this.classname.hashCode());
-        return result;
+        return classname != null ? classname.hashCode() : 0;
     }
 }

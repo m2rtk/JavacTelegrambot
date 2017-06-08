@@ -62,21 +62,28 @@ public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgumen
                 "} ";
     }
 
+
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        else if (!(obj instanceof DeleteCommand)) return false;
-        return  ((((DeleteCommand) obj).dao       == null && this.dao       == null)  || (((DeleteCommand) obj).dao.equals(this.dao))) &&
-                ((((DeleteCommand) obj).id        == null && this.id        == null)  || (((DeleteCommand) obj).id.equals(this.id))) &&
-                ((((DeleteCommand) obj).privacy   == null && this.privacy   == null)  || (((DeleteCommand) obj).privacy.equals(this.privacy)));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        DeleteCommand that = (DeleteCommand) o;
+
+        if (dao != null ? !dao.equals(that.dao) : that.dao != null) return false;
+        if (argument != null ? !argument.equals(that.argument) : that.argument != null) return false;
+        if (privacy != that.privacy) return false;
+        return id != null ? id.equals(that.id) : that.id == null;
     }
 
     @Override
     public int hashCode() {
-        int result = 11;
-        result = 31 * result + (this.dao       == null ? 0 : this.dao.hashCode()); //dao - as I ever really use 2 different instances of dao, this should be ok
-        result = 31 * result + (this.id        == null ? 0 : Long.hashCode(this.id)); //id
-        result = 31 * result + (this.privacy   == null ? 0 : (this.privacy.equals(CHAT) ? 1 : 0)); //privacy
+        int result = super.hashCode();
+        result = 31 * result + (dao != null ? dao.hashCode() : 0);
+        result = 31 * result + (argument != null ? argument.hashCode() : 0);
+        result = 31 * result + (privacy != null ? privacy.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
 }

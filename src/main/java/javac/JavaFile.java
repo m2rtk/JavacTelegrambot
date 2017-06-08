@@ -22,4 +22,22 @@ public class JavaFile {
     public String getClassName() {
         return className;
     }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        JavaFile javaFile = (JavaFile) o;
+
+        return className.equals(javaFile.className) && source.equals(javaFile.source);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = className.hashCode();
+        result = 31 * result + source.hashCode();
+        return result;
+    }
 }

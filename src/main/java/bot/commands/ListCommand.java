@@ -68,19 +68,24 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        else if (!(obj instanceof ListCommand)) return false;
-        return  ((((ListCommand) obj).dao       == null && this.dao       == null)  || (((ListCommand) obj).dao.equals(this.dao))) &&
-                ((((ListCommand) obj).id        == null && this.id        == null)  || (((ListCommand) obj).id.equals(this.id))) &&
-                ((((ListCommand) obj).privacy   == null && this.privacy   == null)  || (((ListCommand) obj).privacy.equals(this.privacy)));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        ListCommand that = (ListCommand) o;
+
+        if (dao != null ? !dao.equals(that.dao) : that.dao != null) return false;
+        if (privacy != that.privacy) return false;
+        return id != null ? id.equals(that.id) : that.id == null;
     }
 
     @Override
     public int hashCode() {
-        int result = 11;
-        result = 31 * result + (this.dao       == null ? 0 : this.dao.hashCode()); //dao - as I ever really use 2 different instances of dao, this should be okList     result = 31 * result + (this.id        == null ? 0 : Long.hashCode(this.id)); //id
-        result = 31 * result + (this.privacy   == null ? 0 : (this.privacy.equals(CHAT) ? 1 : 0)); //privacy
+        int result = super.hashCode();
+        result = 31 * result + (dao != null ? dao.hashCode() : 0);
+        result = 31 * result + (privacy != null ? privacy.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
 }

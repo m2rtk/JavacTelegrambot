@@ -30,9 +30,9 @@ public class CommandTests {
 
     static  {
         try {
-            print = new ClassFile("Print", Utils.readOut("Print")); // 1 arg
-            sum = new ClassFile("Sum", Utils.readOut("Sum"));  // 2 args
-            M8 = new ClassFile("M8", Utils.readOut("M8"));   // * args
+            print      = Utils.readClassFile("Print");
+            sum        = Utils.readClassFile("Sum");
+            M8         = Utils.readClassFile("M8");
         } catch (Exception e) {
             throw new RuntimeException("Failed to load compiled from out.");
         }
@@ -79,7 +79,7 @@ public class CommandTests {
         HelpCommand helpCommand = new HelpCommand();
         helpCommand.execute();
 
-        String expectedOutput = String.join("\n", Files.readAllLines(
+        String expectedOutput = String.join(System.getProperty("line.separator"), Files.readAllLines(
                 Paths.get(ClassLoader.getSystemResource("HelpMessage.txt").toURI()))
         );
 

@@ -22,23 +22,6 @@ public class PrivacyParameter extends Parameter implements NeedsPrivacy {
         return Commands.privacyParameter;
     }
 
-
-    @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        else if (!(obj instanceof PrivacyParameter)) return false;
-        return  ((((PrivacyParameter) obj).id      == null && this.id      == null) || (((PrivacyParameter) obj).id.equals(this.id))) &&
-                ((((PrivacyParameter) obj).privacy == null && this.privacy == null) || (((PrivacyParameter) obj).privacy.equals(this.privacy)));
-    }
-
-    @Override
-    public int hashCode() {
-        int result = 11;
-        result = 31 * result + (this.id      == null ? 0 : Long.hashCode(this.id));
-        result = 31 * result + (this.privacy == null ? 0 : (this.privacy == CHAT ? 1 : 0));
-        return result;
-    }
-
     @Override
     public void setPrivacy(Privacy privacy, Long id) {
         this.privacy = privacy;
@@ -49,5 +32,23 @@ public class PrivacyParameter extends Parameter implements NeedsPrivacy {
         this.privacy = privacy;
         this.id = id;
         return this;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        PrivacyParameter that = (PrivacyParameter) o;
+
+        if (id != null ? !id.equals(that.id) : that.id != null) return false;
+        return privacy == that.privacy;
+    }
+
+    @Override
+    public int hashCode() {
+        int result = id != null ? id.hashCode() : 0;
+        result = 31 * result + (privacy != null ? privacy.hashCode() : 0);
+        return result;
     }
 }

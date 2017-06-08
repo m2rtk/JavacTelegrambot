@@ -1,5 +1,7 @@
 package javac;
 
+import dao.Privacy;
+
 import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Paths;
@@ -7,11 +9,6 @@ import java.nio.file.Paths;
 class Utils {
 
     private Utils() {} // prevent instantiation
-
-    // TODO: 04.04.2017 Delete all the oneliner methods
-    static void writeSmallBinaryFile(byte[] aBytes, String aFileName) throws IOException {
-        Files.write(Paths.get(aFileName), aBytes); //creates, overwrites
-    }
 
     static void write(ClassFile classFile) throws IOException {
         Files.write(Paths.get(classFile.getClassName() + ".class"), classFile.getByteCode());
@@ -23,40 +20,23 @@ class Utils {
 
     static void delete(JavaFile javaFile) throws IOException {
         Files.delete(Paths.get(javaFile.getClassName() + ".java"));
-        Files.delete(Paths.get(javaFile.getClassName() + ".class"));
     }
 
-    static byte[] readSmallBinaryFile(String aFileName) throws IOException {
-        return Files.readAllBytes(Paths.get(aFileName));
+    static void delete(ClassFile classFile) throws IOException {
+        Files.delete(Paths.get(classFile.getClassName() + ".class"));
     }
 
-    static boolean exists(String filename) {
-        return Files.exists(Paths.get(filename));
-    }
-
-    static void delete(String filename) throws IOException {
-        Files.delete(Paths.get(filename));
-    }
-
-    static void writeFile(String content, String filename) {
-        BufferedWriter bw = null;
-        OutputStreamWriter fw = null;
-
+    static ClassFile readClassFile(JavaFile javaFile) {
         try {
-           // fw = new FileWriter(filename);
-            fw = new OutputStreamWriter(new FileOutputStream(filename), "utf-8");
-            bw = new BufferedWriter(fw);
-            bw.write(content);
+            byte[] byteCode = Files.readAllBytes(Paths.get(javaFile.getClassName() + ".class"));
+            return new ClassFile(javaFile.getClassName(), byteCode);
         } catch (IOException e) {
-            e.printStackTrace();
-        } finally {
-            try {
-                if (bw != null) bw.close();
-                if (fw != null) fw.close();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
+            return null;
         }
+    }
+
+    static void write(ClassFile classFile, Privacy privacy, Long id) {
+
     }
 
     static String getLines(InputStream is) throws IOException {

@@ -1,254 +1,119 @@
 import bot.JavaBot;
-import dao.BotDAO;
-import dao.InMemoryBotDAO;
-import dao.Privacy;
-import javac.ClassFile;
+import org.junit.After;
 import org.junit.Before;
-import org.junit.Rule;
 import org.junit.Test;
-import org.junit.rules.TemporaryFolder;
-import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.logging.BotLogger;
 
 import java.io.File;
+import java.io.IOException;
 import java.nio.file.Files;
+import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Arrays;
-import java.util.List;
-import java.util.logging.FileHandler;
-import java.util.logging.Handler;
-import java.util.logging.SimpleFormatter;
+import java.util.Comparator;
 
-import static dao.Privacy.CHAT;
-import static dao.Privacy.USER;
-import static junit.framework.Assert.assertTrue;
+import static org.mockito.Matchers.*;
 import static org.mockito.Mockito.*;
 
-
-//// TODO: 07.06.2017 This class seems to be pointless because all the functionality in this class is already tested by
-//// TODO: 07.06.2017 other test classes.
-// TODO: 08.06.2017 rewrite this bs
 public class BotTests {
-    private static final Long CHAT_1 = -1L;
-    private static final Long CHAT_2 = -2L;
-    private static final Long USER_1 =  1L;
-    private static final Long USER_2 =  2L;
-    private static final String TEST_LOG = "test.log";
+    private static final Long chat = 0L;
+    private static final Long user = 0L;
+    private static final String unknownCommand = "Database doesn't contain script named '.*'";
+    private static final String invalidCommand = "Invalid command: .*";
 
-    private static  JavaBot bot;
-    private static File testLogFile;
-    private static BotDAO dao;
-
-    private static ClassFile print;
-    private static ClassFile sum;
-    private static ClassFile helloWorld;
-
-    static  {
-        try {
-            print = new ClassFile("Print", Utils.readOut("Print"));
-            sum = new ClassFile("Sum", Utils.readOut("Sum"));
-            helloWorld = new ClassFile("HelloWorld", Utils.readOut("HelloWorld"));
-        } catch (Exception e) {
-            throw new RuntimeException("Failed to load compiled from out.");
-        }
-    }
-
-    @Rule
-    public TemporaryFolder folder = new TemporaryFolder();
+    private static JavaBot bot;
 
     @Before
-    public void init() throws Exception {
-        bot = Utils.createSpyOfBotThatDoesNotSendMessages();
-        dao = Utils.changeBotDAO(bot, new InMemoryBotDAO());
-        dao.add(print, USER_2, USER);
-        dao.add(print, CHAT_2, CHAT);
+    public void init() {
+        bot = spy(new JavaBot());
+        doNothing().when(bot).sendMessage(anyString(), anyLong());
+    }
 
-        // setup test.log file as logging target
-        testLogFile = folder.newFile(TEST_LOG);
-        Handler handler = new FileHandler(testLogFile.getAbsolutePath());
-        handler.setFormatter(new SimpleFormatter());
-        BotLogger.registerLogger(handler);
+    @After
+    public void end() throws IOException {
+        Path path = Paths.get("cache/CHAT/" + chat);
+        if (Files.exists(path))
+            Files.walk(path)
+                    .sorted(Comparator.reverseOrder())
+                    .map(Path::toFile)
+                    .forEach(File::delete);
     }
 
     @Test
-    public void receivesUpdateTest() throws Exception {
-        JavaBot mockBot = mock(JavaBot.class);
-        Message mockMessage = mock(Message.class);
-        when(mockMessage.getChatId()).thenReturn(USER_1);
-        Update mockUpdate = mock(Update.class);
-        when(mockUpdate.getMessage()).thenReturn(mockMessage);
-        mockBot.onUpdateReceived(mockUpdate);
-        verify(mockBot, times(1)).onUpdateReceived(mockUpdate);// this is stupid
+    public void niceCommandOutputsNice() {
+        test("/nice", "nice");
     }
 
     @Test
-    public void javacSumShouldCompile() throws Exception {
-        javacNoParamsTest(sum);
+    public void upCommandOutputsUptime() {
+        test("/up", "I've been up for [0-9]+ seconds." + System.getProperty("line.separator") +
+                    "That's [0-9]+ days, [0-9]+ hours, [0-9]+ minutes and [0-9]+ seconds.");
     }
 
     @Test
-    public void javacHelloWorldShouldCompile() throws Exception {
-        javacNoParamsTest(helloWorld);
+    public void helpCommandOutputsHelp() throws Exception {
+        String expectedOutput = String.join(System.getProperty("line.separator"), Files.readAllLines(
+                Paths.get(ClassLoader.getSystemResource("HelpMessage.txt").toURI()))
+        );
+        testWithNoRegex("/help", expectedOutput);
     }
 
     @Test
-    public void javacHelloWorldWithMainParamShouldCompile() throws Exception {
-        String name = "HelloWorld";
-        String content = "/javac -m HelloWorld System.out.println(\"Hello World!\");";
-        Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);
+    public void listCommandOutputsClasses() {
+        test("/list", "List: " + System.getProperty("line.separator") + ".*");
+    }
+
+    @Test
+    public void deleteCommandOutputsDeleteResult() {
+        test("/delete Test", "Couldn't delete Test");
+    }
+
+    @Test
+    public void javaCommandOutputsClassOutput() {
+        Update update = Utils.createMockUpdateWithTextContent("/javac -m Test System.out.println(1);", user, chat);
         bot.onUpdateReceived(update);
-
-        assertTrue(dao.contains(name, CHAT_1, CHAT));
+        init();
+        test("/java Test", "1" + System.getProperty("line.separator"));
     }
 
     @Test
-    public void javacHelloWorldWithPrivacyParamShouldCompile() throws Exception {
-        String name = "HelloWorld";
-        String content = "/javac -p " + Utils.readSource(name);
+    public void javacCommandOutputsSuccessfulCompilationResult() {
+        test("/javac -m Test System.out.println(1);", "Successfully compiled!");
+    }
 
-        byte[] targetByteCode = Utils.readOut(name);
-        Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);
+    @Test
+    public void invalidCommandOutputsErrorMessage() {
+        // unknown commands
+        test("/upp", unknownCommand); init();
+        test("/destroyUniverse", unknownCommand); init();
+        test("/sudo rm -rf --no-preserve-root /", unknownCommand); init();
+        test("/java Test", unknownCommand); init(); // because dao doesn't have class Test
+
+        // missing arguments
+        test("/delete", invalidCommand); init();
+        test("/java", invalidCommand); init();
+        test("/javac", invalidCommand); init();
+        test("/javac -m", invalidCommand); init();
+        test("/javac -m Test", invalidCommand); init();
+        test("/javac -m -p", invalidCommand); init();
+        test("/javac -m Test -p", invalidCommand); init();
+    }
+
+    @Test
+    public void noOutputWhenInputIsNotPrefixedWithForwardSlash() {
+        Update update = Utils.createMockUpdateWithTextContent("nice", user, chat);
         bot.onUpdateReceived(update);
-
-        assertTrue(dao.contains(name, USER_1, USER));
-        assertTrue(Arrays.equals(targetByteCode, (dao.get(name, USER_1, USER).getByteCode())));
+        verify(bot, never()).sendMessage(anyString(), anyLong());
     }
 
-    @Test
-    public void javacHelloWorldWithMainPrivacyParamsShouldCompile() throws Exception {
-        String name = "HelloWorld";
-        String content = "/javac -m HelloWorld -p System.out.println(\"Hello World!\");";
-
-        Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);
+    private static void testWithNoRegex(String input, String expectedOutput) {
+        Update update = Utils.createMockUpdateWithTextContent(input, user, chat);
         bot.onUpdateReceived(update);
-
-        assertTrue(dao.contains(name, USER_1, USER));
+        verify(bot).sendMessage(expectedOutput, chat);
     }
 
-    @Test
-    public void javacWitMainPrivacyParamsShouldCompile() throws Exception {
-        String name = "HelloWorld";
-        String content = "/javac -m HelloWorld -p " +
-                "System.out.println(\"Hello World!\"); " +
-                "System.out.println(\"Hello World!2\");" +
-                "for (int i = 0; i < 10; i++) System.out.println(i);";
-
-        Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);
+    private static void test(String input, String expectedOutput) {
+        Update update = Utils.createMockUpdateWithTextContent(input, user, chat);
         bot.onUpdateReceived(update);
-
-        assertTrue(dao.contains(name, USER_1, USER));
-    }
-
-    @Test
-    public void deleteCodeFromChat() throws Exception {
-        assertTrue(dao.contains("Print", USER_2, USER));
-        assertTrue(dao.contains("Print", CHAT_2, CHAT));
-        String content = "/delete -p Print";
-        Update update = Utils.createMockUpdateWithTextContent(content, USER_2, CHAT_2);
-        bot.onUpdateReceived(update);
-
-        assertTrue(!dao.contains("Print", USER_2, USER));
-        assertTrue( dao.contains("Print", CHAT_2, CHAT));
-    }
-
-    @Test
-    public void deleteCodeFromUser() throws Exception {
-        assertTrue(dao.contains("Print", USER_2, USER));
-        assertTrue(dao.contains("Print", CHAT_2, CHAT));
-        String content = "/delete Print";
-        Update update = Utils.createMockUpdateWithTextContent(content, USER_2, CHAT_2);
-        bot.onUpdateReceived(update);
-
-        assertTrue( dao.contains("Print", USER_2, USER));
-        assertTrue(!dao.contains("Print", CHAT_2, CHAT));
-    }
-
-    @Test
-    public void javaPrintWithChatPrivacySuccess() throws Exception {
-        javaTest("Print", new String[]{"wow"}, CHAT, USER_1, CHAT_2, "wow");
-        javaTest("Print", new String[]{"wow"}, CHAT, USER_2, CHAT_2, "wow");
-    }
-
-    @Test
-    public void javaPrintWithChatPrivacyFail() throws Exception {
-        javaTest("Print", new String[]{"wow"}, CHAT, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
-        javaTest("Print", new String[]{"wow"}, CHAT, USER_2, CHAT_1, "Database doesn't contain script named 'Print'");
-    }
-
-    @Test
-    public void javaPrintWithUserPrivacySuccess() throws Exception {
-        javaTest("Print", new String[]{"wow"}, USER, USER_2, CHAT_1, "wow");
-        javaTest("Print", new String[]{"wow"}, USER, USER_2, CHAT_2, "wow");
-    }
-
-    @Test
-    public void javaPrintWithUserPrivacyFail() throws Exception {
-        javaTest("Print", new String[]{"wow"}, USER, USER_1, CHAT_2, "Database doesn't contain script named 'Print'");
-        javaTest("Print", new String[]{"wow"}, USER, USER_1, CHAT_1, "Database doesn't contain script named 'Print'");
-    }
-
-    @Test
-    public void allCorrectCommandsAreExecuted() throws Exception {
-        isExecutedTest("/help");
-        isExecutedTest("/up");
-        isExecutedTest("/list");
-        isExecutedTest("/nice");
-        isExecutedTest("/java Print wow");
-        isExecutedTest("/java Sum 1 2 3");
-        isExecutedTest("/javac -m Test1 System.out.println(\"123\");");
-        isExecutedTest("/javac -m Test2");
-        isExecutedTest("/delete Print");
-        isExecutedTest("/delete Sum");
-    }
-
-    private void isExecutedTest(String command) throws Exception {
-        Update update = Utils.createMockUpdateWithTextContent(command, USER_1, CHAT_1);
-        bot.onUpdateReceived(update);
-        testLogContains("Executed command " + command.split(" ")[0]);
-    }
-
-    private void setCorrectTestClassPaths() throws Exception {
-        String path = getClass().getClassLoader().getResource("out/").getPath();
-        Utils.setObjectField(dao.get("Print", CHAT_2, CHAT), "classPath", path);
-        Utils.setObjectField(dao.get("Print", USER_2, USER), "classPath", path);
-    }
-
-    private void javaTest(String sourceName, String[] args, Privacy privacy, Long user, Long chat, String expected) throws Exception {
-        String content = "/java ";
-        if (privacy == USER) content += "-p ";
-        content += sourceName;
-        for (String arg : args) content += " " + arg;
-        Update update = Utils.createMockUpdateWithTextContent(content, user, chat);
-
-//        setCorrectTestClassPaths();
-        bot.onUpdateReceived(update);
-
-        String expectedOutput = "Executed command /java in chat " + chat + " with output " + expected;
-
-        testLogContains(expectedOutput);
-    }
-
-    private void javacNoParamsTest(ClassFile compiled) throws Exception {
-        String sourceName = compiled.getClassName();
-        String content = "/javac " + Utils.readSource(sourceName);
-        byte[] targetByteCode = Utils.readOut(sourceName);
-        Update update = Utils.createMockUpdateWithTextContent(content, USER_1, CHAT_1);
-        bot.onUpdateReceived(update);
-
-        assertTrue(dao.contains(sourceName, CHAT_1, CHAT));
-        assertTrue(Arrays.equals(targetByteCode, (dao.get(sourceName, CHAT_1, CHAT).getByteCode())));
-    }
-
-    private void testLogContains(String expected) throws Exception {
-        List<String> lines = Files.readAllLines(Paths.get(testLogFile.getAbsolutePath()));
-        boolean passed = false;
-        for (String line : lines) {
-            if (line.contains(expected)) {
-                passed = true;
-                break;
-            }
-        }
-        assertTrue("Log didn't contain String '" + expected + "'", passed);
+        verify(bot).sendMessage(matches(expectedOutput), eq(chat));
     }
 }

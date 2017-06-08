@@ -1,5 +1,7 @@
 package javac;
 
+import java.util.Arrays;
+
 public class ClassFile {
     private String className;
     private byte[] byteCode;
@@ -15,5 +17,23 @@ public class ClassFile {
 
     public byte[] getByteCode() {
         return byteCode;
+    }
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+
+        ClassFile classFile = (ClassFile) o;
+
+        return className.equals(classFile.className) && Arrays.equals(byteCode, classFile.byteCode);
+
+    }
+
+    @Override
+    public int hashCode() {
+        int result = className.hashCode();
+        result = 31 * result + Arrays.hashCode(byteCode);
+        return result;
     }
 }

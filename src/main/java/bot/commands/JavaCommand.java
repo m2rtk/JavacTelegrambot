@@ -79,24 +79,28 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
     }
 
     @Override
-    public boolean equals(Object obj) {
-        if (obj == this) return true;
-        else if (!(obj instanceof JavaCommand)) return false;
-        return  ((((JavaCommand) obj).dao       == null && this.dao       == null)  || (((JavaCommand) obj).dao.equals(this.dao))) &&
-                ((((JavaCommand) obj).className == null && this.className == null)  || (((JavaCommand) obj).className.equals(this.className))) &&
-                ((((JavaCommand) obj).args      == null && this.args      == null)  || (Arrays.equals(((JavaCommand) obj).args, this.args))) &&
-                ((((JavaCommand) obj).id        == null && this.id        == null)  || (((JavaCommand) obj).id.equals(this.id))) &&
-                ((((JavaCommand) obj).privacy   == null && this.privacy   == null)  || (((JavaCommand) obj).privacy.equals(this.privacy)));
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (o == null || getClass() != o.getClass()) return false;
+        if (!super.equals(o)) return false;
+
+        JavaCommand that = (JavaCommand) o;
+
+        if (dao != null ? !dao.equals(that.dao) : that.dao != null) return false;
+        if (className != null ? !className.equals(that.className) : that.className != null) return false;
+        if (!Arrays.equals(args, that.args)) return false;
+        if (privacy != that.privacy) return false;
+        return id != null ? id.equals(that.id) : that.id == null;
     }
 
     @Override
     public int hashCode() {
-        int result = 11;
-        result = 31 * result + (this.dao       == null ? 0 : this.dao.hashCode()); //dao - as I ever really use 2 different instances of dao, this should be ok
-        result = 31 * result + (this.className == null ? 0 : this.className.hashCode()); //className
-        result = 31 * result + (this.args      == null ? 0 : Arrays.hashCode(this.args)); //args
-        result = 31 * result + (this.id        == null ? 0 : Long.hashCode(this.id)); //id
-        result = 31 * result + (this.privacy   == null ? 0 : (this.privacy.equals(CHAT) ? 1 : 0)); //privacy
+        int result = super.hashCode();
+        result = 31 * result + (dao != null ? dao.hashCode() : 0);
+        result = 31 * result + (className != null ? className.hashCode() : 0);
+        result = 31 * result + Arrays.hashCode(args);
+        result = 31 * result + (privacy != null ? privacy.hashCode() : 0);
+        result = 31 * result + (id != null ? id.hashCode() : 0);
         return result;
     }
 }

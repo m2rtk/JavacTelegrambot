@@ -27,18 +27,18 @@ public class WriteToDiskBotDAOTests {
     private static final Long USER_1 =  1L;
     private static final Long USER_2 =  2L;
 
-    private ClassFile c1, c2, c3;
+    private ClassFile print, sum, helloWorld;
     private Map<String, ClassFile> testFiles;
 
     @Before
     public void init() throws Exception {
         testFiles = new HashMap<>();
-        c1 = new ClassFile("Print", Utils.readOut("Print"));
-        c2 = new ClassFile("Sum", Utils.readOut("Sum"));
-        c3 = new ClassFile("HelloWorld", Utils.readOut("HelloWorld"));
-        testFiles.put("Print", c1);
-        testFiles.put("Sum",  c2);
-        testFiles.put("HelloWorld", c3);
+        print      = Utils.readClassFile("Print");
+        sum        = Utils.readClassFile("Sum");
+        helloWorld = Utils.readClassFile("HelloWorld");
+        testFiles.put("Print", print);
+        testFiles.put("Sum", sum);
+        testFiles.put("HelloWorld", helloWorld);
     }
 
     @After
@@ -48,27 +48,27 @@ public class WriteToDiskBotDAOTests {
 
     @Test
     public void addTest1() {
-        addTest(c1, USER_1, USER);
+        addTest(print, USER_1, USER);
     }
 
     @Test
     public void addTest2() {
-        addTest(c1, USER_2, USER);
+        addTest(print, USER_2, USER);
     }
 
     @Test
     public void addTest3() {
-        addTest(c2, USER_1, USER);
+        addTest(sum, USER_1, USER);
     }
 
     @Test
     public void addTest4() {
-        addTest(c2, CHAT_1, CHAT);
+        addTest(sum, CHAT_1, CHAT);
     }
 
     @Test
     public void addTest5() {
-        addTest(c3, CHAT_1, CHAT);
+        addTest(helloWorld, CHAT_1, CHAT);
     }
 
     @Test

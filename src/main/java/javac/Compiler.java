@@ -20,7 +20,6 @@ public class Compiler {
     }
 
     public boolean compile() {
-        boolean success = false;
 
         Callable<String> task = () -> {
             try {
@@ -36,21 +35,19 @@ public class Compiler {
 
         try {
             Utils.write(javaFile);
-            outputMessage = (String)future.get(10, TimeUnit.SECONDS);
-            success = Utils.exists(javaFile.getClassName() + ".class");
-
-            byte[] bytecode = Utils.readSmallBinaryFile(javaFile.getClassName() + ".class");
-            outputClass = new ClassFile(javaFile.getClassName(), bytecode);
+            outputMessage = (String)future.get(10, TimeUnit.SECONDS); // calls runJavac()
+            outputClass   = Utils.readClassFile(javaFile);
         } catch (IOException | InterruptedException | ExecutionException ignored) {
-
+            // TODO: 08.06.2017 do something here
         } catch (TimeoutException e) {
             outputMessage = "Timed out after 10 seconds.";
         } finally {
             try {
                 Utils.delete(javaFile);
+                if (outputClass != null) Utils.delete(outputClass);
             } catch (IOException ignore) {}
         }
-        return success;
+        return outputClass != null;
     }
 
     private String runJavac() throws IOException, InterruptedException {

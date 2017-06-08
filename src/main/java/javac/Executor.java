@@ -33,15 +33,16 @@ public class Executor {
         executor.shutdown();
 
         try {
+            Utils.write(classFile);
             outputMessage = (String)future.get(1, TimeUnit.SECONDS);
-        } catch (ExecutionException | InterruptedException ignored) {
+        } catch (ExecutionException | IOException | InterruptedException ignored) {
 
         } catch (TimeoutException e) {
             outputMessage = "Timed out after 1 second.";
             future.cancel(true);
         } finally {
             try {
-                Utils.delete(classFile.getClassName() + ".class");
+                Utils.delete(classFile);
             } catch (IOException ignore) {
                 // File not found probably
             }
