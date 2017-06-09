@@ -3,7 +3,7 @@ import bot.commands.*;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
-import bot.commands.visitors.Command;
+import bot.commands.Command;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import dao.Privacy;

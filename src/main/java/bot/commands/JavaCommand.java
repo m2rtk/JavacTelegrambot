@@ -4,15 +4,12 @@ import bot.Commands;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
-import bot.commands.visitors.Command;
 import dao.BotDAO;
 import dao.Privacy;
 import javac.ClassFile;
 import javac.Executor;
 
 import java.util.Arrays;
-
-import static dao.Privacy.CHAT;
 
 public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy, NeedsDAO {
     private BotDAO dao;

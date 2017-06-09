@@ -3,7 +3,6 @@ package bot.commands;
 import bot.Commands;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
-import bot.commands.visitors.Command;
 import dao.BotDAO;
 import dao.Privacy;
 import javac.ClassFile;
@@ -12,8 +11,6 @@ import java.util.ArrayList;
 import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
-
-import static dao.Privacy.CHAT;
 
 /**
  * Created on 18.05.2017.

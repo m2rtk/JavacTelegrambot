@@ -4,11 +4,8 @@ import bot.Commands;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
-import bot.commands.visitors.Command;
 import dao.BotDAO;
 import dao.Privacy;
-
-import static dao.Privacy.CHAT;
 
 
 public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgument, NeedsDAO {

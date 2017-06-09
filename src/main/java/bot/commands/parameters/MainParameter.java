@@ -3,7 +3,7 @@ package bot.commands.parameters;
 import bot.Commands;
 import bot.commands.JavacCommand;
 import bot.commands.interfaces.NeedsArgument;
-import bot.commands.visitors.Command;
+import bot.commands.Command;
 import bot.commands.visitors.Parameter;
 
 /**

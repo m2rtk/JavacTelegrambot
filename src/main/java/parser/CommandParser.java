@@ -1,7 +1,7 @@
 package parser;
 
 import bot.Commands;
-import bot.commands.visitors.Command;
+import bot.commands.Command;
 import bot.commands.visitors.Parameter;
 import bot.commands.interfaces.NeedsArgument;
 

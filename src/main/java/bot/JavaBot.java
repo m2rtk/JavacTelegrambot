@@ -2,7 +2,7 @@ package bot;
 
 import bot.commands.JavaCommand;
 import bot.commands.parameters.PrivacyParameter;
-import bot.commands.visitors.Command;
+import bot.commands.Command;
 import bot.commands.visitors.DAOVisitor;
 import bot.commands.visitors.Parameter;
 import bot.commands.visitors.StartTimeVisitor;

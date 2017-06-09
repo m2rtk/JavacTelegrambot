@@ -1,6 +1,6 @@
 package bot.commands.interfaces;
 
-import bot.commands.visitors.Command;
+import bot.commands.Command;
 
 public interface CommandVisitor {
 

@@ -1,7 +1,6 @@
 package bot.commands;
 
 import bot.Commands;
-import bot.commands.visitors.Command;
 import org.telegram.telegrambots.logging.BotLogger;
 
 import java.nio.file.Files;
