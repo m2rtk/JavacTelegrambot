@@ -28,24 +28,21 @@ public class CommandParser {
 
     public CommandParser(String input) {
         this.input = input;
-        this.state = State.START;
-
-        this.needsNext = true;
-        this.parsed = false;
 
         this.parameters = new HashMap<>();
+        this.needsNext = true;
+        this.parsed = false;
+        this.state = State.START;
     }
 
+    /**
+     * Removes the first element bordered by whitespace from input and returns it.
+     * @return String token
+     */
     private String nextToken() {
-        String token;
-
-        String[] pieces = input.split("\\s+", 2);
-
-        token = pieces[0];
-        if (pieces.length > 1) input = pieces[1];
-        else input = "";
-
-        return token.trim();
+        String[] pieces = input.split("\\s+", 2); //split input in two by first whitespace
+        input = pieces.length > 1 ? pieces[1] : "";
+        return pieces[0].trim();
     }
 
     /**
@@ -141,7 +138,7 @@ public class CommandParser {
     /**
      * Constructs an object of Class c.
      * Assumes that Class c has a constructor that takes 0 arguments.
-     * Is meant to be used only for subclasses of Command or Parameter class.
+     * Is meant to be used only for subclasses of Command or Parameter.
      * @param c class of object to construct.
      * @return Instance of class c
      */
@@ -156,20 +153,20 @@ public class CommandParser {
     /**
      * Output method.
      * @return parsed Command
-     * @throws RuntimeException if called before parse() method.
+     * @throws IllegalGetException if called before parse() method.
      */
     public Command getCommand() {
-        if (!parsed) throw new RuntimeException("Parse must be called before this method.");
+        if (!parsed) throw new IllegalGetException("Parse must be called before this method.");
         return command;
     }
 
     /**
      * Output method.
      * @return map of parsed Parameters
-     * @throws RuntimeException if called before parse() method.
+     * @throws IllegalGetException if called before parse() method.
      */
     public Map<String, Parameter> getParameters() {
-        if (!parsed) throw new RuntimeException("Parse must be called before this method.");
+        if (!parsed) throw new IllegalGetException("Parse must be called before this method.");
         return parameters;
     }
 }
