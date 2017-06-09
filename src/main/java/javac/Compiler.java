@@ -9,43 +9,33 @@ import java.util.concurrent.*;
  * Not really a compiler, uses native javac.
  */
 public class Compiler {
-    private JavaFile javaFile;
+    private final static int timeoutms = 1000;
+    private JavaFile inputJava;
     private String classPath;
 
     private String outputMessage;
     private ClassFile outputClass;
 
-    public Compiler(JavaFile javaFile) {
-        this.javaFile = javaFile;
+    public Compiler(JavaFile inputJava) {
+        this.inputJava = inputJava;
     }
 
     public boolean compile() {
-
-        Callable<String> task = () -> {
-            try {
-                return runJavac();
-            } catch (IOException | InterruptedException e) {
-                return "";
-            }
-        };
-
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future future = executor.submit(task);
+        Future future = executor.submit(this::runJavac);
         executor.shutdown();
 
         try {
-            Utils.write(javaFile);
-            outputMessage = (String)future.get(10, TimeUnit.SECONDS); // calls runJavac()
-            outputClass   = Utils.readClassFile(javaFile);
-        } catch (IOException | InterruptedException | ExecutionException ignored) {
-            // TODO: 08.06.2017 do something here
+            Utils.write(inputJava);
+            outputMessage = (String) future.get(timeoutms, TimeUnit.MILLISECONDS);
+            outputClass   = Utils.readClassFile(inputJava);
+        } catch (InterruptedException | ExecutionException ignored) {
+            outputMessage = "Couldn't execute javac process.";
         } catch (TimeoutException e) {
-            outputMessage = "Timed out after 10 seconds.";
+            outputMessage = "Timed out after " + timeoutms + " milliseconds.";
         } finally {
-            try {
-                Utils.delete(javaFile);
-                if (outputClass != null) Utils.delete(outputClass);
-            } catch (IOException ignore) {}
+            Utils.delete(inputJava);
+            Utils.delete(outputClass);
         }
         return outputClass != null;
     }
@@ -59,17 +49,17 @@ public class Compiler {
             args[0] = "javac";
             args[1] = "-classpath";
             args[2] = classPath;
-            args[3] = javaFile.getClassName() + ".java";
+            args[3] = inputJava.getClassName() + ".java";
         } else { // mainly for testing
             args = new String[2];
             args[0] = "javac";
-            args[1] = javaFile.getClassName() + ".java";
+            args[1] = inputJava.getClassName() + ".java";
         }
         pb.command(args);
         pb.redirectErrorStream(true);
         Process pro = pb.start();
 
-        pro.waitFor(10, TimeUnit.SECONDS);
+        pro.waitFor();
 
         return Utils.getLines(pro.getInputStream());
     }

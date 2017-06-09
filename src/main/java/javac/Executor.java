@@ -9,47 +9,38 @@ import java.util.concurrent.*;
  * Executes ClassFile's, uses native java.
  */
 public class Executor {
-    private ClassFile classFile;
-    private String outputMessage;
+    private final static int timeoutms = 1000;
+    private ClassFile inputClass;
     private String classPath;
+    private String[] args;
 
-    public Executor(ClassFile classFile) {
-        this.classFile = classFile;
+    private String outputMessage;
+
+    public Executor(ClassFile inputClass) {
+        this.inputClass = inputClass;
     }
 
     public void run(String... args) {
-
-        Callable<String> task = () -> {
-            try {
-                return runJava(args);
-            } catch (IOException | InterruptedException e) {
-                e.printStackTrace();
-                return "";
-            }
-        };
+        this.args = args;
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
-        Future future = executor.submit(task);
+        Future future = executor.submit(this::runJava);
         executor.shutdown();
 
         try {
-            Utils.write(classFile);
-            outputMessage = (String)future.get(1, TimeUnit.SECONDS);
-        } catch (ExecutionException | IOException | InterruptedException ignored) {
-
+            Utils.write(inputClass);
+            outputMessage = (String) future.get(timeoutms, TimeUnit.MILLISECONDS);
+        } catch (ExecutionException | InterruptedException ignored) {
+            outputMessage = "Couldn't execute java process.";
         } catch (TimeoutException e) {
-            outputMessage = "Timed out after 1 second.";
-            future.cancel(true);
+            outputMessage = "Timed out after " + timeoutms + " milliseconds.";
         } finally {
-            try {
-                Utils.delete(classFile);
-            } catch (IOException ignore) {
-                // File not found probably
-            }
+            future.cancel(true);
+            Utils.delete(inputClass);
         }
     }
 
-    private String runJava(String... args) throws IOException, InterruptedException {
+    private String runJava() throws InterruptedException, IOException {
         ProcessBuilder pb = new ProcessBuilder();
 
         String[] completeArgs;
@@ -58,28 +49,24 @@ public class Executor {
             completeArgs[0] = "java";
             completeArgs[1] = "-classpath";
             completeArgs[2] = classPath;
-            completeArgs[3] = classFile.getClassName();
+            completeArgs[3] = inputClass.getClassName();
             System.arraycopy(args, 0, completeArgs, 4, args.length);
         } else { // mainly for testing
             completeArgs = new String[args.length + 2];
             completeArgs[0] = "java";
-            completeArgs[1] = classFile.getClassName();
+            completeArgs[1] = inputClass.getClassName();
             System.arraycopy(args, 0, completeArgs, 2, args.length);
         }
 
         pb.command(completeArgs);
         pb.redirectErrorStream(true);
-        String outputMessage = null;
 
-        try {
-            Process pro = pb.start();
-            pro.waitFor(1, TimeUnit.SECONDS);
-            outputMessage = Utils.getLines(pro.getInputStream());
-            if (outputMessage.trim().isEmpty()) outputMessage = "No output.";
-        } catch (InterruptedException ignored) {
+        Process pro = pb.start();
+        pro.waitFor();
 
-        }
-        return outputMessage;
+        String outputMessage = Utils.getLines(pro.getInputStream());
+
+        return outputMessage.trim().isEmpty() ? "No output." : outputMessage;
     }
 
     public String getOutputMessage() {

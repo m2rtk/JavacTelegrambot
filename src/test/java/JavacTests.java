@@ -6,6 +6,7 @@ import jdk.nashorn.internal.runtime.ECMAException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class JavacTests {
@@ -73,6 +74,15 @@ public class JavacTests {
         executor.run();
         String expected = "Hello World!" + System.getProperty("line.separator");
         assertEquals(expected, executor.getOutputMessage());
+    }
+
+    @Test
+    public void tooTimeConsumingExecutionTimesOut() throws Exception {
+        ClassFile timeout = Utils.readClassFile("Timeout");
+        Executor executor = new Executor(timeout);
+        executor.run();
+        String expected = "Timed out after [0-9]+ milliseconds.";
+        assertTrue(executor.getOutputMessage().matches(expected));
     }
 
     private void successfulCompilationTest(String className) throws Exception {
