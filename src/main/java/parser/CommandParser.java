@@ -1,10 +1,9 @@
 package parser;
 
 import bot.Commands;
-import bot.commands.JavaCommand;
-import bot.commands.interfaces.NeedsArgument;
 import bot.commands.visitors.Command;
 import bot.commands.visitors.Parameter;
+import bot.commands.interfaces.NeedsArgument;
 
 import java.util.HashMap;
 import java.util.Map;
@@ -91,9 +90,7 @@ public class CommandParser {
             this.command = (Command) construct(Commands.allCommands.get(token));
             this.state = State.FREE;
         } else {
-            // unknown command, lets assume its a special case of /java
-            this.command = new JavaCommand();
-            end(token.substring(1));
+            throw new UnknownCommandException("Undefined command '" + token + "'");
         }
     }
 

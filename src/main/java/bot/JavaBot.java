@@ -1,5 +1,6 @@
 package bot;
 
+import bot.commands.JavaCommand;
 import bot.commands.parameters.PrivacyParameter;
 import bot.commands.visitors.Command;
 import bot.commands.visitors.DAOVisitor;
@@ -13,8 +14,10 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import org.telegram.telegrambots.logging.BotLogger;
 import parser.CommandParser;
 import parser.ParserException;
+import parser.UnknownCommandException;
 
 import java.time.Instant;
+import java.util.HashMap;
 import java.util.Map;
 
 import static dao.Privacy.CHAT;
@@ -63,17 +66,25 @@ public class JavaBot extends TelegramLongPollingBot {
     }
 
     private Command getCommand(Update update) {
-        CommandParser parser = new CommandParser(update.getMessage().getText());
-        parser.parse();
+        Command command;
+        Map<String, Parameter> parameters;
 
-        Command command = parser.getCommand();
-        Map<String, Parameter> parameters = parser.getParameters();
+        try {
+            CommandParser parser = new CommandParser(update.getMessage().getText());
+            parser.parse();
+
+            command = parser.getCommand();
+            parameters = parser.getParameters();
+        } catch (UnknownCommandException e) {
+            command    = new JavaCommand();
+            parameters = new HashMap<>();
+            ((JavaCommand) command).setArgument(update.getMessage().getText().substring(1));
+        }
+
         setPrivacy(parameters, update);
-
         parameters.values().forEach(command::accept);
         command.accept(daoVisitor);
         command.accept(startTimeVisitor);
-
         return command;
     }
 

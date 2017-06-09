@@ -76,6 +76,22 @@ public class BotTests {
     }
 
     @Test
+    public void javaCommandSpecialCaseOutputsClassOutput() {
+        Update update = Utils.createMockUpdateWithTextContent("/javac -m Test System.out.println(1);", user, chat);
+        bot.onUpdateReceived(update);
+        init();
+        test("/Test", "1" + System.getProperty("line.separator"));
+    }
+
+    @Test
+    public void javaCommandSpecialCaseWithArgumentsOutputsClassOutput() {
+        Update update = Utils.createMockUpdateWithTextContent("/javac -m Test System.out.println(args[0] + args[1]);", user, chat);
+        bot.onUpdateReceived(update);
+        init();
+        test("/Test 1 2", "12" + System.getProperty("line.separator"));
+    }
+
+    @Test
     public void javacCommandOutputsSuccessfulCompilationResult() {
         test("/javac -m Test System.out.println(1);", "Successfully compiled!");
     }

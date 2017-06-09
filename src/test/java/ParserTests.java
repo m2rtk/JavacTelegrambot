@@ -9,6 +9,7 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import parser.CommandParser;
 import parser.ParserException;
+import parser.UnknownCommandException;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -88,17 +89,17 @@ public class ParserTests {
         javaTest("Decide to_be not_to_be       1 2 3", false);
     }
 
-    @Test
+    @Test(expected = UnknownCommandException.class)
     public void javaSpecialCaseTest0() throws Exception {
         javaSpecialCaseTest("/Test");
     }
 
-    @Test
+    @Test(expected = UnknownCommandException.class)
     public void javaSpecialCaseTest1() throws Exception {
         javaSpecialCaseTest("/Sum 1 2 3");
     }
 
-    @Test
+    @Test(expected = UnknownCommandException.class)
     public void javaSpecialCaseTest2() throws Exception {
         javaSpecialCaseTest("/Decide to_be not_to_be    ");
     }
