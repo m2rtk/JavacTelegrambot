@@ -1,8 +1,8 @@
 package bot;
 
+import bot.commands.Command;
 import bot.commands.JavaCommand;
 import bot.commands.parameters.PrivacyParameter;
-import bot.commands.Command;
 import bot.commands.visitors.DAOVisitor;
 import bot.commands.visitors.Parameter;
 import bot.commands.visitors.StartTimeVisitor;
@@ -56,7 +56,8 @@ public class JavaBot extends TelegramLongPollingBot {
                 command.execute();
                 BotLogger.info(TAG, "Executed command " + command.getName()
                         + " in chat " + chatId
-                        + " with output " + command.getOutput()
+                        + " with output " + System.getProperty("line.separator")
+                        + command.getOutput()
                 );
                 sendMessage(command.getOutput(), chatId);
             } catch (ParserException e) {
@@ -103,8 +104,9 @@ public class JavaBot extends TelegramLongPollingBot {
         BotLogger.info(TAG, "Sending message \n" + message + "\nto chat: " + chatId);
         try {
             SendMessage sendMessage = new SendMessage();
+            sendMessage.enableMarkdown(true);
             sendMessage.setChatId(chatId);
-            sendMessage.setText(message);
+            sendMessage.setText("```\n" + message + "```"); // TODO: 10.06.2017 probably should escape markdown
             sendMessage(sendMessage);
         } catch (TelegramApiException e) {
             BotLogger.error(TAG, e);

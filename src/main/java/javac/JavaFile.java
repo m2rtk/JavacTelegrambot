@@ -1,5 +1,14 @@
 package javac;
 
+import com.github.javaparser.JavaParser;
+import com.github.javaparser.ParseProblemException;
+import com.github.javaparser.ast.CompilationUnit;
+import com.github.javaparser.ast.Node;
+import com.github.javaparser.ast.body.ClassOrInterfaceDeclaration;
+
+import java.util.ArrayDeque;
+import java.util.Deque;
+
 public class JavaFile {
     private String className;
     private String source;
@@ -9,10 +18,23 @@ public class JavaFile {
         this.className = parseClassName();
     }
 
-    private String parseClassName() { // FIXME: 07.06.2017 pls, think of 'class Name' and comments before class declaration
-        int i = source.indexOf("public class ");
-        if (i == -1) return "";
-        return source.substring(i + 13).split("\\{")[0].trim();
+    private String parseClassName() {
+        try {
+            CompilationUnit cu = JavaParser.parse(source);
+            Deque<Node> stack = new ArrayDeque<>();
+            stack.push(cu);
+            while (!stack.isEmpty()) {
+                Node node = stack.pop();
+                stack.addAll(node.getChildNodes());
+                if (node instanceof ClassOrInterfaceDeclaration) {
+                    return node.getChildNodes().get(0).toString();
+                }
+            }
+        } catch (ParseProblemException ignored) {
+            // We want the error message from javac, not this parser.
+            // If this parser fails, so will javac.
+        }
+        return "";
     }
 
     public String getSource() {
@@ -31,7 +53,6 @@ public class JavaFile {
         JavaFile javaFile = (JavaFile) o;
 
         return className.equals(javaFile.className) && source.equals(javaFile.source);
-
     }
 
     @Override

@@ -2,11 +2,9 @@ import javac.ClassFile;
 import javac.Compiler;
 import javac.Executor;
 import javac.JavaFile;
-import jdk.nashorn.internal.runtime.ECMAException;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertThat;
 import static org.junit.Assert.assertTrue;
 
 public class JavacTests {
@@ -83,6 +81,51 @@ public class JavacTests {
         executor.run();
         String expected = "Timed out after [0-9]+ milliseconds.";
         assertTrue(executor.getOutputMessage().matches(expected));
+    }
+
+    @Test
+    public void javaFileExtractsSimpleNameCorrectly() {
+        nameExtractTest("public class Test {}", "Test");
+        nameExtractTest("class Test {}", "Test");
+        nameExtractTest("public class asdqefjweklfjwlf {}", "asdqefjweklfjwlf");
+        nameExtractTest("class Asdqefjweklfjwlf {}", "Asdqefjweklfjwlf");
+        nameExtractTest("public class a1a1a1 {}", "a1a1a1");
+        nameExtractTest("class a1a1a1 {}", "a1a1a1");
+    }
+
+    @Test
+    public void javaFileExtractsNameWithCommentsCorrectly() {
+        nameExtractTest("//public class WrongName {}\n public class RightName {}", "RightName");
+        nameExtractTest("//asdljqiodjoj class\n public class RightName {} //asdasd", "RightName");
+        nameExtractTest("//class Wrong\n  class /*class Wronger{}*/ Test /*class Wrongest {}*/ {}", "Test");
+    }
+
+    @Test
+    public void javaFileExtractNameWithImportsAndCommentsCorrectly() {
+        nameExtractTest("import javac.ClassFile; \n" +
+                        "import javac.Compiler; \n" +
+                        "//class Wrong {} \n" +
+                        "class Test {}",
+                "Test"
+        );
+    }
+
+    @Test
+    public void javaFileExtractsFirstNameWithMultipleClassesCorrectly() {
+        nameExtractTest("class Test {} \n class Wrong {}", "Test");
+    }
+
+    @Test
+    public void javaFileExtractsNoNameIfInvalidInput() {
+        nameExtractTest("clas Test {}", "");
+        nameExtractTest("Test {}", "");
+        nameExtractTest("Test", "");
+        nameExtractTest("class Test { public static void main(String[] args) { System.out.println(1) }}", "");
+    }
+
+    private void nameExtractTest(String source, String expectedName) {
+        JavaFile javaFile = new JavaFile(source);
+        assertEquals(expectedName, javaFile.getClassName());
     }
 
     private void successfulCompilationTest(String className) throws Exception {

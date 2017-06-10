@@ -27,7 +27,6 @@ public class ClassFile {
         ClassFile classFile = (ClassFile) o;
 
         return className.equals(classFile.className) && Arrays.equals(byteCode, classFile.byteCode);
-
     }
 
     @Override

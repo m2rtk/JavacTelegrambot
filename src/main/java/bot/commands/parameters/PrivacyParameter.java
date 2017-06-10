@@ -1,8 +1,8 @@
 package bot.commands.parameters;
 
 import bot.Commands;
-import bot.commands.interfaces.NeedsPrivacy;
 import bot.commands.Command;
+import bot.commands.interfaces.NeedsPrivacy;
 import bot.commands.visitors.Parameter;
 import dao.Privacy;
 

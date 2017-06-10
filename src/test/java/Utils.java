@@ -1,23 +1,15 @@
-import bot.JavaBot;
-import bot.commands.visitors.DAOVisitor;
-import dao.BotDAO;
-import dao.Privacy;
 import javac.ClassFile;
 import javac.JavaFile;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;
 
-import java.io.File;
-import java.lang.reflect.Field;
-import java.lang.reflect.Modifier;
 import java.nio.file.Files;
-import java.nio.file.Path;
 import java.nio.file.Paths;
-import java.util.Comparator;
 import java.util.stream.Collectors;
 
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.mock;
+import static org.mockito.Mockito.when;
 
 class Utils {
 
