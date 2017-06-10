@@ -17,7 +17,7 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
 
     public void wrapContentInMain(String classname) {
         if (content == null) throw new NullPointerException("Content/argument must be set before calling this method.");
-        this.content = String.format("public class %s { public static void main(String[] args) {%s}}", classname, content);
+        this.content = String.format("public class %s { \n\tpublic static void main(String[] args) {\n\t\t%s\n\t}\n}", classname, content);
     }
 
     @Override

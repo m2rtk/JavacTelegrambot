@@ -117,10 +117,10 @@ public class JavacTests {
 
     @Test
     public void javaFileExtractsNoNameIfInvalidInput() {
-        nameExtractTest("clas Test {}", "");
-        nameExtractTest("Test {}", "");
-        nameExtractTest("Test", "");
-        nameExtractTest("class Test { public static void main(String[] args) { System.out.println(1) }}", "");
+        nameExtractTest("clas Test {}", "FailedToParseClassName");
+        nameExtractTest("Test {}", "FailedToParseClassName");
+        nameExtractTest("Test", "FailedToParseClassName");
+        nameExtractTest("class Test { public static void main(String[] args) { System.out.println(1) }}", "FailedToParseClassName");
     }
 
     private void nameExtractTest(String source, String expectedName) {

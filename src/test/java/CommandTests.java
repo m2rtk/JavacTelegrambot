@@ -235,6 +235,12 @@ public class CommandTests {
         javacCommand.execute();
     }
 
+    @Test(expected = NullPointerException.class)
+    public void javacCommandWrapContentInMainMethodThrowsExceptionIfCalledWithNoContentSet() {
+        JavacCommand javacCommand = new JavacCommand();
+        javacCommand.wrapContentInMain("Test");
+    }
+
     @Test
     public void javacCommandWithMissingContentThrowsException() {
         illegalExecutionTest(JavacCommand.class, true, true, false);

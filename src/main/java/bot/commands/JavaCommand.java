@@ -30,7 +30,6 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
 
         Executor executor = new Executor(classFile);
         executor.setClassPath(privacy, id);
-
         executor.run(args);
 
         setOutput(executor.getOutputMessage());

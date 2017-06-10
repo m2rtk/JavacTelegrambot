@@ -86,6 +86,7 @@ public class JavaBot extends TelegramLongPollingBot {
         parameters.values().forEach(command::accept);
         command.accept(daoVisitor);
         command.accept(startTimeVisitor);
+        System.out.println(command);
         return command;
     }
 

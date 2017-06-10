@@ -34,7 +34,7 @@ public class JavaFile {
             // We want the error message from javac, not this parser.
             // If this parser fails, so will javac.
         }
-        return "";
+        return "FailedToParseClassName";
     }
 
     public String getSource() {

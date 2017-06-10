@@ -1,12 +1,13 @@
 package javac;
 
-import java.io.BufferedReader;
-import java.io.IOException;
-import java.io.InputStream;
-import java.io.InputStreamReader;
+import com.google.common.base.Charsets;
+
+import java.io.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
+import java.util.Arrays;
+import java.util.List;
 
 class Utils {
 
@@ -21,9 +22,12 @@ class Utils {
         }
     }
 
+
     static Path write(JavaFile javaFile) {
         if (javaFile == null) return null;
         try {
+//            List<String> lines = Arrays.asList(javaFile.getSource().split("\\n"));
+//            return Files.write(Paths.get(javaFile.getClassName()  + ".java"), lines, Charsets.UTF_8);
             return Files.write(Paths.get(javaFile.getClassName()  + ".java"), javaFile.getSource().getBytes());
         } catch (IOException e) {
             return null;
