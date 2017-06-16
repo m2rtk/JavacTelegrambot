@@ -2,6 +2,7 @@ package bot;
 
 import bot.commands.*;
 import bot.commands.parameters.MainParameter;
+import bot.commands.parameters.NoMonospaceFontParameter;
 import bot.commands.parameters.PrivacyParameter;
 
 import java.util.Collections;
@@ -43,6 +44,9 @@ public class Commands {
     public static final String mainParameter = paramInitChar + "m";
     private static final Class mainParameterClass = MainParameter.class;
 
+    public static final String noMonospaceFontParameter = paramInitChar + "n";
+    private static final Class noMonospaceFontClass = NoMonospaceFontParameter.class;
+
     public static final Map<String, Class> allCommands;
 
     public static final Map<String, Class> allParameters;
@@ -61,6 +65,7 @@ public class Commands {
         Map<String, Class> parameters = new HashMap<>();
         parameters.put(privacyParameter, privacyParameterClass);
         parameters.put(mainParameter, mainParameterClass);
+        parameters.put(noMonospaceFontParameter, noMonospaceFontClass);
         allParameters = Collections.unmodifiableMap(parameters);
     }
 }

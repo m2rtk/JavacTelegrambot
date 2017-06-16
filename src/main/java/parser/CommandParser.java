@@ -136,21 +136,6 @@ public class CommandParser {
     }
 
     /**
-     * Constructs an object of Class c.
-     * Assumes that Class c has a constructor that takes 0 arguments.
-     * Is meant to be used only for subclasses of Command or Parameter.
-     * @param c class of object to construct.
-     * @return Instance of class c
-     */
-    private static Object construct(Class c) {
-        try {
-            return c.getConstructors()[0].newInstance();
-        } catch (Exception e) {
-            throw new RuntimeException("Cant cast parameter " + e);
-        }
-    }
-
-    /**
      * Output method.
      * @return parsed Command
      * @throws IllegalGetException if called before parse() method.
@@ -168,5 +153,20 @@ public class CommandParser {
     public Map<String, Parameter> getParameters() {
         if (!parsed) throw new IllegalGetException("Parse must be called before this method.");
         return parameters;
+    }
+
+    /**
+     * Constructs an object of Class c.
+     * Assumes that Class c has a constructor that takes 0 arguments.
+     * Is meant to be used only for subclasses of Command or Parameter.
+     * @param c class of object to construct.
+     * @return Instance of class c
+     */
+    private static Object construct(Class c) {
+        try {
+            return c.getConstructors()[0].newInstance();
+        } catch (Exception e) {
+            throw new RuntimeException("Cant cast parameter " + e);
+        }
     }
 }

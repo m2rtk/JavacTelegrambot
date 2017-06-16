@@ -1,9 +1,11 @@
 package bot.commands;
 
+import bot.Utils;
 import bot.commands.interfaces.CommandVisitor;
 
 public abstract class Command {
     private String output;
+    private boolean usesMonospaceFont = true;
 
     /**
      * Accepts visitor parameter.
@@ -20,6 +22,14 @@ public abstract class Command {
     public abstract void execute();
 
     /**
+     * Yeh
+     * @param usesMonospaceFont duh
+     */
+    public void setMonospaceFont(boolean usesMonospaceFont) {
+        this.usesMonospaceFont = usesMonospaceFont;
+    }
+
+    /**
      * Returns output after calling execute();
      * Currently nice and help command don't need execute() call to return output.
      * @return output as string.
@@ -27,6 +37,7 @@ public abstract class Command {
      */
     public String getOutput() {
         if (output == null) throw new NullPointerException("Output is null, void execute() must be called before this method.");
+        if (usesMonospaceFont) return Utils.toMonospace(output);
         return output;
     }
 

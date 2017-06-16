@@ -68,7 +68,7 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
     public String toString() {
         return "JavacCommand{" +
                 "dao=" + dao +
-                ", content='" + content + '\'' +
+//                ", content='" + content + '\'' +
                 ", privacy=" + privacy +
                 ", id=" + id +
                 "} ";

@@ -6,7 +6,10 @@ import bot.commands.parameters.PrivacyParameter;
 import bot.commands.visitors.DAOVisitor;
 import bot.commands.visitors.Parameter;
 import bot.commands.visitors.StartTimeVisitor;
+import com.github.javaparser.utils.StringEscapeUtils;
 import dao.WriteToDiskBotDAO;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
@@ -24,11 +27,10 @@ import static dao.Privacy.CHAT;
 import static dao.Privacy.USER;
 
 public class JavaBot extends TelegramLongPollingBot {
-    private static final String TAG = "JAVABOT";
+    private static final Logger logger = LogManager.getLogger(JavaBot.class);
 
     private final DAOVisitor daoVisitor;
     private final StartTimeVisitor startTimeVisitor;
-
     public JavaBot() {
         this.daoVisitor       = new DAOVisitor(new WriteToDiskBotDAO());
         this.startTimeVisitor = new StartTimeVisitor(Instant.now().getEpochSecond());
@@ -36,32 +38,28 @@ public class JavaBot extends TelegramLongPollingBot {
 
     @Override
     public void onUpdateReceived(Update update) {
-        BotLogger.info(TAG, "Update received!");
-
         if (!update.hasMessage()) {
-            BotLogger.info(TAG, "No message, Update end");
+            logger.warn("IN: Update with no message " + update);
             return;
         }
+
+        logger.info("IN: update=(id=" + update.getUpdateId() +
+                    ", chat=" + update.getMessage().getChatId() +
+                    ", user=" + update.getMessage().getFrom().getId() + ")");
+
+        for (String line : update.getMessage().getText().split("\n"))
+            logger.info("IN: " + update.getUpdateId() + " '" + line + "'");
 
         long chatId = update.getMessage().getChatId();
 
         if (update.getMessage().isCommand()) {
-            BotLogger.info(TAG, "Update from chat: " + update.getMessage().getChatId()
-                                         + " user: " + update.getMessage().getFrom().getId()
-                                         + " content: " + System.getProperty("line.separator")
-                                         + update.getMessage().getText());
-
             try {
                 Command command = getCommand(update);
+                logger.info("CMD: " + update.getUpdateId() + " " + command);
                 command.execute();
-                BotLogger.info(TAG, "Executed command " + command.getName()
-                        + " in chat " + chatId
-                        + " with output " + System.getProperty("line.separator")
-                        + command.getOutput()
-                );
-                sendMessage(command.getOutput(), chatId);
+                sendMessage(command.getOutput(), update);
             } catch (ParserException e) {
-                sendMessage("Invalid command: " + e.getMessage(), chatId);
+                sendMessage(Utils.toMonospace("Invalid command: " + e.getMessage()), update);
             }
         }
     }
@@ -86,7 +84,6 @@ public class JavaBot extends TelegramLongPollingBot {
         parameters.values().forEach(command::accept);
         command.accept(daoVisitor);
         command.accept(startTimeVisitor);
-        System.out.println(command);
         return command;
     }
 
@@ -101,16 +98,19 @@ public class JavaBot extends TelegramLongPollingBot {
             parameters.put(Commands.privacyParameter, new PrivacyParameter().set(CHAT, chatId));
     }
 
-    public void sendMessage(String message, Long chatId) {
-        BotLogger.info(TAG, "Sending message \n" + message + "\nto chat: " + chatId);
+    public void sendMessage(String message, Update update) {
+        for (String line : message.split(System.getProperty("line.separator"))) {
+            logger.info("OUT: " + update.getUpdateId() + " '" + line + "'");
+        }
+
         try {
             SendMessage sendMessage = new SendMessage();
             sendMessage.enableMarkdown(true);
-            sendMessage.setChatId(chatId);
-            sendMessage.setText("```\n" + message + "```"); // TODO: 10.06.2017 probably should escape markdown
+            sendMessage.setChatId(update.getMessage().getChatId());
+            sendMessage.setText(message); // TODO: 10.06.2017 probably should escape markdown
             sendMessage(sendMessage);
         } catch (TelegramApiException e) {
-            BotLogger.error(TAG, e);
+            logger.error("TelegramApiException", e);
         }
     }
 

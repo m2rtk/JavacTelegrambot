@@ -9,7 +9,7 @@ import java.util.concurrent.*;
  * Not really a compiler, uses native javac.
  */
 public class Compiler {
-    private final static int timeoutms = 1000;
+    private final static int timeoutms = 5000;
     private JavaFile inputJava;
     private String classPath;
 

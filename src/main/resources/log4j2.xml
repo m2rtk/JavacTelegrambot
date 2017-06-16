@@ -1,0 +1,20 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Configuration status="INFO">
+    <Properties>
+        <Property name="filename">log/bot.log</Property>
+    </Properties>
+    <Appenders>
+        <Console name="Console" target="SYSTEM_OUT">
+            <PatternLayout pattern="%level{length=1} %d{yyyyMMdd-HHmm:ss.SSS} %logger{36} - %msg %ex [%t]%n"/>
+        </Console>
+        <File name="File" filename="${filename}">
+            <PatternLayout pattern="%level{length=1} %d{yyyyMMdd-HHmm:ss.SSS} %logger{36} - %msg %ex [%t]%n"/>
+        </File>
+    </Appenders>
+    <Loggers>
+        <Root level="trace">
+            <AppenderRef ref="Console"/>
+            <AppenderRef ref="File"/>
+        </Root>
+    </Loggers>
+</Configuration>

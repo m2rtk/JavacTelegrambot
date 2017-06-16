@@ -38,4 +38,13 @@ class Utils {
         when(mockUpdate.getMessage()).thenReturn(mockMessage);
         return mockUpdate;
     }
+
+    static Update createMockUpdate(Long chatId) {
+        Message mockMessage = mock(Message.class);
+        when(mockMessage.getChatId()).thenReturn(chatId);
+        Update mockUpdate = mock(Update.class);
+        when(mockUpdate.hasMessage()).thenReturn(true);
+        when(mockUpdate.getMessage()).thenReturn(mockMessage);
+        return mockUpdate;
+    }
 }
