@@ -9,4 +9,14 @@ public class NoMonospaceFontParameter extends Parameter {
     public void visit(Command command) {
         command.setMonospaceFont(false);
     }
+
+    @Override
+    public int hashCode() {
+        return 13337;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof NoMonospaceFontParameter;
+    }
 }

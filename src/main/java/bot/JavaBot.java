@@ -20,7 +20,9 @@ import parser.UnknownCommandException;
 
 import java.time.Instant;
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static dao.Privacy.CHAT;
 import static dao.Privacy.USER;
@@ -69,7 +71,8 @@ public class JavaBot extends TelegramLongPollingBot {
 
     private Command getCommand(Update update) {
         Command command;
-        Map<String, Parameter> parameters;
+//        Map<String, Parameter> parameters;
+        Set<Parameter> parameters;
 
         try {
             CommandParser parser = new CommandParser(update.getMessage().getText());
@@ -80,11 +83,11 @@ public class JavaBot extends TelegramLongPollingBot {
         } catch (UnknownCommandException e) {
             // let's assume that the command is a special case of java command
             command    = new JavaCommand();
-            parameters = new HashMap<>();
+            parameters = new HashSet<>();
             ((JavaCommand) command).setArgument(update.getMessage().getText().substring(1));
         }
 
-        parameters.values().forEach(command::accept);
+        parameters.forEach(command::accept);
         command.accept(daoVisitor);
         command.accept(startTimeVisitor);
 

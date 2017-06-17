@@ -1,12 +1,15 @@
 package parser;
 
 import bot.Commands;
+import bot.Config;
 import bot.commands.Command;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.visitors.Parameter;
 
 import java.util.HashMap;
+import java.util.HashSet;
 import java.util.Map;
+import java.util.Set;
 
 import static bot.Commands.cmdInitChar;
 import static bot.Commands.paramInitChar;
@@ -18,7 +21,7 @@ public class CommandParser {
 
     //output
     private Command command;
-    private Map<String, Parameter> parameters;
+    private Set<Parameter> parameters;
 
     private NeedsArgument lastParameter;
 
@@ -29,7 +32,7 @@ public class CommandParser {
     public CommandParser(String input) {
         this.input = input;
 
-        this.parameters = new HashMap<>();
+        this.parameters = new HashSet<>();
         this.needsNext = true;
         this.parsed = false;
         this.state = State.START;
@@ -81,7 +84,7 @@ public class CommandParser {
         if (token.charAt(0) != cmdInitChar)
             throw new ParserException("Command must start with " + cmdInitChar);
 
-        token = token.replace("@BotMcBotfaceBot", ""); //todo write tests for this
+        token = token.replace("@" + Config.JAVABOT_USER, ""); //todo write tests for this
 
         if (Commands.allCommands.containsKey(token)) {
             this.command = (Command) construct(Commands.allCommands.get(token));
@@ -105,7 +108,7 @@ public class CommandParser {
                 this.lastParameter = (NeedsArgument) parameter;
             }
 
-            this.parameters.put(token, parameter);
+            this.parameters.add(parameter);
         } else { // not a parameter -> must be command argument
            end(token);
         }
@@ -147,10 +150,10 @@ public class CommandParser {
 
     /**
      * Output method.
-     * @return map of parsed Parameters
+     * @return set of parsed Parameters
      * @throws IllegalGetException if called before parse() method.
      */
-    public Map<String, Parameter> getParameters() {
+    public Set<Parameter> getParameters() {
         if (!parsed) throw new IllegalGetException("Parse must be called before this method.");
         return parameters;
     }

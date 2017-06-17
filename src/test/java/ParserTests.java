@@ -15,6 +15,7 @@ import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
+import static org.junit.Assert.assertTrue;
 
 public class ParserTests {
 
@@ -208,7 +209,7 @@ public class ParserTests {
         Collections.addAll(expectedParametersSet, expectedParameters);
 
         assertEquals(expectedCommand, parser.getCommand());
-        assertEquals(expectedParametersSet, new HashSet<>(parser.getParameters().values()));
+        assertEquals(expectedParametersSet, parser.getParameters());
     }
 
     private static NeedsArgument a(Class c, String arg) throws Exception {

@@ -11,4 +11,14 @@ public class PrivacyParameter extends Parameter {
     public void visit(Command command) {
         if (command instanceof NeedsPrivacy) ((NeedsPrivacy) command).setPrivacy(Privacy.USER);
     }
+
+    @Override
+    public int hashCode() {
+        return 1337;
+    }
+
+    @Override
+    public boolean equals(Object obj) {
+        return obj instanceof PrivacyParameter;
+    }
 }
