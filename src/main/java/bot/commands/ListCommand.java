@@ -1,6 +1,5 @@
 package bot.commands;
 
-import bot.Commands;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
 import dao.BotDAO;
@@ -12,12 +11,14 @@ import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
+import static dao.Privacy.CHAT;
+
 /**
  * Created on 18.05.2017.
  */
 public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
     private BotDAO dao;
-    private Privacy privacy;
+    private Privacy privacy = CHAT;
     private Long id;
 
     @Override
@@ -40,14 +41,18 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
     }
 
     @Override
-    public String getName() {
-        return Commands.list;
+    public void setPrivacy(Privacy privacy) {
+        this.privacy = privacy;
     }
 
     @Override
-    public void setPrivacy(Privacy privacy, Long id) {
-        this.privacy = privacy;
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public Privacy getPrivacy() {
+        return privacy;
     }
 
     @Override

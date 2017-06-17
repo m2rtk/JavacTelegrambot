@@ -9,10 +9,4 @@ public class NoMonospaceFontParameter extends Parameter {
     public void visit(Command command) {
         command.setMonospaceFont(false);
     }
-
-    @Override
-    public String getName() {
-        return null;
-    }
-
 }

@@ -1,6 +1,5 @@
 package bot.commands.parameters;
 
-import bot.Commands;
 import bot.commands.Command;
 import bot.commands.JavacCommand;
 import bot.commands.interfaces.NeedsArgument;
@@ -16,11 +15,6 @@ public class MainParameter extends Parameter implements NeedsArgument {
     @Override
     public void visit(Command command) {
         if (command instanceof JavacCommand) ((JavacCommand) command).wrapContentInMain(classname);
-    }
-
-    @Override
-    public String getName() {
-        return Commands.mainParameter;
     }
 
 

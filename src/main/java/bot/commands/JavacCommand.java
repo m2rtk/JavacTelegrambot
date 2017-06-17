@@ -1,6 +1,5 @@
 package bot.commands;
 
-import bot.Commands;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
@@ -9,10 +8,12 @@ import dao.Privacy;
 import javac.Compiler;
 import javac.JavaFile;
 
+import static dao.Privacy.CHAT;
+
 public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy, NeedsDAO {
     private BotDAO dao;
     private String content;
-    private Privacy privacy;
+    private Privacy privacy = CHAT;
     private Long id;
 
     public void wrapContentInMain(String classname) {
@@ -39,14 +40,18 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
     }
 
     @Override
-    public String getName() {
-        return Commands.javac;
+    public void setPrivacy(Privacy privacy) {
+        this.privacy = privacy;
     }
 
     @Override
-    public void setPrivacy(Privacy privacy, Long id) {
-        this.privacy = privacy;
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public Privacy getPrivacy() {
+        return privacy;
     }
 
     @Override

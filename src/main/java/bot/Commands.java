@@ -13,39 +13,9 @@ public class Commands {
 
     private Commands() {}
 
-    public static final char initChar = '/';
+    public static final char cmdInitChar = '/';
 
     public static final char paramInitChar = '-';
-
-    public static final String help = initChar + "help";
-    private static final Class helpCommandClass = HelpCommand.class;
-
-    public static final String nice = initChar + "nice";
-    private static final Class niceCommandClass = NiceCommand.class;
-
-    public static final String java = initChar + "java";
-    private static final Class javaCommandClass = JavaCommand.class;
-
-    public static final String javac = initChar + "javac";
-    private static final Class javacCommandClass = JavacCommand.class;
-
-    public static final String list = initChar + "list";
-    private static final Class listCommandClass = ListCommand.class;
-
-    public static final String delete = initChar + "delete";
-    private static final Class deleteCommandClass = DeleteCommand.class;
-
-    public static final String up = initChar + "up";
-    private static final Class upCommandClass = UpCommand.class;
-
-    public static final String privacyParameter = paramInitChar + "p";
-    private static final Class privacyParameterClass = PrivacyParameter.class;
-
-    public static final String mainParameter = paramInitChar + "m";
-    private static final Class mainParameterClass = MainParameter.class;
-
-    public static final String noMonospaceFontParameter = paramInitChar + "n";
-    private static final Class noMonospaceFontClass = NoMonospaceFontParameter.class;
 
     public static final Map<String, Class> allCommands;
 
@@ -53,19 +23,19 @@ public class Commands {
 
     static {
         Map<String, Class> commands = new HashMap<>();
-        commands.put(help, helpCommandClass);
-        commands.put(nice, niceCommandClass);
-        commands.put(java, javaCommandClass);
-        commands.put(javac, javacCommandClass);
-        commands.put(list, listCommandClass);
-        commands.put(delete, deleteCommandClass);
-        commands.put(up, upCommandClass);
+        commands.put(cmdInitChar + "help",   HelpCommand.class);
+        commands.put(cmdInitChar + "nice",   NiceCommand.class);
+        commands.put(cmdInitChar + "java",   JavaCommand.class);
+        commands.put(cmdInitChar + "javac",  JavacCommand.class);
+        commands.put(cmdInitChar + "list",   ListCommand.class);
+        commands.put(cmdInitChar + "delete", DeleteCommand.class);
+        commands.put(cmdInitChar + "up",     UpCommand.class);
         allCommands = Collections.unmodifiableMap(commands);
 
         Map<String, Class> parameters = new HashMap<>();
-        parameters.put(privacyParameter, privacyParameterClass);
-        parameters.put(mainParameter, mainParameterClass);
-        parameters.put(noMonospaceFontParameter, noMonospaceFontClass);
+        parameters.put(paramInitChar + "p", PrivacyParameter.class);
+        parameters.put(paramInitChar + "m", MainParameter.class);
+        parameters.put(paramInitChar + "n", NoMonospaceFontParameter.class);
         allParameters = Collections.unmodifiableMap(parameters);
     }
 }

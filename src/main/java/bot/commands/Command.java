@@ -49,12 +49,6 @@ public abstract class Command {
         this.output = output;
     }
 
-    /**
-     * Returns name of command.
-     * @return Command name.
-     */
-    public abstract String getName();
-
     @Override
     public boolean equals(Object obj) {
         if (obj == this) return true;

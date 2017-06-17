@@ -2,11 +2,11 @@ package bot;
 
 import bot.commands.Command;
 import bot.commands.JavaCommand;
+import bot.commands.interfaces.NeedsPrivacy;
 import bot.commands.parameters.PrivacyParameter;
 import bot.commands.visitors.DAOVisitor;
 import bot.commands.visitors.Parameter;
 import bot.commands.visitors.StartTimeVisitor;
-import com.github.javaparser.utils.StringEscapeUtils;
 import dao.WriteToDiskBotDAO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -14,7 +14,6 @@ import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.logging.BotLogger;
 import parser.CommandParser;
 import parser.ParserException;
 import parser.UnknownCommandException;
@@ -43,19 +42,23 @@ public class JavaBot extends TelegramLongPollingBot {
             return;
         }
 
+        Thread.currentThread().setName(
+                        update.getUpdateId() + "-" +
+                        update.getMessage().getChatId() + "-" +
+                        update.getMessage().getFrom().getUserName()
+        );
+
         logger.info("IN: update=(id=" + update.getUpdateId() +
                     ", chat=" + update.getMessage().getChatId() +
-                    ", user=" + update.getMessage().getFrom().getId() + ")");
+                    ", user=" + update.getMessage().getFrom().getId() + ")"
+        );
 
-        for (String line : update.getMessage().getText().split("\n"))
-            logger.info("IN: " + update.getUpdateId() + " '" + line + "'");
-
-        long chatId = update.getMessage().getChatId();
+        for (String line : update.getMessage().getText().split("\n")) logger.info("IN: " + " '" + line + "'");
 
         if (update.getMessage().isCommand()) {
             try {
                 Command command = getCommand(update);
-                logger.info("CMD: " + update.getUpdateId() + " " + command);
+                logger.info("CMD: " + command);
                 command.execute();
                 sendMessage(command.getOutput(), update);
             } catch (ParserException e) {
@@ -75,33 +78,26 @@ public class JavaBot extends TelegramLongPollingBot {
             command = parser.getCommand();
             parameters = parser.getParameters();
         } catch (UnknownCommandException e) {
+            // let's assume that the command is a special case of java command
             command    = new JavaCommand();
             parameters = new HashMap<>();
             ((JavaCommand) command).setArgument(update.getMessage().getText().substring(1));
         }
 
-        setPrivacy(parameters, update);
         parameters.values().forEach(command::accept);
         command.accept(daoVisitor);
         command.accept(startTimeVisitor);
+
+        if (command instanceof NeedsPrivacy) {
+            if (((NeedsPrivacy)command).getPrivacy() == CHAT) ((NeedsPrivacy)command).setId(update.getMessage().getChatId());
+            else ((NeedsPrivacy)command).setId(new Long(update.getMessage().getFrom().getId()));
+        }
+
         return command;
     }
 
-    // I don't like this solution todo fix
-    private void setPrivacy(Map<String, Parameter> parameters, Update update) {
-        long chatId = update.getMessage().getChatId();
-        long userId = update.getMessage().getFrom().getId();
-
-        if (parameters.containsKey(Commands.privacyParameter))
-            ((PrivacyParameter) parameters.get(Commands.privacyParameter)).setPrivacy(USER, userId);
-        else
-            parameters.put(Commands.privacyParameter, new PrivacyParameter().set(CHAT, chatId));
-    }
-
     public void sendMessage(String message, Update update) {
-        for (String line : message.split(System.getProperty("line.separator"))) {
-            logger.info("OUT: " + update.getUpdateId() + " '" + line + "'");
-        }
+        for (String line : message.split(System.getProperty("line.separator"))) logger.info("OUT: '" + line + "'");
 
         try {
             SendMessage sendMessage = new SendMessage();

@@ -1,17 +1,18 @@
 package bot.commands;
 
-import bot.Commands;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
 import dao.BotDAO;
 import dao.Privacy;
 
+import static dao.Privacy.CHAT;
+
 
 public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgument, NeedsDAO {
     private BotDAO dao;
     private String argument;
-    private Privacy privacy;
+    private Privacy privacy = CHAT;
     private Long id;
 
     @Override
@@ -24,14 +25,18 @@ public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgumen
     }
 
     @Override
-    public String getName() {
-        return Commands.delete;
+    public void setPrivacy(Privacy privacy) {
+        this.privacy = privacy;
     }
 
     @Override
-    public void setPrivacy(Privacy privacy, Long id) {
-        this.privacy = privacy;
+    public void setId(Long id) {
         this.id = id;
+    }
+
+    @Override
+    public Privacy getPrivacy() {
+        return privacy;
     }
 
     @Override

@@ -2,6 +2,7 @@ package bot.commands.visitors;
 
 import bot.commands.Command;
 import bot.commands.interfaces.CommandVisitor;
+import bot.commands.parameters.PrivacyParameter;
 
 public abstract class Parameter implements CommandVisitor {
 
@@ -10,11 +11,5 @@ public abstract class Parameter implements CommandVisitor {
      * @param command command to visit.
      */
     public abstract void visit(Command command);
-
-    /**
-     * Returns name of parameter.
-     * @return Parameter name.
-     */
-    public abstract String getName();
 
 }

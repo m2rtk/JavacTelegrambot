@@ -1,6 +1,5 @@
 package bot.commands;
 
-import bot.Commands;
 import bot.commands.interfaces.NeedsStartTime;
 
 import java.time.Instant;
@@ -26,11 +25,6 @@ public class UpCommand extends Command implements NeedsStartTime {
         String output = "I've been up for " + t + " seconds." + System.getProperty("line.separator");
         output += "That's " + day + " days, " + hour + " hours, " + min + " minutes and " + sec + " seconds.";
         setOutput(output);
-    }
-
-    @Override
-    public String getName() {
-        return Commands.up;
     }
 
     @Override

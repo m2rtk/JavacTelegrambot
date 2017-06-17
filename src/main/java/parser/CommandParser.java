@@ -8,7 +8,7 @@ import bot.commands.visitors.Parameter;
 import java.util.HashMap;
 import java.util.Map;
 
-import static bot.Commands.initChar;
+import static bot.Commands.cmdInitChar;
 import static bot.Commands.paramInitChar;
 
 public class CommandParser {
@@ -78,8 +78,8 @@ public class CommandParser {
         if (token.isEmpty())
             throw new ParserException("Expected command. Reached end of input.");
 
-        if (token.charAt(0) != initChar)
-            throw new ParserException("Command must start with " + initChar);
+        if (token.charAt(0) != cmdInitChar)
+            throw new ParserException("Command must start with " + cmdInitChar);
 
         token = token.replace("@BotMcBotfaceBot", ""); //todo write tests for this
 

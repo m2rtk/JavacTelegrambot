@@ -1,6 +1,5 @@
 package bot.commands;
 
-import bot.Commands;
 import org.telegram.telegrambots.logging.BotLogger;
 
 import java.nio.file.Files;
@@ -37,11 +36,6 @@ public class HelpCommand extends Command {
     @Override
     public String getOutput() {
         return output;
-    }
-
-    @Override
-    public String getName() {
-        return Commands.help;
     }
 
     @Override

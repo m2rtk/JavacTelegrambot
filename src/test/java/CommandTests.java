@@ -1,4 +1,3 @@
-import bot.Commands;
 import bot.commands.*;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
@@ -56,7 +55,6 @@ public class CommandTests {
         Pattern p = Pattern.compile(pattern);
         Matcher m = p.matcher(upCommand.getOutput());
         assertTrue(m.find());
-        assertEquals(Commands.up, upCommand.getName());
     }
 
     @Test
@@ -67,10 +65,10 @@ public class CommandTests {
     @Test
     public void niceCommandOutputsNice() {
         NiceCommand niceCommand = new NiceCommand();
+        niceCommand.setMonospaceFont(false);
         niceCommand.execute();
 
         assertEquals("nice", niceCommand.getOutput());
-        assertEquals(Commands.nice, niceCommand.getName());
     }
 
     @Test
@@ -83,15 +81,15 @@ public class CommandTests {
         );
 
         assertEquals(expectedOutput, helpCommand.getOutput());
-        assertEquals(Commands.help, helpCommand.getName());
     }
 
     @Test
     public void listCommandWithCorrectContentOutputsListOfMethods() {
         ListCommand listCommand = new ListCommand(){{
-            setPrivacy(CHAT, CHAT_1);
+            setPrivacy(CHAT);
+            setId(CHAT_1);
             setDAO(dao);
-
+            setMonospaceFont(false);
         }};
         listCommand.execute();
 
@@ -102,7 +100,6 @@ public class CommandTests {
         expectedOutput += "Sum" + System.getProperty("line.separator");
 
         assertEquals(expectedOutput, listCommand.getOutput());
-        assertEquals(Commands.list, listCommand.getName());
     }
 
     @Test
@@ -116,16 +113,17 @@ public class CommandTests {
     public void deleteCommandWithCorrectContentDeletesMethod() {
         assertTrue(dao.getAll(CHAT_1, CHAT).size() == 3);
         DeleteCommand deleteCommand = new DeleteCommand(){{
-            setPrivacy(CHAT, CHAT_1);
+            setPrivacy(CHAT);
+            setId(CHAT_1);
             setDAO(dao);
             setArgument("Print");
+            setMonospaceFont(false);
         }};
         deleteCommand.execute();
 
         String expectedOutput = "Successfully deleted Print";
 
         assertEquals(expectedOutput, deleteCommand.getOutput());
-        assertEquals(Commands.delete, deleteCommand.getName());
 
         assertTrue(dao.getAll(CHAT_1, CHAT).size() == 2);
         assertTrue(!dao.contains("Print", CHAT_1, CHAT));
@@ -136,7 +134,8 @@ public class CommandTests {
     @Test(expected = IllegalExecutionException.class)
     public void deleteCommandWithEmptyArgumentThrowsException() {
         DeleteCommand deleteCommand = new DeleteCommand(){{
-            setPrivacy(CHAT, CHAT_1);
+            setPrivacy(CHAT);
+            setId(CHAT_1);
             setDAO(dao);
             setArgument("");
         }};
@@ -158,7 +157,9 @@ public class CommandTests {
     @Test
     public void javaCommandWithCorrectContentExecutesSuccessfully() throws Exception {
         JavaCommand javaCommand = new JavaCommand(){{
-            setPrivacy(CHAT, CHAT_1);
+            setMonospaceFont(false);
+            setPrivacy(CHAT);
+            setId(CHAT_1);
             setDAO(dao);
             setArgument("Print");
         }};
@@ -169,13 +170,13 @@ public class CommandTests {
         String expectedOutput = "Error: Could not find or load main class Print" + System.getProperty("line.separator");
 
         assertEquals(expectedOutput, javaCommand.getOutput());
-        assertEquals(Commands.java, javaCommand.getName());
     }
 
     @Test(expected = IllegalExecutionException.class)
     public void javaCommandWithEmptyArgumentThrowsException() {
         JavaCommand javaCommand = new JavaCommand(){{
-            setPrivacy(CHAT, CHAT_1);
+            setPrivacy(CHAT);
+            setId(CHAT_1);
             setDAO(dao);
             setArgument("");
         }};
@@ -196,7 +197,9 @@ public class CommandTests {
     @Test
     public void javacCommandWithCorrectContentExecutesSuccessfully() {
         JavacCommand javacCommand = new JavacCommand(){{
-            setPrivacy(CHAT, CHAT_1);
+            setMonospaceFont(false);
+            setPrivacy(CHAT);
+            setId(CHAT_1);
             setDAO(dao);
             setArgument("System.out.println(1);");
             wrapContentInMain("Test4");
@@ -206,13 +209,14 @@ public class CommandTests {
         String expectedOutput = "Successfully compiled!";
 
         assertEquals(expectedOutput, javacCommand.getOutput());
-        assertEquals(Commands.javac, javacCommand.getName());
     }
 
     @Test
     public void javacCommandWithNoMainMethodContentExecutesSuccessfully() {
         JavacCommand javacCommand = new JavacCommand(){{
-            setPrivacy(CHAT, CHAT_1);
+            setMonospaceFont(false);
+            setPrivacy(CHAT);
+            setId(CHAT_1);
             setDAO(dao);
             setArgument("");
             wrapContentInMain("Test4");
@@ -222,13 +226,13 @@ public class CommandTests {
         String expectedOutput = "Successfully compiled!";
 
         assertEquals(expectedOutput, javacCommand.getOutput());
-        assertEquals(Commands.javac, javacCommand.getName());
     }
 
     @Test(expected = IllegalExecutionException.class)
     public void javacCommandWithEmptyArgumentThrowsException() {
         JavacCommand javacCommand = new JavacCommand(){{
-            setPrivacy(CHAT, CHAT_1);
+            setPrivacy(CHAT);
+            setId(CHAT_1);
             setDAO(dao);
             setArgument("");
         }};
@@ -274,7 +278,7 @@ public class CommandTests {
                 ((NeedsDAO) command).setDAO(dao);
 
             if (privacy != null && id != null  && command instanceof NeedsPrivacy)
-                ((NeedsPrivacy) command).setPrivacy(privacy, id);
+                ((NeedsPrivacy) command).setPrivacy(privacy);
 
             if (argument != null && command instanceof NeedsArgument)
                 ((NeedsArgument) command).setArgument(argument);
