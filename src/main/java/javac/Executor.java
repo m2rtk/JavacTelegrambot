@@ -9,7 +9,7 @@ import java.util.concurrent.*;
  * Executes ClassFile's, uses native java.
  */
 public class Executor {
-    private final static int timeoutms = 1000;
+    private final static int timeoutms = 10000;
     private ClassFile inputClass;
     private String classPath;
     private String[] args;

@@ -80,6 +80,8 @@ public class CommandTests {
                 Paths.get(ClassLoader.getSystemResource("HelpMessage.txt").toURI()))
         );
 
+        expectedOutput = "```" + System.getProperty("line.separator") + expectedOutput + System.getProperty("line.separator") + "```";
+
         assertEquals(expectedOutput, helpCommand.getOutput());
     }
 
@@ -254,6 +256,34 @@ public class CommandTests {
         illegalExecutionTest(JavacCommand.class, false, true, false);
         illegalExecutionTest(JavacCommand.class, true, false, false);
         illegalExecutionTest(JavacCommand.class, false, false, false);
+    }
+
+    @Test
+    public void noMonospaceParameterRemovesMarkdown() {
+        String expectedOutput = "test";
+        Command command = new Command() {
+            @Override
+            public void execute() {
+                setOutput(expectedOutput);
+            }
+        };
+        command.execute();
+        command.setMonospaceFont(false);
+        assertEquals(expectedOutput, command.getOutput());
+    }
+
+    @Test
+    public void defaultOutputIsMonospace() {
+        String output = "test";
+        Command command = new Command() {
+            @Override
+            public void execute() {
+                setOutput(output);
+            }
+        };
+        command.execute();
+        String expectedOutput = "```" + System.getProperty("line.separator") + output + System.getProperty("line.separator") + "```";
+        assertEquals(expectedOutput, command.getOutput());
     }
 
     private void illegalExecutionTest(Class c, boolean daoIsSet, boolean privacyIsSet, boolean argumentIsSet) {

@@ -8,14 +8,13 @@ import org.junit.Test;
 import org.junit.rules.ExpectedException;
 import parser.CommandParser;
 import parser.ParserException;
-import parser.UnknownCommandException;
+import parser.SpecialJavaCommandException;
 
 import java.util.Collections;
 import java.util.HashSet;
 import java.util.Set;
 
 import static org.junit.Assert.assertEquals;
-import static org.junit.Assert.assertTrue;
 
 public class ParserTests {
 
@@ -89,17 +88,17 @@ public class ParserTests {
         javaTest("Decide to_be not_to_be       1 2 3", false);
     }
 
-    @Test(expected = UnknownCommandException.class)
+    @Test(expected = SpecialJavaCommandException.class)
     public void javaSpecialCaseTest0() throws Exception {
         javaSpecialCaseTest("/Test");
     }
 
-    @Test(expected = UnknownCommandException.class)
+    @Test(expected = SpecialJavaCommandException.class)
     public void javaSpecialCaseTest1() throws Exception {
         javaSpecialCaseTest("/Sum 1 2 3");
     }
 
-    @Test(expected = UnknownCommandException.class)
+    @Test(expected = SpecialJavaCommandException.class)
     public void javaSpecialCaseTest2() throws Exception {
         javaSpecialCaseTest("/Decide to_be not_to_be    ");
     }
@@ -202,14 +201,18 @@ public class ParserTests {
     }
 
     private static void test(String input, Command expectedCommand, Parameter... expectedParameters) {
-        CommandParser parser = new CommandParser(input);
-        parser.parse();
+        try {
+            CommandParser parser = new CommandParser(input);
+            parser.parse();
 
-        Set<Parameter> expectedParametersSet = new HashSet<>();
-        Collections.addAll(expectedParametersSet, expectedParameters);
+            Set<Parameter> expectedParametersSet = new HashSet<>();
+            Collections.addAll(expectedParametersSet, expectedParameters);
 
-        assertEquals(expectedCommand, parser.getCommand());
-        assertEquals(expectedParametersSet, parser.getParameters());
+            assertEquals(expectedCommand, parser.getCommand());
+            assertEquals(expectedParametersSet, parser.getParameters());
+        } catch (ParserException e) {
+            e.printStackTrace();
+        }
     }
 
     private static NeedsArgument a(Class c, String arg) throws Exception {

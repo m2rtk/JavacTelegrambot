@@ -1,19 +1,14 @@
 package bot.commands;
 
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.logging.BotLogger;
 
 import java.nio.file.Files;
 import java.nio.file.Paths;
 
-
-/**
- * This is the only Command implementation that does not use setOutput(String)
- * This is because the static block does not allow calling an object method from inside it.
- * I really like the static block.
- */
-
 public class HelpCommand extends Command {
-    private static final String TAG = "HelpCommand";
+    private static final Logger logger = LogManager.getLogger(HelpCommand.class);
     private static String output;
 
     // this makes sure that the help text is read into memory only once in the systems runtime
@@ -24,18 +19,13 @@ public class HelpCommand extends Command {
             );
         } catch (Exception e) {
             output = "Couldn't load help.";
-            BotLogger.severe(TAG, e);
+            logger.error(e);
         }
     }
 
     @Override
     public void execute() {
-        // nothing to do here
-    }
-
-    @Override
-    public String getOutput() {
-        return output;
+        setOutput(output);
     }
 
     @Override

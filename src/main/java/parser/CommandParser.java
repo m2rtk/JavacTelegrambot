@@ -6,9 +6,7 @@ import bot.commands.Command;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.visitors.Parameter;
 
-import java.util.HashMap;
 import java.util.HashSet;
-import java.util.Map;
 import java.util.Set;
 
 import static bot.Commands.cmdInitChar;
@@ -51,7 +49,7 @@ public class CommandParser {
     /**
      * Starts the parsing process.
      */
-    public void parse() {
+    public void parse() throws ParserException {
         String token;
         while (needsNext) {
             token = nextToken();
@@ -77,7 +75,7 @@ public class CommandParser {
         parsed = true;
     }
 
-    private void handleStart(String token) {
+    private void handleStart(String token) throws ParserException {
         if (token.isEmpty())
             throw new ParserException("Expected command. Reached end of input.");
 
@@ -86,11 +84,13 @@ public class CommandParser {
 
         token = token.replace("@" + Config.JAVABOT_USER, ""); //todo write tests for this
 
-        if (Commands.allCommands.containsKey(token)) {
-            this.command = (Command) construct(Commands.allCommands.get(token));
+        if (Commands.commands.containsKey(token)) {
+            this.command = (Command) construct(Commands.commands.get(token));
             this.state = State.FREE;
+        } else if (Character.isUpperCase(token.charAt(1))) {
+            throw new SpecialJavaCommandException();
         } else {
-            throw new UnknownCommandException("Undefined command '" + token + "'");
+            throw new ParserException("Undefined command '" + token + "'");
         }
     }
 
@@ -100,8 +100,8 @@ public class CommandParser {
             return;
         }
 
-        if (Commands.allParameters.keySet().contains(token)) {
-            Parameter parameter = (Parameter) construct(Commands.allParameters.get(token));
+        if (Commands.parameters.keySet().contains(token)) {
+            Parameter parameter = (Parameter) construct(Commands.parameters.get(token));
 
             if (parameter instanceof NeedsArgument) {
                 this.state = State.ARG;
@@ -114,7 +114,7 @@ public class CommandParser {
         }
     }
 
-    private void handleArg(String token) {
+    private void handleArg(String token) throws ParserException {
         if (token.isEmpty())
             throw new ParserException("Expected parameter argument. Reached end of input.");
 
@@ -141,20 +141,20 @@ public class CommandParser {
     /**
      * Output method.
      * @return parsed Command
-     * @throws IllegalGetException if called before parse() method.
+     * @throws RuntimeException if called before parse() method.
      */
     public Command getCommand() {
-        if (!parsed) throw new IllegalGetException("Parse must be called before this method.");
+        if (!parsed) throw new RuntimeException("Parse must be called before this method.");
         return command;
     }
 
     /**
      * Output method.
      * @return set of parsed Parameters
-     * @throws IllegalGetException if called before parse() method.
+     * @throws RuntimeException if called before parse() method.
      */
     public Set<Parameter> getParameters() {
-        if (!parsed) throw new IllegalGetException("Parse must be called before this method.");
+        if (!parsed) throw new RuntimeException("Parse must be called before this method.");
         return parameters;
     }
 

@@ -2,6 +2,7 @@ import bot.JavaBot;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
 
 import java.io.File;
@@ -28,7 +29,7 @@ public class BotTests {
     @Before
     public void init() {
         bot = spy(new JavaBot());
-        doNothing().when(bot).sendMessage(anyString(), any(Update.class));
+//        doNothing().when(bot).sendMessage(anyString(), anyLong());
     }
 
     @After
@@ -118,21 +119,23 @@ public class BotTests {
     }
 
     @Test
-    public void noOutputWhenInputIsNotPrefixedWithForwardSlash() {
+    public void noOutputWhenInputIsNotPrefixedWithForwardSlash() throws Exception {
         Update update = Utils.createMockUpdateWithTextContent("nice", user, chat);
         bot.onUpdateReceived(update);
-        verify(bot, never()).sendMessage(anyString(), any(Update.class));
+        verify(bot, never()).sendMessage(any());
     }
 
     private static void testWithNoRegex(String input, String expectedOutput) {
         Update update = Utils.createMockUpdateWithTextContent(input, user, chat);
         bot.onUpdateReceived(update);
+        expectedOutput = "```" + System.getProperty("line.separator") + expectedOutput + System.getProperty("line.separator") + "```";
 //        verify(bot).sendMessage(expectedOutput, chat);
     }
 
     private static void test(String input, String expectedOutput) {
         Update update = Utils.createMockUpdateWithTextContent(input, user, chat);
         bot.onUpdateReceived(update);
+        expectedOutput = "```" + System.getProperty("line.separator") + expectedOutput + System.getProperty("line.separator") + "```";
 //        verify(bot).sendMessage(matches(expectedOutput), eq(chat));
     }
 }

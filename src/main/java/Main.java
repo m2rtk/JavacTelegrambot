@@ -1,4 +1,5 @@
 import bot.JavaBot;
+import bot.JavaBotThread;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.ApiContextInitializer;
@@ -13,7 +14,9 @@ public class Main {
         ApiContextInitializer.init();
         TelegramBotsApi botsApi = new TelegramBotsApi();
         try {
-            botsApi.registerBot(new JavaBot());
+            JavaBot bot = new JavaBot();
+            JavaBotThread.setBot(bot);
+            botsApi.registerBot(bot);
             logger.info("Bot started!");
         } catch (TelegramApiException e) {
             logger.error("shit", e);
