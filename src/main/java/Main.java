@@ -9,7 +9,7 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 public class Main {
     private static final Logger logger = LogManager.getLogger(Main.class);
 
-    public static void main(String[] args) throws Exception{
+    public static void main(String[] args) throws Exception {
         logger.info("Bot starting!");
         ApiContextInitializer.init();
         TelegramBotsApi botsApi = new TelegramBotsApi();
