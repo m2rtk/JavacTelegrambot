@@ -89,7 +89,8 @@ public class JavaBotThread extends Thread {
             // the command is a special case of java command
             command    = new JavaCommand();
             parameters = new HashSet<>();
-            ((JavaCommand) command).setArgument(update.getMessage().getText().substring(1));
+            String argument = update.getMessage().getText().substring(1); // we capitalize it
+            ((JavaCommand) command).setArgument(argument.length() == 1 ? argument : argument.substring(0, 1).toUpperCase() + argument.substring(1));
         }
 
         parameters.forEach(command::accept);

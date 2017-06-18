@@ -40,7 +40,7 @@ public class CommandParser {
      * Removes the first element bordered by whitespace from input and returns it.
      * @return String token
      */
-    private String nextToken() {
+    private String nextToken() { //// TODO: 18.06.2017 count whitespace and save int as variable
         String[] pieces = input.split("\\s+", 2); //split input in two by first whitespace
         input = pieces.length > 1 ? pieces[1] : "";
         return pieces[0].trim();
@@ -87,10 +87,11 @@ public class CommandParser {
         if (Commands.commands.containsKey(token)) {
             this.command = (Command) construct(Commands.commands.get(token));
             this.state = State.FREE;
-        } else if (Character.isUpperCase(token.charAt(1))) {
-            throw new SpecialJavaCommandException();
+//        } else if (Character.isUpperCase(token.charAt(1))) {
+//            throw new SpecialJavaCommandException();
         } else {
-            throw new ParserException("Undefined command '" + token + "'");
+            throw new SpecialJavaCommandException();
+//            throw new ParserException("Undefined command '" + token + "'");
         }
     }
 

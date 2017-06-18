@@ -13,6 +13,8 @@ import static org.mockito.Mockito.when;
 
 class Utils {
 
+    private static int updateId = 0;
+
     private Utils() {} // prevent instantiation
 
     static JavaFile readJavaFile(String className) throws Exception {
@@ -36,6 +38,7 @@ class Utils {
         Update mockUpdate = mock(Update.class);
         when(mockUpdate.hasMessage()).thenReturn(true);
         when(mockUpdate.getMessage()).thenReturn(mockMessage);
+        when(mockUpdate.getUpdateId()).thenReturn(updateId++);
         return mockUpdate;
     }
 
@@ -45,6 +48,7 @@ class Utils {
         Update mockUpdate = mock(Update.class);
         when(mockUpdate.hasMessage()).thenReturn(true);
         when(mockUpdate.getMessage()).thenReturn(mockMessage);
+        when(mockUpdate.getUpdateId()).thenReturn(updateId++);
         return mockUpdate;
     }
 }

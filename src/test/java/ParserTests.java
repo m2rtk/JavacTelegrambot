@@ -22,68 +22,68 @@ public class ParserTests {
     public ExpectedException thrown = ExpectedException.none();
 
     @Test
-    public void noInputTest() {
+    public void noInputTest() throws ParserException {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Reached end of input");
         test("", null);
     }
 
     @Test
-    public void noInitCharTest() {
+    public void noInitCharTest() throws ParserException {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Command must start with");
         test("asd", null);
     }
 
     @Test
-    public void noParameterArgumentTest0() {
+    public void noParameterArgumentTest0() throws ParserException {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Expected parameter argument. Reached end of input.");
         test("/javac -m", null);
     }
 
     @Test
-    public void noArgumentTest0() {
+    public void noArgumentTest0() throws ParserException {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Expected argument for command. Reached end of input.");
         test("/javac -m Test", null);
     }
 
     @Test
-    public void noArgumentTest1() {
+    public void noArgumentTest1() throws ParserException {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Expected argument for command. Reached end of input.");
         test("/javac", null);
     }
 
     @Test
-    public void noArgumentTest2() {
+    public void noArgumentTest2() throws ParserException {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Expected argument for command. Reached end of input.");
         test("/delete", null);
     }
 
     @Test
-    public void noParameterArgumentTest1() {
+    public void noParameterArgumentTest1() throws ParserException {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Expected parameter argument. Got parameter ");
         test("/javac -m -p System.out.println(1);", null);
     }
 
     @Test
-    public void javaTest0() {
+    public void javaTest0() throws ParserException {
         javaTest("Test", true); // /java -p Test
         javaTest("Test", false);// /java Test
     }
 
     @Test
-    public void javaTest1() {
+    public void javaTest1() throws ParserException {
         javaTest("Sum 1 2 3", true);
         javaTest("Sum 1 2 3", false);
     }
 
     @Test
-    public void javaTest2() {
+    public void javaTest2() throws ParserException {
         javaTest("Decide to_be not_to_be       1 2 3", true);
         javaTest("Decide to_be not_to_be       1 2 3", false);
     }
@@ -104,14 +104,14 @@ public class ParserTests {
     }
 
     @Test
-    public void javacTest0() {
+    public void javacTest0() throws ParserException {
         JavacCommand javacCommand = new JavacCommand();
         javacCommand.setArgument("public class Test { public static void main(String[] args) { System.out.println(1); }}");
         test("/javac public class Test { public static void main(String[] args) { System.out.println(1); }}", javacCommand);
     }
 
     @Test
-    public void javacTest1() {
+    public void javacTest1() throws ParserException {
         JavacCommand javacCommand = new JavacCommand();
         javacCommand.setArgument(
                 "public class Test {" +
@@ -192,7 +192,7 @@ public class ParserTests {
         test(input, c(JavaCommand.class, input.substring(1).trim()));
     }
 
-    private static void javaTest(String argument, boolean isPrivate) {
+    private static void javaTest(String argument, boolean isPrivate) throws ParserException {
         JavaCommand javaCommand = new JavaCommand();
         javaCommand.setArgument(argument);
         String input = "/java" + (isPrivate ? " -p " : " ") + argument;
@@ -200,19 +200,15 @@ public class ParserTests {
         else test(input, javaCommand);
     }
 
-    private static void test(String input, Command expectedCommand, Parameter... expectedParameters) {
-        try {
-            CommandParser parser = new CommandParser(input);
-            parser.parse();
+    private static void test(String input, Command expectedCommand, Parameter... expectedParameters) throws ParserException {
+        CommandParser parser = new CommandParser(input);
+        parser.parse();
 
-            Set<Parameter> expectedParametersSet = new HashSet<>();
-            Collections.addAll(expectedParametersSet, expectedParameters);
+        Set<Parameter> expectedParametersSet = new HashSet<>();
+        Collections.addAll(expectedParametersSet, expectedParameters);
 
-            assertEquals(expectedCommand, parser.getCommand());
-            assertEquals(expectedParametersSet, parser.getParameters());
-        } catch (ParserException e) {
-            e.printStackTrace();
-        }
+        assertEquals(expectedCommand, parser.getCommand());
+        assertEquals(expectedParametersSet, parser.getParameters());
     }
 
     private static NeedsArgument a(Class c, String arg) throws Exception {

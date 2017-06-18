@@ -26,8 +26,6 @@ class Utils {
     static Path write(JavaFile javaFile) {
         if (javaFile == null) return null;
         try {
-//            List<String> lines = Arrays.asList(javaFile.getSource().split("\\n"));
-//            return Files.write(Paths.get(javaFile.getClassName()  + ".java"), lines, Charsets.UTF_8);
             return Files.write(Paths.get(javaFile.getClassName()  + ".java"), javaFile.getSource().getBytes());
         } catch (IOException e) {
             return null;
