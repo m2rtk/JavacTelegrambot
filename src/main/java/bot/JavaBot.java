@@ -11,7 +11,7 @@ public class JavaBot extends TelegramLongPollingBot {
     @Override
     public void onUpdateReceived(Update update) {
         logger.info("Launching new thread for update: " + update.getUpdateId());
-        Thread thread = new JavaBotThread(update);
+        Thread thread = new UpdateHandler(update, this);
         thread.setUncaughtExceptionHandler((t, e) -> {
             logger.fatal(e);
             for (StackTraceElement ste : e.getStackTrace()) logger.fatal("\t\t" + ste);

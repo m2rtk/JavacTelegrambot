@@ -22,26 +22,27 @@ import java.util.Set;
 
 import static dao.Privacy.CHAT;
 
-public class JavaBotThread extends Thread {
-    private static final Logger logger = LogManager.getLogger(JavaBotThread.class);
+public class UpdateHandler extends Thread {
+    private static final Logger logger = LogManager.getLogger(UpdateHandler.class);
     private static final DAOVisitor daoVisitor = new DAOVisitor(new WriteToDiskBotDAO());
     private static final StartTimeVisitor startTimeVisitor = new StartTimeVisitor(Instant.now().getEpochSecond());
-    private static JavaBot bot;
+    private final JavaBot bot;
     private final Update update;
 
-    JavaBotThread(Update update) {
+    public UpdateHandler(Update update, JavaBot bot) {
         this.setName(update.getUpdateId() + "-" +
                      update.getMessage().getChatId() + "-" +
                      update.getMessage().getFrom().getUserName()
         );
 
         this.update = update;
+        this.bot = bot;
     }
 
-    public static void setBot(JavaBot javaBot) {
-        if (bot != null) throw new RuntimeException("Bot is already set.");
-        bot = javaBot;
-    }
+//    public static void setBot(JavaBot javaBot) {
+//        if (bot != null) throw new RuntimeException("Bot is already set.");
+//        bot = javaBot;
+//    }
 
     @Override
     public void run() {
@@ -105,7 +106,7 @@ public class JavaBotThread extends Thread {
         return command;
     }
 
-    private void sendMessage(String message, Long chatId) {
+    public void sendMessage(String message, Long chatId) {
         for (String line : message.split(System.getProperty("line.separator"))) logger.info("OUT: '" + line + "'");
 
         try {
