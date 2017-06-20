@@ -1,9 +1,14 @@
 import bot.JavaBot;
+import bot.UpdateHandler;
+import dao.InMemoryBotDAO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
+import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
+import org.telegram.telegrambots.exceptions.TelegramApiException;
+import org.telegram.telegrambots.generics.UpdatesHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -23,7 +28,7 @@ public class BotTests {
     private static final String unknownCommand = "Database doesn't contain script named '.*'";
     private static final String invalidCommand = "Invalid command: .*";
 
-    private static final JavaBot bot = spy(new JavaBot());
+    private static final JavaBot bot = spy(new JavaBot(new InMemoryBotDAO()));
 
 //    private static UpdateHandler getThread(Update update) {
 //        UpdateHandler t = spy(new UpdateHandler(update));
@@ -134,6 +139,24 @@ public class BotTests {
         Update update = Utils.createMockUpdateWithTextContent("nice", user, chat);
         bot.onUpdateReceived(update);
 //        verify(bot, never()).sendMessage(any());
+    }
+
+    @Test
+    public void test11() throws Exception {
+        Update update = Utils.createMockUpdateWithTextContent("/nice", user, chat);
+//        JavaBot bot = spy(new JavaBot());
+//        SendMessage sendMessage = mock(new SendMessage());
+//        sendMessage.enableMarkdown(true);
+//        sendMessage.setChatId(chat);
+//        sendMessage.setText("nice");
+
+//        try {
+//            doNothing().when(bot).sendMessage();
+//        } catch (TelegramApiException e) {
+//            System.out.println(e.getMessage());
+//        }
+//        UpdateHandler uh = new UpdateHandler(update, bot);
+//        uh.run();
     }
 
     private static void testWithNoRegex(String input, String expectedOutput) {

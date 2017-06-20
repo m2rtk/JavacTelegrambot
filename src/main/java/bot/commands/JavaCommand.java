@@ -19,6 +19,8 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
     private Privacy privacy = CHAT;
     private Long id;
 
+    private boolean runInBackground = false;
+
     @Override
     public void execute() {
         if (args == null || id == null || privacy == null || dao == null || className == null || className.isEmpty()) throw new IllegalExecutionException();
@@ -29,11 +31,18 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
             return;
         }
 
-        Executor executor = new Executor(classFile);
-        executor.setClassPath(privacy, id);
-        executor.run(args);
+        if (runInBackground) {
 
-        setOutput(executor.getOutputMessage());
+        } else {
+            Executor executor = new Executor(classFile);
+            executor.setClassPath(privacy, id);
+            executor.run(args);
+            setOutput(executor.getOutputMessage());
+        }
+    }
+
+    public void setRunInBackground(boolean runInBackground) {
+        this.runInBackground = runInBackground;
     }
 
     @Override

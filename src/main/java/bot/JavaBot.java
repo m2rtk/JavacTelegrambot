@@ -1,12 +1,33 @@
 package bot;
 
+import bot.commands.visitors.DAOVisitor;
+import bot.commands.visitors.StartTimeVisitor;
+import dao.BotDAO;
+import dao.WriteToDiskBotDAO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
+import java.time.Instant;
+
 public class JavaBot extends TelegramLongPollingBot {
     private static final Logger logger = LogManager.getLogger(JavaBot.class);
+    private final DAOVisitor daoVisitor;
+    private final StartTimeVisitor startTimeVisitor;
+
+    public JavaBot(BotDAO dao) {
+        this.daoVisitor = new DAOVisitor(dao);
+        this.startTimeVisitor = new StartTimeVisitor(Instant.now().getEpochSecond());
+    }
+
+    public DAOVisitor getDaoVisitor() {
+        return daoVisitor;
+    }
+
+    public StartTimeVisitor getStartTimeVisitor() {
+        return startTimeVisitor;
+    }
 
     @Override
     public void onUpdateReceived(Update update) {

@@ -1,6 +1,7 @@
 package bot;
 
 import bot.commands.*;
+import bot.commands.parameters.JavaBackgroundParameter;
 import bot.commands.parameters.MainParameter;
 import bot.commands.parameters.NoMonospaceFontParameter;
 import bot.commands.parameters.PrivacyParameter;
@@ -36,6 +37,7 @@ public class Commands {
         p.put(paramInitChar + "p", PrivacyParameter.class);
         p.put(paramInitChar + "m", MainParameter.class);
         p.put(paramInitChar + "n", NoMonospaceFontParameter.class);
+        p.put(paramInitChar + "b", JavaBackgroundParameter.class);
         parameters = Collections.unmodifiableMap(p);
     }
 }

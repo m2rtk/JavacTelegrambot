@@ -9,15 +9,17 @@ import java.util.concurrent.*;
  * Executes ClassFile's, uses native java.
  */
 public class Executor {
-    private final static int timeoutms = 10000;
-    private ClassFile inputClass;
+    private final static int DEFAULT_TIMEOUT = 10000; // in milliseconds
+    private int timeout;
+    private ClassFile classFile;
     private String classPath;
     private String[] args;
 
     private String outputMessage;
 
-    public Executor(ClassFile inputClass) {
-        this.inputClass = inputClass;
+    public Executor(ClassFile classFile) {
+        this.classFile = classFile;
+        this.timeout = DEFAULT_TIMEOUT;
     }
 
     public void run(String... args) {
@@ -28,37 +30,21 @@ public class Executor {
         executor.shutdown();
 
         try {
-            Utils.write(inputClass);
-            outputMessage = (String) future.get(timeoutms, TimeUnit.MILLISECONDS);
+            Utils.write(classFile);
+            outputMessage = (String) future.get(timeout, TimeUnit.MILLISECONDS);
         } catch (ExecutionException | InterruptedException ignored) {
             outputMessage = "Couldn't execute java process.";
         } catch (TimeoutException e) {
-            outputMessage = "Timed out after " + timeoutms + " milliseconds.";
+            outputMessage = "Timed out after " + timeout + " milliseconds.";
         } finally {
             future.cancel(true);
-            Utils.delete(inputClass);
+            Utils.delete(classFile);
         }
     }
 
     private String runJava() throws InterruptedException, IOException {
         ProcessBuilder pb = new ProcessBuilder();
-
-        String[] completeArgs;
-        if (classPath != null) {
-            completeArgs = new String[args.length + 4];
-            completeArgs[0] = "java";
-            completeArgs[1] = "-classpath";
-            completeArgs[2] = classPath;
-            completeArgs[3] = inputClass.getClassName();
-            System.arraycopy(args, 0, completeArgs, 4, args.length);
-        } else { // mainly for testing
-            completeArgs = new String[args.length + 2];
-            completeArgs[0] = "java";
-            completeArgs[1] = inputClass.getClassName();
-            System.arraycopy(args, 0, completeArgs, 2, args.length);
-        }
-
-        pb.command(completeArgs);
+        pb.command(Utils.createJavaCommand(classFile, classPath, args));
         pb.redirectErrorStream(true);
 
         Process pro = pb.start();
@@ -76,6 +62,9 @@ public class Executor {
     public void setClassPath(Privacy privacy, Long id) { // TODO: 07.06.2017 maybe remove and move to constructor
         if (privacy == null || id == null)
             throw new NullPointerException("Privacy and id can't be null.");
+
+        if (classPath != null)
+            throw new RuntimeException("Classpath is already set.");
 
         this.classPath = "cache/" + privacy + "/" + id;
     }

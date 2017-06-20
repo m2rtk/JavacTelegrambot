@@ -67,12 +67,31 @@ class Utils {
             StringBuilder sb = new StringBuilder();
             BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
 
-            while ((line = in.readLine()) != null)
+            while ((line = in.readLine()) != null) {
+                System.out.println(line);
                 sb.append(line).append(System.getProperty("line.separator"));
-
+            }
             return sb.toString();
         } catch (IOException e) {
             return "";
         }
+    }
+
+    static String[] createJavaCommand(ClassFile classFile, String classPath, String[] args) {
+        String[] completeArgs;
+        if (classPath != null) {
+            completeArgs = new String[args.length + 4];
+            completeArgs[0] = "java";
+            completeArgs[1] = "-classpath";
+            completeArgs[2] = classPath;
+            completeArgs[3] = classFile.getClassName();
+            System.arraycopy(args, 0, completeArgs, 4, args.length);
+        } else { // mainly for testing
+            completeArgs = new String[args.length + 2];
+            completeArgs[0] = "java";
+            completeArgs[1] = classFile.getClassName();
+            System.arraycopy(args, 0, completeArgs, 2, args.length);
+        }
+        return completeArgs;
     }
 }

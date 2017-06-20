@@ -24,8 +24,6 @@ import static dao.Privacy.CHAT;
 
 public class UpdateHandler extends Thread {
     private static final Logger logger = LogManager.getLogger(UpdateHandler.class);
-    private static final DAOVisitor daoVisitor = new DAOVisitor(new WriteToDiskBotDAO());
-    private static final StartTimeVisitor startTimeVisitor = new StartTimeVisitor(Instant.now().getEpochSecond());
     private final JavaBot bot;
     private final Update update;
 
@@ -38,11 +36,6 @@ public class UpdateHandler extends Thread {
         this.update = update;
         this.bot = bot;
     }
-
-//    public static void setBot(JavaBot javaBot) {
-//        if (bot != null) throw new RuntimeException("Bot is already set.");
-//        bot = javaBot;
-//    }
 
     @Override
     public void run() {
@@ -95,8 +88,8 @@ public class UpdateHandler extends Thread {
         }
 
         parameters.forEach(command::accept);
-        command.accept(daoVisitor);
-        command.accept(startTimeVisitor);
+        command.accept(bot.getDaoVisitor());
+        command.accept(bot.getStartTimeVisitor());
 
         if (command instanceof NeedsPrivacy) {
             if (((NeedsPrivacy)command).getPrivacy() == CHAT) ((NeedsPrivacy)command).setId(update.getMessage().getChatId());
