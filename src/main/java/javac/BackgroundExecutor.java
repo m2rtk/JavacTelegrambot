@@ -1,5 +1,7 @@
 package javac;
 
+import bot.UpdateHandler;
+import dao.BotDAO;
 import dao.Privacy;
 
 import java.io.IOException;
@@ -9,19 +11,32 @@ public class BackgroundExecutor {
     private final ClassFile classFile;
     private String[] args;
     private String classPath;
-    private Process process;
+    private UpdateHandler botThread;
+    private BackgroundJavaProcess thread;
 
-    public BackgroundExecutor(ClassFile classFile) {
+    public BackgroundExecutor(ClassFile classFile, UpdateHandler botThread) {
         this.classFile = classFile;
+        this.botThread = botThread;
     }
 
-    public void run(String... args) {
+    public int run(BotDAO dao, String... args)  {
         this.args = args;
+        try {
+            return runJava(dao);
+        } catch (IOException e) {
+            System.out.println("ssh, is ok");
+            return -1;
+        }
     }
 
-    public void runJava() throws IOException {
-        Runtime rt = Runtime.getRuntime();
-        Process pro = rt.exec(Utils.createJavaCommand(classFile, classPath, args));
+    private int runJava(BotDAO dao) throws IOException {
+        ProcessBuilder pb = new ProcessBuilder();
+        pb.command(Utils.createJavaCommand(classFile, classPath, args));
+        pb.redirectErrorStream(true);
+
+        thread = new BackgroundJavaProcess(pb, botThread, dao);
+        thread.start();
+        return thread.getPid();
     }
 
     public void setClassPath(Privacy privacy, Long id) { // TODO: 07.06.2017 maybe remove and move to constructor

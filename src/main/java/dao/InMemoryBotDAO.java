@@ -1,5 +1,6 @@
 package dao;
 
+import javac.BackgroundJavaProcess;
 import javac.ClassFile;
 
 import java.util.HashMap;
@@ -11,6 +12,7 @@ import java.util.Set;
  * Created on 4.04.2017.
  */
 public class InMemoryBotDAO implements BotDAO {
+    private static final BackgroundJavaProcessesDAO bjpDAO = new BackgroundJavaProcessesDAO();
 
     private Map<Long, Set<ClassFile>> userClasses = new HashMap<>();
     private Map<Long, Set<ClassFile>> chatClasses = new HashMap<>();
@@ -47,6 +49,26 @@ public class InMemoryBotDAO implements BotDAO {
                 if (ClassFile.getClassName().equals(className))
                     return ClassFile;
         return null;
+    }
+
+    @Override
+    public void addJavaProcess(BackgroundJavaProcess process, long chatId) {
+        bjpDAO.addJavaProcess(process, chatId);
+    }
+
+    @Override
+    public boolean removeJavaProcess(int pid, long chatId) {
+        return bjpDAO.removeJavaProcess(pid, chatId);
+    }
+
+    @Override
+    public BackgroundJavaProcess getJavaProcess(int pid, long chatId) {
+        return bjpDAO.getJavaProcess(pid, chatId);
+    }
+
+    @Override
+    public Set<BackgroundJavaProcess> getAllJavaProcesses(long chatId) {
+        return bjpDAO.getAllJavaProcesses(chatId);
     }
 
     private Map<Long, Set<ClassFile>> getMap(Privacy privacy) {

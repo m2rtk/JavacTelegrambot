@@ -1,5 +1,6 @@
 package dao;
 
+import javac.BackgroundJavaProcess;
 import javac.ClassFile;
 import org.telegram.telegrambots.logging.BotLogger;
 
@@ -15,6 +16,7 @@ import java.util.Set;
  * Created on 06.04.2017.
  */
 public class WriteToDiskBotDAO implements BotDAO {
+    private static final BackgroundJavaProcessesDAO bjpDAO = new BackgroundJavaProcessesDAO();
     private static final String TAG = "TODISKDAO";
     private static final String DIR = "cache";
 
@@ -85,6 +87,27 @@ public class WriteToDiskBotDAO implements BotDAO {
             }
         }
         return null;
+    }
+
+
+    @Override
+    public void addJavaProcess(BackgroundJavaProcess process, long chatId) {
+        bjpDAO.addJavaProcess(process, chatId);
+    }
+
+    @Override
+    public boolean removeJavaProcess(int pid, long chatId) {
+        return bjpDAO.removeJavaProcess(pid, chatId);
+    }
+
+    @Override
+    public BackgroundJavaProcess getJavaProcess(int pid, long chatId) {
+        return bjpDAO.getJavaProcess(pid, chatId);
+    }
+
+    @Override
+    public Set<BackgroundJavaProcess> getAllJavaProcesses(long chatId) {
+        return bjpDAO.getAllJavaProcesses(chatId);
     }
 
     private Path getFilePath(String name, Long id, Privacy privacy) {

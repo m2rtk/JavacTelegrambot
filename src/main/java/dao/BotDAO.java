@@ -1,5 +1,6 @@
 package dao;
 
+import javac.BackgroundJavaProcess;
 import javac.ClassFile;
 
 import java.util.Set;
@@ -20,4 +21,12 @@ public interface BotDAO {
     Set<ClassFile> getAll(Long id, Privacy privacy);
 
     ClassFile get(String className, Long id, Privacy privacy);
+
+    void addJavaProcess(BackgroundJavaProcess process, long chatId);
+
+    boolean removeJavaProcess(int pid, long chatId);
+
+    BackgroundJavaProcess getJavaProcess(int pid, long chatId);
+
+    Set<BackgroundJavaProcess> getAllJavaProcesses(long chatId);
 }

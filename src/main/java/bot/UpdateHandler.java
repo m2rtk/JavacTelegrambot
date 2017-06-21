@@ -62,9 +62,9 @@ public class UpdateHandler extends Thread {
                 Command command = getCommand(update);
                 logger.info("CMD: " + command);
                 command.execute();
-                sendMessage(command.getOutput(), update.getMessage().getChatId());
+                sendMessage(command.getOutput());
             } catch (ParserException e) {
-                sendMessage(Utils.toMonospace("Parser exception: " + e.getMessage()), update.getMessage().getChatId());
+                sendMessage(Utils.toMonospace("Parser exception: " + e.getMessage()));
             }
         }
     }
@@ -96,20 +96,29 @@ public class UpdateHandler extends Thread {
             else ((NeedsPrivacy)command).setId(new Long(update.getMessage().getFrom().getId()));
         }
 
+        if (command instanceof JavaCommand) {
+            if (((JavaCommand) command).runsInBackground())
+                ((JavaCommand) command).setUpdateHandler(this);
+        }
+
         return command;
     }
 
-    public void sendMessage(String message, Long chatId) {
+    public void sendMessage(String message) {
         for (String line : message.split(System.getProperty("line.separator"))) logger.info("OUT: '" + line + "'");
 
         try {
             SendMessage sendMessage = new SendMessage();
             sendMessage.enableMarkdown(true);
-            sendMessage.setChatId(chatId);
+            sendMessage.setChatId(update.getMessage().getChatId());
             sendMessage.setText(message);
             bot.sendMessage(sendMessage);
         } catch (TelegramApiException e) {
             logger.error("TelegramApiException", e);
         }
+    }
+
+    public long getChat() {
+        return update.getMessage().getChatId();
     }
 }

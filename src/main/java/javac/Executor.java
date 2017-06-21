@@ -48,7 +48,6 @@ public class Executor {
         pb.redirectErrorStream(true);
 
         Process pro = pb.start();
-        pro.waitFor();
 
         String outputMessage = Utils.getLines(pro.getInputStream());
 

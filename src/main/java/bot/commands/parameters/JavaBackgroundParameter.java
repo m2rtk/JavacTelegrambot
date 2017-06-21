@@ -1,12 +1,10 @@
 package bot.commands.parameters;
 
-import bot.JavaBot;
 import bot.commands.Command;
 import bot.commands.JavaCommand;
 import bot.commands.visitors.Parameter;
 
-public class JavaBackgroundParameter extends Parameter{
-    private JavaBot bot;
+public class JavaBackgroundParameter extends Parameter {
 
     @Override
     public void visit(Command command) {

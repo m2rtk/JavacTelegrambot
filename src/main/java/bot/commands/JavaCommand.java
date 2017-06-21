@@ -1,10 +1,12 @@
 package bot.commands;
 
+import bot.UpdateHandler;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
 import dao.BotDAO;
 import dao.Privacy;
+import javac.BackgroundExecutor;
 import javac.ClassFile;
 import javac.Executor;
 
@@ -20,6 +22,7 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
     private Long id;
 
     private boolean runInBackground = false;
+    private UpdateHandler botThread = null;
 
     @Override
     public void execute() {
@@ -32,7 +35,10 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
         }
 
         if (runInBackground) {
-
+            BackgroundExecutor executor = new BackgroundExecutor(classFile, botThread);
+            executor.setClassPath(privacy, id);
+            int pid = executor.run(dao, args);
+            setOutput("Started " + className + " as a background process with pid " + pid);
         } else {
             Executor executor = new Executor(classFile);
             executor.setClassPath(privacy, id);
@@ -43,6 +49,14 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
 
     public void setRunInBackground(boolean runInBackground) {
         this.runInBackground = runInBackground;
+    }
+
+    public boolean runsInBackground() {
+        return runInBackground;
+    }
+
+    public void setUpdateHandler(UpdateHandler botThread) {
+        this.botThread = botThread;
     }
 
     @Override
