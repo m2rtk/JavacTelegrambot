@@ -3,14 +3,12 @@ package dao;
 import javac.BackgroundJavaProcess;
 
 import java.util.HashMap;
-import java.util.HashSet;
 import java.util.Map;
-import java.util.Set;
 
 /**
  * This is weak.
  */
-public class BackgroundJavaProcessesDAO {
+class BackgroundJavaProcessesDAO {
     private Map<Long, Map<Integer, BackgroundJavaProcess>> backgroundJavaProcesses = new HashMap<>();
 
     void addJavaProcess(BackgroundJavaProcess process, long chatId) {
@@ -26,8 +24,8 @@ public class BackgroundJavaProcessesDAO {
         return null;
     }
 
-    Set<BackgroundJavaProcess> getAllJavaProcesses(long chatId) {
-        if (backgroundJavaProcesses.containsKey(chatId)) return new HashSet<>(backgroundJavaProcesses.get(chatId).values());
-        return new HashSet<>();
+    Map<Integer, BackgroundJavaProcess> getAllJavaProcesses(long chatId) {
+        if (backgroundJavaProcesses.containsKey(chatId)) return backgroundJavaProcesses.get(chatId);
+        return new HashMap<>();
     }
 }

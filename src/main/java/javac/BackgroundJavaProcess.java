@@ -16,6 +16,8 @@ public class BackgroundJavaProcess extends Thread {
     private final BotDAO dao;
     private Process process;
 
+    private boolean isDead = false;
+
     public BackgroundJavaProcess(ProcessBuilder pb, UpdateHandler botThread, BotDAO dao) {
         this.pb = pb;
         this.bot = botThread;
@@ -29,6 +31,7 @@ public class BackgroundJavaProcess extends Thread {
 
     @Override
     public void run() {
+        dao.addJavaProcess(this, bot.getChat());
         try {
             process = pb.start();
 
@@ -51,6 +54,9 @@ public class BackgroundJavaProcess extends Thread {
     }
 
     public void kill() {
+        if (isDead) return;
+        isDead = true;
+
         dao.removeJavaProcess(pid, bot.getChat());
         if (process.isAlive()) process.destroy();
         bot.sendMessage("Yo I'm out. Signed " + pid);

@@ -67,7 +67,7 @@ public class InMemoryBotDAO implements BotDAO {
     }
 
     @Override
-    public Set<BackgroundJavaProcess> getAllJavaProcesses(long chatId) {
+    public Map<Integer, BackgroundJavaProcess> getAllJavaProcesses(long chatId) {
         return bjpDAO.getAllJavaProcesses(chatId);
     }
 

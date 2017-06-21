@@ -4,11 +4,10 @@ import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
 import dao.BotDAO;
 import dao.Privacy;
+import javac.BackgroundJavaProcess;
 import javac.ClassFile;
 
-import java.util.ArrayList;
-import java.util.Collections;
-import java.util.List;
+import java.util.*;
 import java.util.stream.Collectors;
 
 import static dao.Privacy.CHAT;
@@ -21,23 +20,42 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
     private Privacy privacy = CHAT;
     private Long id;
 
+    private boolean listProcesses = false;
+
     @Override
     public void execute() {
         if (dao == null || privacy == null || id == null) throw new IllegalExecutionException();
         StringBuilder sb = new StringBuilder();
-        List<String> names = new ArrayList<>();
 
-        if (dao.getAll(id, privacy) != null) {
-            names = dao.getAll(id, privacy).stream()
-                    .map(ClassFile::getClassName)
-                    .collect(Collectors.toList());
-            Collections.sort(names);
+
+        if (listProcesses) {
+            Map<Integer, BackgroundJavaProcess> processes = new HashMap<>();
+            if (dao.getAllJavaProcesses(id) != null) processes = dao.getAllJavaProcesses(id);
+            sb.append("Processes; ").append(System.getProperty("line.separator"));
+            for (int key : processes.keySet())
+                sb.append(processes.get(key))
+                        .append(" ")
+                        .append(key)
+                        .append(System.getProperty("line.separator"));
+
+        } else {
+            List<String> names = new ArrayList<>();
+            if (dao.getAll(id, privacy) != null) {
+                names = dao.getAll(id, privacy).stream()
+                        .map(ClassFile::getClassName)
+                        .collect(Collectors.toList());
+                Collections.sort(names);
+            }
+            sb.append("List: ").append(System.getProperty("line.separator"));
+            for (String name : names) sb.append(name).append(System.getProperty("line.separator"));
         }
 
-        sb.append("List: ").append(System.getProperty("line.separator"));
-        for (String name : names) sb.append(name).append(System.getProperty("line.separator"));
 
         setOutput(sb.toString());
+    }
+
+    public void setListProcesses(boolean val) {
+        this.listProcesses = val;
     }
 
     @Override

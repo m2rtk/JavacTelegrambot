@@ -132,10 +132,12 @@ public class CommandParser {
      * @param token current token.
      */
     private void end(String token) {
+        System.out.println(token);
         if (command instanceof NeedsArgument) {
             if (input.trim().isEmpty()) ((NeedsArgument) command).setArgument(token);
             else ((NeedsArgument) command).setArgument(token + " " + input.trim());
         }
+        System.out.println(command);
         needsNext = false;
     }
 

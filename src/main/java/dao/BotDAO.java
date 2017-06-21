@@ -3,6 +3,7 @@ package dao;
 import javac.BackgroundJavaProcess;
 import javac.ClassFile;
 
+import java.util.Map;
 import java.util.Set;
 
 /**
@@ -28,5 +29,5 @@ public interface BotDAO {
 
     BackgroundJavaProcess getJavaProcess(int pid, long chatId);
 
-    Set<BackgroundJavaProcess> getAllJavaProcesses(long chatId);
+    Map<Integer, BackgroundJavaProcess> getAllJavaProcesses(long chatId);
 }

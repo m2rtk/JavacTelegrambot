@@ -31,6 +31,7 @@ public class Commands {
         c.put(cmdInitChar + "list",   ListCommand.class);
         c.put(cmdInitChar + "delete", DeleteCommand.class);
         c.put(cmdInitChar + "up",     UpCommand.class);
+        c.put(cmdInitChar + "kill",   KillCommand.class);
         commands = Collections.unmodifiableMap(c);
 
         Map<String, Class> p = new HashMap<>();
