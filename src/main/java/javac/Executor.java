@@ -15,6 +15,8 @@ public class Executor {
     private String classPath;
     private String[] args;
 
+    private Process process;
+
     private String outputMessage;
 
     public Executor(ClassFile classFile) {
@@ -38,6 +40,7 @@ public class Executor {
             outputMessage = "Timed out after " + timeout + " milliseconds.";
         } finally {
             future.cancel(true);
+            if (process != null) process.destroy();
             Utils.delete(classFile);
         }
     }
@@ -47,9 +50,9 @@ public class Executor {
         pb.command(Utils.createJavaCommand(classFile, classPath, args));
         pb.redirectErrorStream(true);
 
-        Process pro = pb.start();
+        process = pb.start();
 
-        String outputMessage = Utils.getLines(pro.getInputStream());
+        String outputMessage = Utils.getLines(process.getInputStream());
 
         return outputMessage.trim().isEmpty() ? "No output." : outputMessage;
     }

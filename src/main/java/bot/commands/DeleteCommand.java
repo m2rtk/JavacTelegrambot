@@ -3,21 +3,25 @@ package bot.commands;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
+import bot.commands.interfaces.NeedsUpdate;
 import dao.BotDAO;
 import dao.Privacy;
+import org.telegram.telegrambots.api.objects.Update;
 
 import static dao.Privacy.CHAT;
 
 
-public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgument, NeedsDAO {
+public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgument, NeedsDAO, NeedsUpdate {
     private BotDAO dao;
     private String argument;
     private Privacy privacy = CHAT;
     private Long id;
+    private Update update;
 
     @Override
     public void execute() {
-        if (argument == null || argument.isEmpty() || id == null || privacy == null || dao == null) throw new IllegalExecutionException();
+        if (argument == null || argument.isEmpty() || update == null || privacy == null || dao == null) throw new IllegalExecutionException();
+        Long id = privacy == CHAT ? update.getMessage().getChatId() : update.getMessage().getFrom().getId() ;
         boolean successful = dao.remove(argument, id, privacy);
 
         if (successful) setOutput("Successfully deleted " + argument);
@@ -30,8 +34,8 @@ public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgumen
     }
 
     @Override
-    public void setId(Long id) {
-        this.id = id;
+    public void setUpdate(Update update) {
+        this.update = update;
     }
 
     @Override

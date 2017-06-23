@@ -1,20 +1,23 @@
 package bot.commands;
 
+import bot.Utils;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
+import bot.commands.interfaces.NeedsUpdate;
 import dao.BotDAO;
 import dao.Privacy;
 import javac.Compiler;
 import javac.JavaFile;
+import org.telegram.telegrambots.api.objects.Update;
 
 import static dao.Privacy.CHAT;
 
-public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy, NeedsDAO {
+public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy, NeedsDAO, NeedsUpdate {
     private BotDAO dao;
     private String content;
     private Privacy privacy = CHAT;
-    private Long id;
+    private Update update;
 
     public void wrapContentInMain(String classname) {
         if (content == null) throw new NullPointerException("Content/argument must be set before calling this method.");
@@ -23,9 +26,10 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
 
     @Override
     public void execute() {
-        if (content == null || content.isEmpty() || id == null || privacy == null || dao == null) throw new IllegalExecutionException();
+        if (content == null || content.isEmpty() || update == null || privacy == null || dao == null) throw new IllegalExecutionException();
         JavaFile javaFile = new JavaFile(content);
         Compiler compiler = new Compiler(javaFile);
+        Long id = Utils.getId(privacy, update);
         compiler.setClassPath(privacy, id);
 
         if (compiler.compile()) {
@@ -40,13 +44,13 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
     }
 
     @Override
-    public void setPrivacy(Privacy privacy) {
-        this.privacy = privacy;
+    public void setUpdate(Update update) {
+        this.update = update;
     }
 
     @Override
-    public void setId(Long id) {
-        this.id = id;
+    public void setPrivacy(Privacy privacy) {
+        this.privacy = privacy;
     }
 
     @Override
@@ -75,7 +79,7 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
                 "dao=" + dao +
 //                ", content='" + content + '\'' +
                 ", privacy=" + privacy +
-                ", id=" + id +
+                ", updateId=" + update.getUpdateId() +
                 "} ";
     }
 
@@ -90,7 +94,7 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
         if (dao != null ? !dao.equals(that.dao) : that.dao != null) return false;
         if (content != null ? !content.equals(that.content) : that.content != null) return false;
         if (privacy != that.privacy) return false;
-        return id != null ? id.equals(that.id) : that.id == null;
+        return update != null ? update.equals(that.update) : that.update == null;
     }
 
     @Override
@@ -99,7 +103,7 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
         result = 31 * result + (dao != null ? dao.hashCode() : 0);
         result = 31 * result + (content != null ? content.hashCode() : 0);
         result = 31 * result + (privacy != null ? privacy.hashCode() : 0);
-        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (update != null ? update.hashCode() : 0);
         return result;
     }
 }

@@ -67,10 +67,8 @@ class Utils {
             StringBuilder sb = new StringBuilder();
             BufferedReader in = new BufferedReader(new InputStreamReader(is, StandardCharsets.ISO_8859_1));
 
-            while ((line = in.readLine()) != null) {
-                System.out.println(line);
-                sb.append(line).append(System.getProperty("line.separator"));
-            }
+            while ((line = in.readLine()) != null) sb.append(line).append(System.getProperty("line.separator"));
+
             return sb.toString();
         } catch (IOException e) {
             return "";

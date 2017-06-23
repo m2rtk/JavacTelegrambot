@@ -3,9 +3,7 @@ package bot;
 import bot.commands.Command;
 import bot.commands.JavaCommand;
 import bot.commands.interfaces.NeedsPrivacy;
-import bot.commands.visitors.DAOVisitor;
-import bot.commands.visitors.Parameter;
-import bot.commands.visitors.StartTimeVisitor;
+import bot.commands.visitors.*;
 import dao.WriteToDiskBotDAO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -90,16 +88,8 @@ public class UpdateHandler extends Thread {
         parameters.forEach(command::accept);
         command.accept(bot.getDaoVisitor());
         command.accept(bot.getStartTimeVisitor());
-
-        if (command instanceof NeedsPrivacy) {
-            if (((NeedsPrivacy)command).getPrivacy() == CHAT) ((NeedsPrivacy)command).setId(update.getMessage().getChatId());
-            else ((NeedsPrivacy)command).setId(new Long(update.getMessage().getFrom().getId()));
-        }
-
-        if (command instanceof JavaCommand) {
-            if (((JavaCommand) command).runsInBackground())
-                ((JavaCommand) command).setUpdateHandler(this);
-        }
+        command.accept(new UpdateVisitor(update));
+        command.accept(new UpdateHandlerVisitor(this));
 
         return command;
     }

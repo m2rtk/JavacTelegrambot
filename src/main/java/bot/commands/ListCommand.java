@@ -1,11 +1,14 @@
 package bot.commands;
 
+import bot.Utils;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
+import bot.commands.interfaces.NeedsUpdate;
 import dao.BotDAO;
 import dao.Privacy;
 import javac.BackgroundJavaProcess;
 import javac.ClassFile;
+import org.telegram.telegrambots.api.objects.Update;
 
 import java.util.*;
 import java.util.stream.Collectors;
@@ -15,17 +18,18 @@ import static dao.Privacy.CHAT;
 /**
  * Created on 18.05.2017.
  */
-public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
+public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO, NeedsUpdate {
     private BotDAO dao;
     private Privacy privacy = CHAT;
-    private Long id;
+    private Update update;
 
     private boolean listProcesses = false;
 
     @Override
     public void execute() {
-        if (dao == null || privacy == null || id == null) throw new IllegalExecutionException();
+        if (dao == null || privacy == null || update == null) throw new IllegalExecutionException();
         StringBuilder sb = new StringBuilder();
+        Long id = Utils.getId(privacy, update);
 
 
         if (listProcesses) {
@@ -64,8 +68,8 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
     }
 
     @Override
-    public void setId(Long id) {
-        this.id = id;
+    public void setUpdate(Update update) {
+        this.update = update;
     }
 
     @Override
@@ -83,7 +87,7 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
         return "ListCommand{" +
                 "dao=" + dao +
                 ", privacy=" + privacy +
-                ", id=" + id +
+                ", updateId=" + update.getUpdateId() +
                 "} ";
     }
 
@@ -95,9 +99,10 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
 
         ListCommand that = (ListCommand) o;
 
+        if (listProcesses != that.listProcesses) return false;
         if (dao != null ? !dao.equals(that.dao) : that.dao != null) return false;
         if (privacy != that.privacy) return false;
-        return id != null ? id.equals(that.id) : that.id == null;
+        return update != null ? update.equals(that.update) : that.update == null;
     }
 
     @Override
@@ -105,7 +110,8 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO {
         int result = super.hashCode();
         result = 31 * result + (dao != null ? dao.hashCode() : 0);
         result = 31 * result + (privacy != null ? privacy.hashCode() : 0);
-        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (update != null ? update.hashCode() : 0);
+        result = 31 * result + (listProcesses ? 1 : 0);
         return result;
     }
 }

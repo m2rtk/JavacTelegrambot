@@ -2,6 +2,7 @@ package javac;
 
 import bot.UpdateHandler;
 import dao.BotDAO;
+import dao.Privacy;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,19 +11,25 @@ import java.nio.charset.StandardCharsets;
 
 public class BackgroundJavaProcess extends Thread {
     private static int pid_counter = 0;
-    private final int pid;
+    private final  int pid;
     private final UpdateHandler bot;
     private final ProcessBuilder pb;
     private final BotDAO dao;
+
+    private String classPath;
     private Process process;
 
     private boolean isDead = false;
 
-    public BackgroundJavaProcess(ProcessBuilder pb, UpdateHandler botThread, BotDAO dao) {
-        this.pb = pb;
+    public BackgroundJavaProcess(UpdateHandler botThread, BotDAO dao, ClassFile classFile, String... args) {
+        this.pb = new ProcessBuilder();
+        this.pb.redirectErrorStream(true);
+        this.pb.command(Utils.createJavaCommand(classFile, classPath, args));
+
         this.bot = botThread;
-        this.pid = pid_counter++;
         this.dao = dao;
+        this.dao.addJavaProcess(this, bot.getChat());
+        this.pid = pid_counter++;
     }
 
     public int getPid() {
@@ -31,7 +38,6 @@ public class BackgroundJavaProcess extends Thread {
 
     @Override
     public void run() {
-        dao.addJavaProcess(this, bot.getChat());
         try {
             process = pb.start();
 
@@ -55,10 +61,21 @@ public class BackgroundJavaProcess extends Thread {
 
     public void kill() {
         if (isDead) return;
-        isDead = true;
 
         dao.removeJavaProcess(pid, bot.getChat());
         if (process.isAlive()) process.destroy();
         bot.sendMessage("Yo I'm out. Signed " + pid);
+
+        isDead = true;
+    }
+
+    public void setClassPath(Privacy privacy, Long id) { // TODO: 07.06.2017 maybe remove and move to constructor
+        if (privacy == null || id == null)
+            throw new NullPointerException("Privacy and id can't be null.");
+
+        if (classPath != null)
+            throw new RuntimeException("Classpath is already set.");
+
+        this.classPath = "cache/" + privacy + "/" + id;
     }
 }

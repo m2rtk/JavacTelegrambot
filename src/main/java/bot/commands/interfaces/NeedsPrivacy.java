@@ -11,11 +11,5 @@ public interface NeedsPrivacy {
      */
     void setPrivacy(Privacy privacy);
 
-    /**
-     * Set id of implementing object.
-     * @param id new id corresponding to new privacy (chat id for CHAT and user id for USER).
-     */
-    void setId(Long id);
-
     Privacy getPrivacy();
 }

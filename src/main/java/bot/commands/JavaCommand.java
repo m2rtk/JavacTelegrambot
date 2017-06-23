@@ -1,32 +1,34 @@
 package bot.commands;
 
 import bot.UpdateHandler;
-import bot.commands.interfaces.NeedsArgument;
-import bot.commands.interfaces.NeedsDAO;
-import bot.commands.interfaces.NeedsPrivacy;
+import bot.Utils;
+import bot.commands.interfaces.*;
 import dao.BotDAO;
 import dao.Privacy;
-import javac.BackgroundExecutor;
+import javac.BackgroundJavaProcess;
 import javac.ClassFile;
 import javac.Executor;
+import org.telegram.telegrambots.api.objects.Update;
 
 import java.util.Arrays;
 
 import static dao.Privacy.CHAT;
+import static dao.Privacy.USER;
 
-public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy, NeedsDAO {
+public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy, NeedsDAO, NeedsUpdate, NeedsUpdateHandler {
     private BotDAO dao;
     private String className;
     private String[] args;
     private Privacy privacy = CHAT;
-    private Long id;
+    private Update update;
 
     private boolean runInBackground = false;
-    private UpdateHandler botThread = null;
+    private UpdateHandler botThread;
 
     @Override
     public void execute() {
-        if (args == null || id == null || privacy == null || dao == null || className == null || className.isEmpty()) throw new IllegalExecutionException();
+        if (args == null || update == null || privacy == null || dao == null || className == null || className.isEmpty()) throw new IllegalExecutionException();
+        Long id = Utils.getId(privacy, update);
         ClassFile classFile = dao.get(className, id, privacy);
 
         if (classFile == null) {
@@ -35,10 +37,13 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
         }
 
         if (runInBackground) {
-            BackgroundExecutor executor = new BackgroundExecutor(classFile, botThread);
-            executor.setClassPath(privacy, id);
-            int pid = executor.run(dao, args);
-            setOutput("Started " + className + " as a background process with pid " + pid);
+            if (botThread == null) throw new IllegalExecutionException();
+            if (privacy == USER) throw new IllegalExecutionException();
+            BackgroundJavaProcess process = new BackgroundJavaProcess(botThread, dao, classFile, args);
+            process.setClassPath(privacy, id);
+            process.start();
+            dao.addJavaProcess(process, id);
+            setOutput("Started " + className + " as a background process with pid " + process.getPid());
         } else {
             Executor executor = new Executor(classFile);
             executor.setClassPath(privacy, id);
@@ -47,14 +52,15 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
         }
     }
 
-    public void setRunInBackground(boolean runInBackground) {
-        this.runInBackground = runInBackground;
+    public void runInBackground() {
+        this.runInBackground = true;
     }
 
     public boolean runsInBackground() {
         return runInBackground;
     }
 
+    @Override
     public void setUpdateHandler(UpdateHandler botThread) {
         this.botThread = botThread;
     }
@@ -64,9 +70,10 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
         this.privacy = privacy;
     }
 
+
     @Override
-    public void setId(Long id) {
-        this.id = id;
+    public void setUpdate(Update update) {
+        this.update = update;
     }
 
     @Override
@@ -98,7 +105,7 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
                 "className='" + className + '\'' +
                 ", args=" + Arrays.toString(args) +
                 ", privacy=" + privacy +
-                ", id=" + id +
+                ", updateId=" + update.getUpdateId() +
                 '}';
     }
 
@@ -110,11 +117,13 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
 
         JavaCommand that = (JavaCommand) o;
 
+        if (runInBackground != that.runInBackground) return false;
         if (dao != null ? !dao.equals(that.dao) : that.dao != null) return false;
         if (className != null ? !className.equals(that.className) : that.className != null) return false;
+        // Probably incorrect - comparing Object[] arrays with Arrays.equals
         if (!Arrays.equals(args, that.args)) return false;
         if (privacy != that.privacy) return false;
-        return id != null ? id.equals(that.id) : that.id == null;
+        return update != null ? update.equals(that.update) : that.update == null;
     }
 
     @Override
@@ -124,7 +133,8 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
         result = 31 * result + (className != null ? className.hashCode() : 0);
         result = 31 * result + Arrays.hashCode(args);
         result = 31 * result + (privacy != null ? privacy.hashCode() : 0);
-        result = 31 * result + (id != null ? id.hashCode() : 0);
+        result = 31 * result + (update != null ? update.hashCode() : 0);
+        result = 31 * result + (runInBackground ? 1 : 0);
         return result;
     }
 }

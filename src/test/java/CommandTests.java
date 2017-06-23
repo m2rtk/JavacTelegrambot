@@ -89,7 +89,7 @@ public class CommandTests {
     public void listCommandWithCorrectContentOutputsListOfMethods() {
         ListCommand listCommand = new ListCommand(){{
             setPrivacy(CHAT);
-            setId(CHAT_1);
+//            setId(CHAT_1);
             setDAO(dao);
             setMonospaceFont(false);
         }};
@@ -116,7 +116,7 @@ public class CommandTests {
         assertTrue(dao.getAll(CHAT_1, CHAT).size() == 3);
         DeleteCommand deleteCommand = new DeleteCommand(){{
             setPrivacy(CHAT);
-            setId(CHAT_1);
+//            setId(CHAT_1);
             setDAO(dao);
             setArgument("Print");
             setMonospaceFont(false);
@@ -137,7 +137,7 @@ public class CommandTests {
     public void deleteCommandWithEmptyArgumentThrowsException() {
         DeleteCommand deleteCommand = new DeleteCommand(){{
             setPrivacy(CHAT);
-            setId(CHAT_1);
+//            setId(CHAT_1);
             setDAO(dao);
             setArgument("");
         }};
@@ -161,7 +161,7 @@ public class CommandTests {
         JavaCommand javaCommand = new JavaCommand(){{
             setMonospaceFont(false);
             setPrivacy(CHAT);
-            setId(CHAT_1);
+//            setId(CHAT_1);
             setDAO(dao);
             setArgument("Print");
         }};
@@ -178,7 +178,7 @@ public class CommandTests {
     public void javaCommandWithEmptyArgumentThrowsException() {
         JavaCommand javaCommand = new JavaCommand(){{
             setPrivacy(CHAT);
-            setId(CHAT_1);
+//            setId(CHAT_1);
             setDAO(dao);
             setArgument("");
         }};
@@ -201,7 +201,7 @@ public class CommandTests {
         JavacCommand javacCommand = new JavacCommand(){{
             setMonospaceFont(false);
             setPrivacy(CHAT);
-            setId(CHAT_1);
+//            setId(CHAT_1);
             setDAO(dao);
             setArgument("System.out.println(1);");
             wrapContentInMain("Test4");
@@ -218,7 +218,7 @@ public class CommandTests {
         JavacCommand javacCommand = new JavacCommand(){{
             setMonospaceFont(false);
             setPrivacy(CHAT);
-            setId(CHAT_1);
+//            setId(CHAT_1);
             setDAO(dao);
             setArgument("");
             wrapContentInMain("Test4");
@@ -234,7 +234,7 @@ public class CommandTests {
     public void javacCommandWithEmptyArgumentThrowsException() {
         JavacCommand javacCommand = new JavacCommand(){{
             setPrivacy(CHAT);
-            setId(CHAT_1);
+//            setId(CHAT_1);
             setDAO(dao);
             setArgument("");
         }};

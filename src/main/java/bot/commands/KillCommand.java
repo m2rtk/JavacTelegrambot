@@ -3,18 +3,20 @@ package bot.commands;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
+import bot.commands.interfaces.NeedsUpdate;
 import dao.BotDAO;
 import dao.Privacy;
+import org.telegram.telegrambots.api.objects.Update;
 
 // // FIXME: 21.06.2017 asdNeedsPrivacy is bad here
-public class KillCommand extends Command implements NeedsDAO, NeedsArgument, NeedsPrivacy {
+public class KillCommand extends Command implements NeedsDAO, NeedsArgument, NeedsUpdate {
     private BotDAO dao;
     private Integer pid;
-    private Long chatId;
+    private Update update;
 
     @Override
     public void execute() {
-        dao.getJavaProcess(pid, chatId).kill();
+        dao.getJavaProcess(pid, update.getMessage().getChatId()).kill();
         setOutput("Killed " + pid);
     }
 
@@ -33,19 +35,10 @@ public class KillCommand extends Command implements NeedsDAO, NeedsArgument, Nee
         return pid != null;
     }
 
-    @Override
-    public void setPrivacy(Privacy privacy) {
-
-    }
 
     @Override
-    public void setId(Long id) {
-        this.chatId = id;
-    }
-
-    @Override
-    public Privacy getPrivacy() {
-        return null;
+    public void setUpdate(Update update) {
+        this.update = update;
     }
 
     @Override
@@ -53,7 +46,7 @@ public class KillCommand extends Command implements NeedsDAO, NeedsArgument, Nee
         return "KillCommand{" +
                 "dao=" + dao +
                 ", pid=" + pid +
-                ", chatId=" + chatId +
+                ", updateId=" + update.getUpdateId() +
                 "} " + super.toString();
     }
 }

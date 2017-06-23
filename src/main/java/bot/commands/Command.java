@@ -11,7 +11,7 @@ public abstract class Command {
      * Accepts visitor parameter.
      * @param visitor visitor.
      */
-    public void accept(CommandVisitor visitor) {
+    public final void accept(CommandVisitor visitor) {
         visitor.visit(this);
     }
 
@@ -25,7 +25,7 @@ public abstract class Command {
      * Yeh
      * @param usesMonospaceFont duh
      */
-    public void setMonospaceFont(boolean usesMonospaceFont) {
+    public final void setMonospaceFont(boolean usesMonospaceFont) {
         this.usesMonospaceFont = usesMonospaceFont;
     }
 
@@ -35,7 +35,7 @@ public abstract class Command {
      * @return output as string.
      * @throws NullPointerException if execute must have been called before calling this method.
      */
-    public String getOutput() {
+    public final String getOutput() {
         if (output == null) throw new NullPointerException("Output is null, void execute() must be called before this method.");
         if (usesMonospaceFont) return Utils.toMonospace(output);
         return output;
@@ -45,7 +45,7 @@ public abstract class Command {
      * Set output of command.
      * @param output new output.
      */
-    protected void setOutput(String output) {
+    protected final void setOutput(String output) {
         this.output = output;
     }
 
