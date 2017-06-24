@@ -39,7 +39,11 @@ public class Utils {
         return privacy == CHAT ? update.getMessage().getChatId() : update.getMessage().getFrom().getId();
     }
 
-
+    /**
+     * Writes ClassFile to disk named as: classFile.getClassName() + ".class"
+     * @param classFile classfile to write.
+     * @return Path of written file.
+     */
     public static Path write(ClassFile classFile) {
         if (classFile == null) return null;
         try {
@@ -49,7 +53,11 @@ public class Utils {
         }
     }
 
-
+    /**
+     * Writes JavaFile to disk named as: javaFile.getClassName() + ".java"
+     * @param javaFile javafile to write.
+     * @return Path of written file.
+     */
     public static Path write(JavaFile javaFile) {
         if (javaFile == null) return null;
         try {
@@ -59,6 +67,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Deletes JavaFile from disk.
+     * @param javaFile javaFile to delete.
+     * @return true if deletion was successful, false otherwise.
+     */
     public static boolean delete(JavaFile javaFile) {
         if (javaFile == null) return false;
         try {
@@ -69,6 +82,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Deletes ClassFile from disk.
+     * @param classFile classFile to delete.
+     * @return true if deletion was successful, false otherwise.
+     */
     public static boolean delete(ClassFile classFile) {
         if (classFile == null) return false;
         try {
@@ -79,6 +97,11 @@ public class Utils {
         }
     }
 
+    /**
+     * Reads the ClassFile corresponding to JavaFile from disk.
+     * @param javaFile javaFile of which classFile to read.
+     * @return ClassFile if found, null otherwise.
+     */
     public static ClassFile readClassFile(JavaFile javaFile) {
         try {
             byte[] byteCode = Files.readAllBytes(Paths.get(javaFile.getClassName() + ".class"));
@@ -88,6 +111,12 @@ public class Utils {
         }
     }
 
+    /**
+     * Gets all lines from InputStream as String
+     * @param is InputStream
+     * @return String of all lines. Lines separated by System.getProperty("line.separator").
+     *         Empty String if exception occurred while reading from InputStream.
+     */
     public static String getLines(InputStream is) {
         try {
             String line;
@@ -102,6 +131,13 @@ public class Utils {
         }
     }
 
+    /**
+     * Creates an array which contains java command with parameters
+     * @param classFile ClassFile, getClassName() is used.
+     * @param classPath classPath as String
+     * @param args arguments as String
+     * @return Array of Strings, example: ["java", "-classpath", "/path/to/files", "Print", "Hello", "World!"]
+     */
     public static String[] createJavaCommand(ClassFile classFile, String classPath, String[] args) {
         String[] completeArgs;
         if (classPath != null) {
