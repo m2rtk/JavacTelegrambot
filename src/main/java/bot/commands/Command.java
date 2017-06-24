@@ -1,6 +1,6 @@
 package bot.commands;
 
-import bot.Utils;
+import utils.Utils;
 import bot.commands.interfaces.CommandVisitor;
 
 public abstract class Command {

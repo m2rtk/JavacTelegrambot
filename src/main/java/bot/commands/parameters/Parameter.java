@@ -1,4 +1,4 @@
-package bot.commands.visitors;
+package bot.commands.parameters;
 
 import bot.commands.Command;
 import bot.commands.interfaces.CommandVisitor;

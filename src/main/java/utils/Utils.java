@@ -1,4 +1,9 @@
-package javac;
+package utils;
+
+import dao.Privacy;
+import javac.ClassFile;
+import javac.JavaFile;
+import org.telegram.telegrambots.api.objects.Update;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -9,11 +14,33 @@ import java.nio.file.Files;
 import java.nio.file.Path;
 import java.nio.file.Paths;
 
-class Utils {
+import static dao.Privacy.CHAT;
 
-    private Utils() {} // prevent instantiation
+public class Utils {
 
-    static Path write(ClassFile classFile) {
+    private Utils() {}
+
+    /**
+     * Surrounds input parameter with ``` and line.separator's
+     * @param text input text.
+     * @return surrounded text.
+     */
+    public static String toMonospace(String text) {
+        return  "```" + System.getProperty("line.separator") + text + System.getProperty("line.separator") + "```";
+    }
+
+    /**
+     * Gets id corresponding to privacy from update.
+     * @param privacy privacy. CHAT or USER.
+     * @param update  update to get id from.
+     * @return chatId if CHAT, userId if USER
+     */
+    public static Long getId(Privacy privacy, Update update) {
+        return privacy == CHAT ? update.getMessage().getChatId() : update.getMessage().getFrom().getId();
+    }
+
+
+    public static Path write(ClassFile classFile) {
         if (classFile == null) return null;
         try {
             return Files.write(Paths.get(classFile.getClassName() + ".class"), classFile.getByteCode());
@@ -23,7 +50,7 @@ class Utils {
     }
 
 
-    static Path write(JavaFile javaFile) {
+    public static Path write(JavaFile javaFile) {
         if (javaFile == null) return null;
         try {
             return Files.write(Paths.get(javaFile.getClassName()  + ".java"), javaFile.getSource().getBytes());
@@ -32,7 +59,7 @@ class Utils {
         }
     }
 
-    static boolean delete(JavaFile javaFile) {
+    public static boolean delete(JavaFile javaFile) {
         if (javaFile == null) return false;
         try {
             Files.delete(Paths.get(javaFile.getClassName() + ".java"));
@@ -42,7 +69,7 @@ class Utils {
         }
     }
 
-    static boolean delete(ClassFile classFile) {
+    public static boolean delete(ClassFile classFile) {
         if (classFile == null) return false;
         try {
             Files.delete(Paths.get(classFile.getClassName() + ".class"));
@@ -52,7 +79,7 @@ class Utils {
         }
     }
 
-    static ClassFile readClassFile(JavaFile javaFile) {
+    public static ClassFile readClassFile(JavaFile javaFile) {
         try {
             byte[] byteCode = Files.readAllBytes(Paths.get(javaFile.getClassName() + ".class"));
             return new ClassFile(javaFile.getClassName(), byteCode);
@@ -61,7 +88,7 @@ class Utils {
         }
     }
 
-    static String getLines(InputStream is) {
+    public static String getLines(InputStream is) {
         try {
             String line;
             StringBuilder sb = new StringBuilder();
@@ -75,7 +102,7 @@ class Utils {
         }
     }
 
-    static String[] createJavaCommand(ClassFile classFile, String classPath, String[] args) {
+    public static String[] createJavaCommand(ClassFile classFile, String classPath, String[] args) {
         String[] completeArgs;
         if (classPath != null) {
             completeArgs = new String[args.length + 4];

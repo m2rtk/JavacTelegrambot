@@ -18,16 +18,16 @@ class Utils {
     private Utils() {} // prevent instantiation
 
     static JavaFile readJavaFile(String className) throws Exception {
-        String source = String.join("\n", Files.readAllLines(Paths.get(Utils.class.getClassLoader().getResource("src/" + className + ".java").toURI())).stream().collect(Collectors.toList()));
+        String source = String.join("\n", Files.readAllLines(Paths.get(utils.Utils.class.getClassLoader().getResource("src/" + className + ".java").toURI())).stream().collect(Collectors.toList()));
         return new JavaFile(source);
     }
 
     static ClassFile readClassFile(String className) throws Exception {
-        byte[] byteCode = Files.readAllBytes(Paths.get(Utils.class.getClassLoader().getResource("out/" + className + ".class").toURI()));
+        byte[] byteCode = Files.readAllBytes(Paths.get(utils.Utils.class.getClassLoader().getResource("out/" + className + ".class").toURI()));
         return new ClassFile(className, byteCode);
     }
 
-    static Update createMockUpdateWithTextContent(String content, Long userId, Long chatId) {
+    static Update createMockUpdate(String content, Long userId, Long chatId) {
         User mockUser = mock(User.class);
         when(mockUser.getId()).thenReturn(userId.intValue());
         Message mockMessage = mock(Message.class);
@@ -45,6 +45,19 @@ class Utils {
     static Update createMockUpdate(Long chatId) {
         Message mockMessage = mock(Message.class);
         when(mockMessage.getChatId()).thenReturn(chatId);
+        Update mockUpdate = mock(Update.class);
+        when(mockUpdate.hasMessage()).thenReturn(true);
+        when(mockUpdate.getMessage()).thenReturn(mockMessage);
+        when(mockUpdate.getUpdateId()).thenReturn(updateId++);
+        return mockUpdate;
+    }
+
+    static Update createMockUpdate(Long chatId, Long userId) {
+        User mockUser = mock(User.class);
+        when(mockUser.getId()).thenReturn(userId.intValue());
+        Message mockMessage = mock(Message.class);
+        when(mockMessage.getChatId()).thenReturn(chatId);
+        when(mockMessage.getFrom()).thenReturn(mockUser);
         Update mockUpdate = mock(Update.class);
         when(mockUpdate.hasMessage()).thenReturn(true);
         when(mockUpdate.getMessage()).thenReturn(mockMessage);

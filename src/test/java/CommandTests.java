@@ -2,12 +2,15 @@ import bot.commands.*;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
+import bot.commands.interfaces.NeedsUpdate;
 import dao.BotDAO;
 import dao.InMemoryBotDAO;
 import dao.Privacy;
 import javac.ClassFile;
 import org.junit.Before;
 import org.junit.Test;
+import org.telegram.telegrambots.api.objects.Update;
+
 
 import java.lang.reflect.InvocationTargetException;
 import java.nio.file.Files;
@@ -21,6 +24,7 @@ import static org.junit.Assert.*;
 public class CommandTests {
     private BotDAO dao;
     private static final Long CHAT_1 = -1L;
+    private static final Long USER_1 = -2L;
 
     private static ClassFile print;
     private static ClassFile sum;
@@ -89,7 +93,7 @@ public class CommandTests {
     public void listCommandWithCorrectContentOutputsListOfMethods() {
         ListCommand listCommand = new ListCommand(){{
             setPrivacy(CHAT);
-//            setId(CHAT_1);
+            setUpdate(Utils.createMockUpdate(CHAT_1, USER_1));
             setDAO(dao);
             setMonospaceFont(false);
         }};
@@ -116,7 +120,7 @@ public class CommandTests {
         assertTrue(dao.getAll(CHAT_1, CHAT).size() == 3);
         DeleteCommand deleteCommand = new DeleteCommand(){{
             setPrivacy(CHAT);
-//            setId(CHAT_1);
+            setUpdate(Utils.createMockUpdate(CHAT_1, USER_1));
             setDAO(dao);
             setArgument("Print");
             setMonospaceFont(false);
@@ -137,7 +141,7 @@ public class CommandTests {
     public void deleteCommandWithEmptyArgumentThrowsException() {
         DeleteCommand deleteCommand = new DeleteCommand(){{
             setPrivacy(CHAT);
-//            setId(CHAT_1);
+            setUpdate(Utils.createMockUpdate(CHAT_1, USER_1));
             setDAO(dao);
             setArgument("");
         }};
@@ -161,7 +165,7 @@ public class CommandTests {
         JavaCommand javaCommand = new JavaCommand(){{
             setMonospaceFont(false);
             setPrivacy(CHAT);
-//            setId(CHAT_1);
+            setUpdate(Utils.createMockUpdate(CHAT_1, USER_1));
             setDAO(dao);
             setArgument("Print");
         }};
@@ -178,7 +182,7 @@ public class CommandTests {
     public void javaCommandWithEmptyArgumentThrowsException() {
         JavaCommand javaCommand = new JavaCommand(){{
             setPrivacy(CHAT);
-//            setId(CHAT_1);
+            setUpdate(Utils.createMockUpdate(CHAT_1, USER_1));
             setDAO(dao);
             setArgument("");
         }};
@@ -201,7 +205,7 @@ public class CommandTests {
         JavacCommand javacCommand = new JavacCommand(){{
             setMonospaceFont(false);
             setPrivacy(CHAT);
-//            setId(CHAT_1);
+            setUpdate(Utils.createMockUpdate(CHAT_1, USER_1));
             setDAO(dao);
             setArgument("System.out.println(1);");
             wrapContentInMain("Test4");
@@ -218,7 +222,7 @@ public class CommandTests {
         JavacCommand javacCommand = new JavacCommand(){{
             setMonospaceFont(false);
             setPrivacy(CHAT);
-//            setId(CHAT_1);
+            setUpdate(Utils.createMockUpdate(CHAT_1, USER_1));
             setDAO(dao);
             setArgument("");
             wrapContentInMain("Test4");
@@ -234,7 +238,7 @@ public class CommandTests {
     public void javacCommandWithEmptyArgumentThrowsException() {
         JavacCommand javacCommand = new JavacCommand(){{
             setPrivacy(CHAT);
-//            setId(CHAT_1);
+            setUpdate(Utils.createMockUpdate(CHAT_1, USER_1));
             setDAO(dao);
             setArgument("");
         }};
@@ -288,30 +292,33 @@ public class CommandTests {
 
     private void illegalExecutionTest(Class c, boolean daoIsSet, boolean privacyIsSet, boolean argumentIsSet) {
         try {
-            BotDAO dao = null; Privacy privacy = null; Long id = null; String argument = null;
+            BotDAO dao = null; Privacy privacy = null; Update update = null; String argument = null;
             if (daoIsSet)       dao      = this.dao;
-            if (privacyIsSet) { privacy  = CHAT; id = CHAT_1; }
+            if (privacyIsSet) { privacy  = CHAT; update = Utils.createMockUpdate(CHAT_1, USER_1); }
             if (argumentIsSet)  argument = "test";
 
-            createCommand(c, dao, privacy, id, argument).execute();
+            createCommand(c, dao, privacy, update, argument).execute();
             fail();
         } catch (IllegalExecutionException ignored) {
             // test passes if this block is executed
         }
     }
 
-    private Command createCommand(Class c, BotDAO dao, Privacy privacy, Long id, String argument) {
+    private Command createCommand(Class c, BotDAO dao, Privacy privacy, Update update, String argument) {
         try {
             Command command = (Command) c.getConstructors()[0].newInstance();
 
             if (dao != null && command instanceof NeedsDAO)
                 ((NeedsDAO) command).setDAO(dao);
 
-            if (privacy != null && id != null  && command instanceof NeedsPrivacy)
+            if (privacy != null && command instanceof NeedsPrivacy)
                 ((NeedsPrivacy) command).setPrivacy(privacy);
 
             if (argument != null && command instanceof NeedsArgument)
                 ((NeedsArgument) command).setArgument(argument);
+
+            if (update != null && command instanceof NeedsUpdate)
+                ((NeedsUpdate) command).setUpdate(update);
 
             return command;
         } catch (InstantiationException | InvocationTargetException | IllegalAccessException e) {

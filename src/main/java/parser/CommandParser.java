@@ -4,7 +4,7 @@ import bot.Commands;
 import bot.Config;
 import bot.commands.Command;
 import bot.commands.interfaces.NeedsArgument;
-import bot.commands.visitors.Parameter;
+import bot.commands.parameters.Parameter;
 
 import java.util.HashSet;
 import java.util.Set;
@@ -117,10 +117,10 @@ public class CommandParser {
 
     private void handleArg(String token) throws ParserException {
         if (token.isEmpty())
-            throw new ParserException("Expected parameter argument. Reached end of input.");
+            throw new ParserException("Expected argument for parameter. Reached end of input.");
 
         if (token.charAt(0) == paramInitChar)
-            throw new ParserException("Expected parameter argument. Got parameter " + token);
+            throw new ParserException("Expected argument for parameter. Got parameter " + token);
 
         this.lastParameter.setArgument(token);
         this.state = State.FREE;

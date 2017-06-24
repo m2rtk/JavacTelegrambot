@@ -1,14 +1,10 @@
 import bot.JavaBot;
-import bot.UpdateHandler;
 import dao.InMemoryBotDAO;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.BeforeClass;
 import org.junit.Test;
-import org.telegram.telegrambots.api.methods.send.SendMessage;
 import org.telegram.telegrambots.api.objects.Update;
-import org.telegram.telegrambots.exceptions.TelegramApiException;
-import org.telegram.telegrambots.generics.UpdatesHandler;
 
 import java.io.File;
 import java.io.IOException;
@@ -88,7 +84,7 @@ public class BotTests {
 
     @Test
     public void javaCommandOutputsClassOutput() {
-        Update update = Utils.createMockUpdateWithTextContent("/javac -m Test System.out.println(1);", user, chat);
+        Update update = Utils.createMockUpdate("/javac -m Test System.out.println(1);", user, chat);
 //        bot.onUpdateReceived(update);
 //        getThread(update).start();
         init();
@@ -97,7 +93,7 @@ public class BotTests {
 
     @Test
     public void javaCommandSpecialCaseOutputsClassOutput() {
-        Update update = Utils.createMockUpdateWithTextContent("/javac -m Test System.out.println(1);", user, chat);
+        Update update = Utils.createMockUpdate("/javac -m Test System.out.println(1);", user, chat);
         bot.onUpdateReceived(update);
         init();
         test("/Test", "1" + System.getProperty("line.separator"));
@@ -105,7 +101,7 @@ public class BotTests {
 
     @Test
     public void javaCommandSpecialCaseWithArgumentsOutputsClassOutput() {
-        Update update = Utils.createMockUpdateWithTextContent("/javac -m Test System.out.println(args[0] + args[1]);", user, chat);
+        Update update = Utils.createMockUpdate("/javac -m Test System.out.println(args[0] + args[1]);", user, chat);
         bot.onUpdateReceived(update);
         init();
         test("/Test 1 2", "12" + System.getProperty("line.separator"));
@@ -136,14 +132,14 @@ public class BotTests {
 
     @Test
     public void noOutputWhenInputIsNotPrefixedWithForwardSlash() throws Exception {
-        Update update = Utils.createMockUpdateWithTextContent("nice", user, chat);
+        Update update = Utils.createMockUpdate("nice", user, chat);
         bot.onUpdateReceived(update);
 //        verify(bot, never()).sendMessage(any());
     }
 
     @Test
     public void test11() throws Exception {
-        Update update = Utils.createMockUpdateWithTextContent("/nice", user, chat);
+        Update update = Utils.createMockUpdate("/nice", user, chat);
 //        JavaBot bot = spy(new JavaBot());
 //        SendMessage sendMessage = mock(new SendMessage());
 //        sendMessage.enableMarkdown(true);
@@ -160,14 +156,14 @@ public class BotTests {
     }
 
     private static void testWithNoRegex(String input, String expectedOutput) {
-        Update update = Utils.createMockUpdateWithTextContent(input, user, chat);
+        Update update = Utils.createMockUpdate(input, user, chat);
         bot.onUpdateReceived(update);
         expectedOutput = "```" + System.getProperty("line.separator") + expectedOutput + System.getProperty("line.separator") + "```";
 //        verify(bot).sendMessage(expectedOutput, chat);
     }
 
     private static void test(String input, String expectedOutput) {
-        Update update = Utils.createMockUpdateWithTextContent(input, user, chat);
+        Update update = Utils.createMockUpdate(input, user, chat);
 //        bot.onUpdateReceived(update);
 //        UpdateHandler t = getThread(update);
 //        t.run();

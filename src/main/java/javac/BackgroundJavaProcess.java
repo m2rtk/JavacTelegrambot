@@ -3,6 +3,9 @@ package javac;
 import bot.UpdateHandler;
 import dao.BotDAO;
 import dao.Privacy;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
+import utils.Utils;
 
 import java.io.BufferedReader;
 import java.io.IOException;
@@ -10,11 +13,15 @@ import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
 public class BackgroundJavaProcess extends Thread {
+    private static final Logger logger = LogManager.getLogger(BackgroundJavaProcess.class);
+
     private static int pid_counter = 0;
     private final  int pid;
-    private final UpdateHandler bot;
-    private final ProcessBuilder pb;
+    private final UpdateHandler botThread;
+    private final String[] args;
     private final BotDAO dao;
+    private final ClassFile classFile;
+    private final ProcessBuilder pb;
 
     private String classPath;
     private Process process;
@@ -23,13 +30,14 @@ public class BackgroundJavaProcess extends Thread {
 
     public BackgroundJavaProcess(UpdateHandler botThread, BotDAO dao, ClassFile classFile, String... args) {
         this.pb = new ProcessBuilder();
-        this.pb.redirectErrorStream(true);
-        this.pb.command(Utils.createJavaCommand(classFile, classPath, args));
-
-        this.bot = botThread;
+        this.classFile = classFile;
+        this.args = args;
+        this.botThread = botThread;
         this.dao = dao;
-        this.dao.addJavaProcess(this, bot.getChat());
         this.pid = pid_counter++;
+        this.dao.addJavaProcess(this, this.botThread.getChat());
+
+        this.setName(classFile.getClassName() + "-" + pid + "-" + botThread.getName());
     }
 
     public int getPid() {
@@ -38,6 +46,9 @@ public class BackgroundJavaProcess extends Thread {
 
     @Override
     public void run() {
+        this.pb.redirectErrorStream(true);
+        this.pb.command(Utils.createJavaCommand(classFile, classPath, args));
+        logger.info("Started process " + pid);
         try {
             process = pb.start();
 
@@ -46,27 +57,29 @@ public class BackgroundJavaProcess extends Thread {
                 BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.ISO_8859_1));
 
                 while ((line = in.readLine()) != null) {
-                    bot.sendMessage(line);
+                    botThread.sendMessage(Utils.toMonospace(line));
                 }
 
             } catch (IOException e) {
-                System.out.println("watwat");
+                logger.error(e);
+                for (StackTraceElement ste : e.getStackTrace()) logger.error("\t\t" + ste);
             }
 
         } catch (IOException e) {
-            System.out.println("wutwut");
+            logger.error(e);
+            for (StackTraceElement ste : e.getStackTrace()) logger.error("\t\t" + ste);
         }
         kill();
     }
 
     public void kill() {
         if (isDead) return;
-
-        dao.removeJavaProcess(pid, bot.getChat());
-        if (process.isAlive()) process.destroy();
-        bot.sendMessage("Yo I'm out. Signed " + pid);
-
         isDead = true;
+
+        dao.removeJavaProcess(pid, botThread.getChat());
+        if (process.isAlive()) process.destroy();
+
+        botThread.sendMessage(Utils.toMonospace("Process " + pid + " terminated."));
     }
 
     public void setClassPath(Privacy privacy, Long id) { // TODO: 07.06.2017 maybe remove and move to constructor

@@ -2,9 +2,8 @@ package bot;
 
 import bot.commands.Command;
 import bot.commands.JavaCommand;
-import bot.commands.interfaces.NeedsPrivacy;
+import bot.commands.parameters.Parameter;
 import bot.commands.visitors.*;
-import dao.WriteToDiskBotDAO;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -13,12 +12,10 @@ import org.telegram.telegrambots.exceptions.TelegramApiException;
 import parser.CommandParser;
 import parser.ParserException;
 import parser.SpecialJavaCommandException;
+import utils.Utils;
 
-import java.time.Instant;
 import java.util.HashSet;
 import java.util.Set;
-
-import static dao.Privacy.CHAT;
 
 public class UpdateHandler extends Thread {
     private static final Logger logger = LogManager.getLogger(UpdateHandler.class);
@@ -41,12 +38,6 @@ public class UpdateHandler extends Thread {
             logger.warn("IN: Update with no message " + update);
             return;
         }
-
-        Thread.currentThread().setName(
-                update.getUpdateId() + "-" +
-                        update.getMessage().getChatId() + "-" +
-                        update.getMessage().getFrom().getUserName()
-        );
 
         logger.info("IN: update=(id=" + update.getUpdateId() +
                 ", chat=" + update.getMessage().getChatId() +
@@ -105,6 +96,7 @@ public class UpdateHandler extends Thread {
             bot.sendMessage(sendMessage);
         } catch (TelegramApiException e) {
             logger.error("TelegramApiException", e);
+            for (StackTraceElement ste : e.getStackTrace()) logger.error("\t\t" + ste);
         }
     }
 

@@ -8,7 +8,6 @@ import dao.BotDAO;
 import dao.Privacy;
 import org.telegram.telegrambots.api.objects.Update;
 
-// // FIXME: 21.06.2017 asdNeedsPrivacy is bad here
 public class KillCommand extends Command implements NeedsDAO, NeedsArgument, NeedsUpdate {
     private BotDAO dao;
     private Integer pid;
@@ -17,7 +16,7 @@ public class KillCommand extends Command implements NeedsDAO, NeedsArgument, Nee
     @Override
     public void execute() {
         dao.getJavaProcess(pid, update.getMessage().getChatId()).kill();
-        setOutput("Killed " + pid);
+        setOutput("Killed " + pid + ".");
     }
 
     @Override

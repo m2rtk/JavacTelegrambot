@@ -1,6 +1,6 @@
 package bot.commands;
 
-import bot.Utils;
+import utils.Utils;
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;

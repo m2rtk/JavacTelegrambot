@@ -1,6 +1,6 @@
 package bot.commands;
 
-import bot.Utils;
+import utils.Utils;
 import bot.commands.interfaces.NeedsDAO;
 import bot.commands.interfaces.NeedsPrivacy;
 import bot.commands.interfaces.NeedsUpdate;
@@ -58,8 +58,8 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO, Need
         setOutput(sb.toString());
     }
 
-    public void setListProcesses(boolean val) {
-        this.listProcesses = val;
+    public void setToListProcesses() {
+        this.listProcesses = true;
     }
 
     @Override

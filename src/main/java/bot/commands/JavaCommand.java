@@ -1,7 +1,7 @@
 package bot.commands;
 
 import bot.UpdateHandler;
-import bot.Utils;
+import utils.Utils;
 import bot.commands.interfaces.*;
 import dao.BotDAO;
 import dao.Privacy;
@@ -38,7 +38,6 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
 
         if (runInBackground) {
             if (botThread == null) throw new IllegalExecutionException();
-            if (privacy == USER) throw new IllegalExecutionException();
             BackgroundJavaProcess process = new BackgroundJavaProcess(botThread, dao, classFile, args);
             process.setClassPath(privacy, id);
             process.start();
@@ -52,7 +51,7 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
         }
     }
 
-    public void runInBackground() {
+    public void setToRunInBackground() {
         this.runInBackground = true;
     }
 
@@ -69,7 +68,6 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
     public void setPrivacy(Privacy privacy) {
         this.privacy = privacy;
     }
-
 
     @Override
     public void setUpdate(Update update) {

@@ -1,6 +1,7 @@
 package javac;
 
 import dao.Privacy;
+import utils.Utils;
 
 import java.io.IOException;
 import java.util.concurrent.*;

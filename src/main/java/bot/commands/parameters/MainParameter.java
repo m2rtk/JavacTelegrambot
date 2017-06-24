@@ -3,7 +3,6 @@ package bot.commands.parameters;
 import bot.commands.Command;
 import bot.commands.JavacCommand;
 import bot.commands.interfaces.NeedsArgument;
-import bot.commands.visitors.Parameter;
 
 /**
  * Works only on javac
@@ -11,12 +10,10 @@ import bot.commands.visitors.Parameter;
 public class MainParameter extends Parameter implements NeedsArgument {
     private String classname;
 
-
     @Override
     public void visit(Command command) {
         if (command instanceof JavacCommand) ((JavacCommand) command).wrapContentInMain(classname);
     }
-
 
     @Override
     public void setArgument(String argument) {
@@ -26,11 +23,6 @@ public class MainParameter extends Parameter implements NeedsArgument {
     @Override
     public boolean hasArgument() {
         return this.classname != null;
-    }
-
-    public MainParameter set(String arg) {
-        setArgument(arg);
-        return this;
     }
 
     @Override
