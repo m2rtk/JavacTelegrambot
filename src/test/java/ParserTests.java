@@ -38,7 +38,7 @@ public class ParserTests {
     @Test
     public void noParameterArgumentTest0() throws ParserException {
         thrown.expect(ParserException.class);
-        thrown.expectMessage("Expected parameter argument. Reached end of input.");
+        thrown.expectMessage("Expected argument for parameter. Reached end of input.");
         test("/javac -m", null);
     }
 
@@ -66,7 +66,7 @@ public class ParserTests {
     @Test
     public void noParameterArgumentTest1() throws ParserException {
         thrown.expect(ParserException.class);
-        thrown.expectMessage("Expected parameter argument. Got parameter ");
+        thrown.expectMessage("Expected argument for parameter. Got parameter -p");
         test("/javac -m -p System.out.println(1);", null);
     }
 

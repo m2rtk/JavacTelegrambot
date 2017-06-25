@@ -4,6 +4,7 @@ import bot.commands.Command;
 import bot.commands.JavaCommand;
 import bot.commands.parameters.Parameter;
 import bot.commands.visitors.*;
+import javac.BackgroundJavaProcess;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.telegram.telegrambots.api.methods.send.SendMessage;
@@ -14,6 +15,7 @@ import parser.ParserException;
 import parser.SpecialJavaCommandException;
 import utils.Utils;
 
+import java.io.*;
 import java.util.HashSet;
 import java.util.Set;
 
@@ -54,6 +56,22 @@ public class UpdateHandler extends Thread {
                 sendMessage(command.getOutput());
             } catch (ParserException e) {
                 sendMessage(Utils.toMonospace("Parser exception: " + e.getMessage()));
+            }
+        } else if (update.getMessage().getText().length() > 1 &&
+                   update.getMessage().getText().charAt(0) == '/' &&
+                   update.getMessage().getText().charAt(1) == '/') {
+            // is input for background threads
+            for (BackgroundJavaProcess bjp : bot.getDao().getAllJavaProcesses(update.getMessage().getChatId()).values()) {
+                try {
+                    BufferedWriter writer = new BufferedWriter(
+                            new OutputStreamWriter(bjp.getProcess().getOutputStream())
+                    );
+                    writer.write(update.getMessage().getText().substring(2), 0, update.getMessage().getText().substring(2).length());
+                    writer.newLine();
+                    writer.close();
+                } catch (IOException e) {
+                    sendMessage(e.getMessage());
+                }
             }
         }
     }

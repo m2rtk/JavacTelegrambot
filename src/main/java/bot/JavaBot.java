@@ -15,8 +15,10 @@ public class JavaBot extends TelegramLongPollingBot {
     private static final Logger logger = LogManager.getLogger(JavaBot.class);
     private final DAOVisitor daoVisitor;
     private final StartTimeVisitor startTimeVisitor;
+    private final BotDAO dao;
 
     public JavaBot(BotDAO dao) {
+        this.dao = dao;
         this.daoVisitor = new DAOVisitor(dao);
         this.startTimeVisitor = new StartTimeVisitor(Instant.now().getEpochSecond());
     }
@@ -30,6 +32,10 @@ public class JavaBot extends TelegramLongPollingBot {
             for (StackTraceElement ste : e.getStackTrace()) logger.fatal("\t\t" + ste);
         });
         thread.start();
+    }
+
+    public BotDAO getDao() {
+        return dao;
     }
 
     public DAOVisitor getDaoVisitor() {

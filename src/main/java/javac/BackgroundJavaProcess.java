@@ -89,4 +89,8 @@ public class BackgroundJavaProcess extends Thread {
 
         this.classPath = "cache/" + privacy + "/" + id;
     }
+
+    public Process getProcess() {
+        return process;
+    }
 }
