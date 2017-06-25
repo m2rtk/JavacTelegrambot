@@ -73,11 +73,6 @@ public class ListCommand extends Command implements NeedsPrivacy, NeedsDAO, Need
     }
 
     @Override
-    public Privacy getPrivacy() {
-        return privacy;
-    }
-
-    @Override
     public void setDAO(BotDAO dao) {
         this.dao = dao;
     }

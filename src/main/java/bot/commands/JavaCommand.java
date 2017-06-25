@@ -54,10 +54,6 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
         this.runInBackground = true;
     }
 
-    public boolean runsInBackground() {
-        return runInBackground;
-    }
-
     @Override
     public void setUpdateHandler(UpdateHandler botThread) {
         this.botThread = botThread;
@@ -71,11 +67,6 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
     @Override
     public void setUpdate(Update update) {
         this.update = update;
-    }
-
-    @Override
-    public Privacy getPrivacy() {
-        return privacy;
     }
 
     @Override

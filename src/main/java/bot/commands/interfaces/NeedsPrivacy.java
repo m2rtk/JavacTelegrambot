@@ -11,5 +11,4 @@ public interface NeedsPrivacy {
      */
     void setPrivacy(Privacy privacy);
 
-    Privacy getPrivacy();
 }

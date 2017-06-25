@@ -2,10 +2,8 @@ package bot.commands;
 
 import bot.commands.interfaces.NeedsArgument;
 import bot.commands.interfaces.NeedsDAO;
-import bot.commands.interfaces.NeedsPrivacy;
 import bot.commands.interfaces.NeedsUpdate;
 import dao.BotDAO;
-import dao.Privacy;
 import org.telegram.telegrambots.api.objects.Update;
 
 public class KillCommand extends Command implements NeedsDAO, NeedsArgument, NeedsUpdate {

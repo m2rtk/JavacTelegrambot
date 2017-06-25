@@ -54,11 +54,6 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
     }
 
     @Override
-    public Privacy getPrivacy() {
-        return privacy;
-    }
-
-    @Override
     public void setArgument(String argument) {
         this.content = argument;
     }

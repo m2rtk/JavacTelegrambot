@@ -5,12 +5,15 @@ import bot.commands.parameters.JavaBackgroundParameter;
 import bot.commands.parameters.MainParameter;
 import bot.commands.parameters.NoMonospaceFontParameter;
 import bot.commands.parameters.PrivacyParameter;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 
 import java.util.Collections;
 import java.util.HashMap;
 import java.util.Map;
 
 public class Commands {
+    private static final Logger logger = LogManager.getLogger(Commands.class);
 
     private Commands() {}
 
@@ -33,6 +36,7 @@ public class Commands {
         c.put(cmdInitChar + "up",     UpCommand.class);
         c.put(cmdInitChar + "kill",   KillCommand.class);
         commands = Collections.unmodifiableMap(c);
+        logger.info("Initialized commands.");
 
         Map<String, Class> p = new HashMap<>();
         p.put(paramInitChar + "p", PrivacyParameter.class);
@@ -40,5 +44,6 @@ public class Commands {
         p.put(paramInitChar + "n", NoMonospaceFontParameter.class);
         p.put(paramInitChar + "b", JavaBackgroundParameter.class);
         parameters = Collections.unmodifiableMap(p);
+        logger.info("Initialized parameters.");
     }
 }

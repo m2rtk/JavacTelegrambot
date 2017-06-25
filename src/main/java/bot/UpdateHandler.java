@@ -100,7 +100,7 @@ public class UpdateHandler extends Thread {
         }
     }
 
-    public long getChat() {
-        return update.getMessage().getChatId();
+    public Update getUpdate() {
+        return update;
     }
 }

@@ -39,11 +39,6 @@ public class DeleteCommand extends Command implements NeedsPrivacy, NeedsArgumen
     }
 
     @Override
-    public Privacy getPrivacy() {
-        return privacy;
-    }
-
-    @Override
     public void setArgument(String argument) {
         this.argument = argument;
     }

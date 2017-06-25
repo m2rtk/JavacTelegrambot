@@ -35,7 +35,7 @@ public class BackgroundJavaProcess extends Thread {
         this.botThread = botThread;
         this.dao = dao;
         this.pid = pid_counter++;
-        this.dao.addJavaProcess(this, this.botThread.getChat());
+        this.dao.addJavaProcess(this, this.botThread.getUpdate().getMessage().getChatId());
 
         this.setName(classFile.getClassName() + "-" + pid + "-" + botThread.getName());
     }
@@ -74,7 +74,7 @@ public class BackgroundJavaProcess extends Thread {
         if (isDead) return;
         isDead = true;
 
-        dao.removeJavaProcess(pid, botThread.getChat());
+        dao.removeJavaProcess(pid, botThread.getUpdate().getMessage().getChatId());
         if (process.isAlive()) process.destroy();
 
         botThread.sendMessage(Utils.toMonospace("Process " + pid + " terminated."));
