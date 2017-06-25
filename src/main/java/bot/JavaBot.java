@@ -21,14 +21,6 @@ public class JavaBot extends TelegramLongPollingBot {
         this.startTimeVisitor = new StartTimeVisitor(Instant.now().getEpochSecond());
     }
 
-    public DAOVisitor getDaoVisitor() {
-        return daoVisitor;
-    }
-
-    public StartTimeVisitor getStartTimeVisitor() {
-        return startTimeVisitor;
-    }
-
     @Override
     public void onUpdateReceived(Update update) {
         logger.info("Launching new thread for update: " + update.getUpdateId());
@@ -38,6 +30,14 @@ public class JavaBot extends TelegramLongPollingBot {
             for (StackTraceElement ste : e.getStackTrace()) logger.fatal("\t\t" + ste);
         });
         thread.start();
+    }
+
+    public DAOVisitor getDaoVisitor() {
+        return daoVisitor;
+    }
+
+    public StartTimeVisitor getStartTimeVisitor() {
+        return startTimeVisitor;
     }
 
     @Override

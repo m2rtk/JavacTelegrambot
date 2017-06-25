@@ -36,7 +36,7 @@ public class JavacCommand extends Command implements NeedsArgument, NeedsPrivacy
             if (dao.get(javaFile.getClassName(), id, privacy) != null) {
                 dao.remove(javaFile.getClassName(), id, privacy);
             }
-            dao.add(compiler.getOutputClass(), id, privacy);
+            dao.add(compiler.getClassFile(), id, privacy);
             setOutput("Successfully compiled!");
         } else {
             setOutput("Compilation failed " + System.getProperty("line.separator") + compiler.getOutputMessage());

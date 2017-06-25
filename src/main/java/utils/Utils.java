@@ -155,4 +155,26 @@ public class Utils {
         }
         return completeArgs;
     }
+
+    /**
+     * Creates an array which contains java command with parameters
+     * @param javaFile JavaFile, getClassName() is used.
+     * @param classPath classPath as String
+     * @return Array of Strings, example: ["javac", "-classpath", "/path/to/files", "Print.java"]
+     */
+    public static String[] createJavacCommand(JavaFile javaFile, String classPath) {
+        String[] args;
+        if (classPath != null) {
+            args = new String[4];
+            args[0] = "javac";
+            args[1] = "-classpath";
+            args[2] = classPath;
+            args[3] = javaFile.getClassName() + ".java";
+        } else { // mainly for testing
+            args = new String[2];
+            args[0] = "javac";
+            args[1] = javaFile.getClassName() + ".java";
+        }
+        return args;
+    }
 }

@@ -13,8 +13,7 @@ import java.nio.file.Path;
 import java.nio.file.Paths;
 import java.util.Comparator;
 
-import static org.mockito.Matchers.eq;
-import static org.mockito.Mockito.*;
+import static org.mockito.Mockito.spy;
 
 
 // TODO: 19.06.2017 this is super broken please fix
@@ -152,7 +151,7 @@ public class BotTests {
 //            System.out.println(e.getMessage());
 //        }
 //        UpdateHandler uh = new UpdateHandler(update, bot);
-//        uh.run();
+//        uh.execute();
     }
 
     private static void testWithNoRegex(String input, String expectedOutput) {
@@ -166,7 +165,7 @@ public class BotTests {
         Update update = Utils.createMockUpdate(input, user, chat);
 //        bot.onUpdateReceived(update);
 //        UpdateHandler t = getThread(update);
-//        t.run();
+//        t.execute();
         expectedOutput = "```" + System.getProperty("line.separator") + expectedOutput + System.getProperty("line.separator") + "```";
 //        verify(bot).sendMessage(matches(expectedOutput), eq(chat));
 

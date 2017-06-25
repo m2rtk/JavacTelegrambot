@@ -46,19 +46,17 @@ public class BackgroundJavaProcess extends Thread {
 
     @Override
     public void run() {
-        this.pb.redirectErrorStream(true);
-        this.pb.command(Utils.createJavaCommand(classFile, classPath, args));
-        logger.info("Started process " + pid);
+        pb.redirectErrorStream(true);
+        pb.command(Utils.createJavaCommand(classFile, classPath, args));
         try {
             process = pb.start();
+            logger.info("Started process " + pid);
 
             try {
-                String line;
                 BufferedReader in = new BufferedReader(new InputStreamReader(process.getInputStream(), StandardCharsets.ISO_8859_1));
 
-                while ((line = in.readLine()) != null) {
-                    botThread.sendMessage(Utils.toMonospace(line));
-                }
+                String line;
+                while ((line = in.readLine()) != null) botThread.sendMessage(Utils.toMonospace(line));
 
             } catch (IOException e) {
                 logger.error(e);
@@ -82,7 +80,7 @@ public class BackgroundJavaProcess extends Thread {
         botThread.sendMessage(Utils.toMonospace("Process " + pid + " terminated."));
     }
 
-    public void setClassPath(Privacy privacy, Long id) { // TODO: 07.06.2017 maybe remove and move to constructor
+    public void setClassPath(Privacy privacy, Long id) {
         if (privacy == null || id == null)
             throw new NullPointerException("Privacy and id can't be null.");
 

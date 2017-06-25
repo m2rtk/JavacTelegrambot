@@ -52,7 +52,7 @@ public class JavacTests {
         Executor executor = new Executor(print);
         String argument = "Test";
         String expected = argument + System.getProperty("line.separator");
-        executor.run(argument);
+        executor.execute(argument);
         assertEquals(expected, executor.getOutputMessage());
     }
 
@@ -60,7 +60,7 @@ public class JavacTests {
     public void sumClassExecutesCorrectly() throws Exception {
         ClassFile sum = Utils.readClassFile("Sum");
         Executor executor = new Executor(sum);
-        executor.run(String.valueOf(1), String.valueOf(2));
+        executor.execute(String.valueOf(1), String.valueOf(2));
         String expected = String.valueOf(1 + 2) + System.getProperty("line.separator");
         assertEquals(expected, executor.getOutputMessage());
     }
@@ -69,7 +69,7 @@ public class JavacTests {
     public void helloWorldClassExecutesCorrectly() throws Exception {
         ClassFile helloWorld = Utils.readClassFile("HelloWorld");
         Executor executor = new Executor(helloWorld);
-        executor.run();
+        executor.execute();
         String expected = "Hello World!" + System.getProperty("line.separator");
         assertEquals(expected, executor.getOutputMessage());
     }
@@ -78,7 +78,7 @@ public class JavacTests {
     public void tooTimeConsumingExecutionTimesOut() throws Exception {
         ClassFile timeout = Utils.readClassFile("Timeout");
         Executor executor = new Executor(timeout);
-        executor.run();
+        executor.execute();
         String expected = "Timed out after [0-9]+ milliseconds.";
         assertTrue(executor.getOutputMessage().matches(expected));
     }
@@ -136,6 +136,6 @@ public class JavacTests {
         assertTrue(compiler.getOutputMessage().isEmpty()); // successful compilation outputs no message
 
         ClassFile expected = Utils.readClassFile(className);
-        assertEquals(expected, compiler.getOutputClass());
+        assertEquals(expected, compiler.getClassFile());
     }
 }

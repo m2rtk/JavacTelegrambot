@@ -10,53 +10,49 @@ import java.util.concurrent.*;
  * Not really a compiler, uses native javac.
  */
 public class Compiler {
-    private final static int timeoutms = 5000;
-    private JavaFile inputJava;
+    private final static int DEFAULT_TIMEOUT = 10000; // in milliseconds
+    private int timeout;
+    private JavaFile javaFile;
     private String classPath;
 
     private String outputMessage;
-    private ClassFile outputClass;
+    private ClassFile classFile;
 
-    public Compiler(JavaFile inputJava) {
-        this.inputJava = inputJava;
+    private boolean compiled = false;
+
+    public Compiler(JavaFile javaFile) {
+        this.javaFile = javaFile;
+        this.timeout = DEFAULT_TIMEOUT;
     }
 
+    /**
+     * Writes javaFile to disk and then executes javac on it.
+     * @return boolean of compile success.
+     */
     public boolean compile() {
         ExecutorService executor = Executors.newSingleThreadExecutor();
         Future future = executor.submit(this::runJavac);
         executor.shutdown();
 
         try {
-            Utils.write(inputJava);
-            outputMessage = (String) future.get(timeoutms, TimeUnit.MILLISECONDS);
-            outputClass   = Utils.readClassFile(inputJava);
+            Utils.write(javaFile);
+            outputMessage = (String) future.get(timeout, TimeUnit.MILLISECONDS);
+            classFile = Utils.readClassFile(javaFile);
         } catch (InterruptedException | ExecutionException ignored) {
             outputMessage = "Couldn't execute javac process.";
         } catch (TimeoutException e) {
-            outputMessage = "Timed out after " + timeoutms + " milliseconds.";
+            outputMessage = "Timed out after " + timeout + " milliseconds.";
         } finally {
-            Utils.delete(inputJava);
-            Utils.delete(outputClass);
+            Utils.delete(javaFile);
+            Utils.delete(classFile);
         }
-        return outputClass != null;
+        compiled = true;
+        return classFile != null;
     }
 
     private String runJavac() throws IOException, InterruptedException {
         ProcessBuilder pb = new ProcessBuilder();
-
-        String[] args;
-        if (classPath != null) {
-            args = new String[4];
-            args[0] = "javac";
-            args[1] = "-classpath";
-            args[2] = classPath;
-            args[3] = inputJava.getClassName() + ".java";
-        } else { // mainly for testing
-            args = new String[2];
-            args[0] = "javac";
-            args[1] = inputJava.getClassName() + ".java";
-        }
-        pb.command(args);
+        pb.command(Utils.createJavacCommand(javaFile, classPath));
         pb.redirectErrorStream(true);
         Process pro = pb.start();
 
@@ -65,18 +61,30 @@ public class Compiler {
         return Utils.getLines(pro.getInputStream());
     }
 
-
+    /**
+     * @return String message. Timed out, compile time error, some other error or success message.
+     * @throws RuntimeException if called before compiling.
+     */
     public String getOutputMessage() {
+        if (!compiled) throw new RuntimeException("Must call compile before this method.");
         return outputMessage;
     }
 
-    public ClassFile getOutputClass() {
-        return outputClass;
+    /**
+     * @return ClassFile created after compiling.
+     * @throws RuntimeException if called before compiling.
+     */
+    public ClassFile getClassFile() {
+        if (!compiled) throw new RuntimeException("Must call compile before this method.");
+        return classFile;
     }
 
-    public void setClassPath(Privacy privacy, Long id) { // TODO: 07.06.2017 maybe remove and move to constructor
+    public void setClassPath(Privacy privacy, Long id) {
         if (privacy == null || id == null)
             throw new NullPointerException("Privacy and id can't be null.");
+
+        if (classPath != null)
+            throw new RuntimeException("Classpath is already set.");
 
         this.classPath = "cache/" + privacy + "/" + id;
     }

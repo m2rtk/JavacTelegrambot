@@ -20,12 +20,18 @@ public class Executor {
 
     private String outputMessage;
 
+    private boolean executed = false;
+
     public Executor(ClassFile classFile) {
         this.classFile = classFile;
         this.timeout = DEFAULT_TIMEOUT;
     }
 
-    public void run(String... args) {
+    /**
+     * Writes class file to disk and then executes java on it.
+     * @param args arguments as String array for executable class file.
+     */
+    public void execute(String... args) {
         this.args = args;
 
         ExecutorService executor = Executors.newSingleThreadExecutor();
@@ -44,6 +50,7 @@ public class Executor {
             if (process != null) process.destroy();
             Utils.delete(classFile);
         }
+        executed = true;
     }
 
     private String runJava() throws InterruptedException, IOException {
@@ -58,11 +65,16 @@ public class Executor {
         return outputMessage.trim().isEmpty() ? "No output." : outputMessage;
     }
 
+    /**
+     * @return String message of execution output.
+     * @throws RuntimeException if called before executing.
+     */
     public String getOutputMessage() {
+        if (!executed) throw new RuntimeException("Must call execute before this method.");
         return outputMessage;
     }
 
-    public void setClassPath(Privacy privacy, Long id) { // TODO: 07.06.2017 maybe remove and move to constructor
+    public void setClassPath(Privacy privacy, Long id) {
         if (privacy == null || id == null)
             throw new NullPointerException("Privacy and id can't be null.");
 

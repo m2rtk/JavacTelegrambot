@@ -13,7 +13,6 @@ import org.telegram.telegrambots.api.objects.Update;
 import java.util.Arrays;
 
 import static dao.Privacy.CHAT;
-import static dao.Privacy.USER;
 
 public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy, NeedsDAO, NeedsUpdate, NeedsUpdateHandler {
     private BotDAO dao;
@@ -46,7 +45,7 @@ public class JavaCommand extends Command implements NeedsArgument, NeedsPrivacy,
         } else {
             Executor executor = new Executor(classFile);
             executor.setClassPath(privacy, id);
-            executor.run(args);
+            executor.execute(args);
             setOutput(executor.getOutputMessage());
         }
     }
