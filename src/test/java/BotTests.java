@@ -15,8 +15,7 @@ import java.util.Comparator;
 
 import static org.mockito.Mockito.spy;
 
-
-// TODO: 19.06.2017 this is super broken please fix
+@Deprecated // TODO: 19.06.2017 this is super broken please fix
 public class BotTests {
     private static final Long chat = 0L;
     private static final Long user = 0L;

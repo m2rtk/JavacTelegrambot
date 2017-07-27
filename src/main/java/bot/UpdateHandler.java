@@ -57,7 +57,9 @@ public class UpdateHandler extends Thread {
             } catch (ParserException e) {
                 sendMessage(Utils.toMonospace("Parser exception: " + e.getMessage()));
             }
-        } else if (update.getMessage().getText().length() > 1 &&
+        }
+        // else if getMessage() starts with "//"
+        else if (update.getMessage().getText().length() > 1 &&
                    update.getMessage().getText().charAt(0) == '/' &&
                    update.getMessage().getText().charAt(1) == '/') {
             // is input for background threads
