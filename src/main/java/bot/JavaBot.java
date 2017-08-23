@@ -10,6 +10,8 @@ import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.bots.TelegramLongPollingBot;
 
 import java.time.Instant;
+import java.util.Arrays;
+import java.util.Collections;
 
 public class JavaBot extends TelegramLongPollingBot {
     private static final Logger logger = LogManager.getLogger(JavaBot.class);

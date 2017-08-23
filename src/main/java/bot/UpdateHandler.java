@@ -48,6 +48,7 @@ public class UpdateHandler extends Thread {
 
         for (String line : update.getMessage().getText().split("\n")) logger.info("IN: " + " '" + line + "'");
 
+        // if message starts with '/'
         if (update.getMessage().isCommand()) {
             try {
                 Command command = getCommand(update);
