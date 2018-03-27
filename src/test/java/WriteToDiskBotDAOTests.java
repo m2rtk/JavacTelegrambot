@@ -1,7 +1,7 @@
-import dao.BotDAO;
-import dao.Privacy;
-import dao.WriteToDiskBotDAO;
-import javac.ClassFile;
+import com.github.m2rtk.telegram.dao.BotDAO;
+import com.github.m2rtk.telegram.dao.Privacy;
+import com.github.m2rtk.telegram.dao.WriteToDiskBotDAO;
+import com.github.m2rtk.telegram.javac.ClassFile;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -15,8 +15,8 @@ import java.util.HashMap;
 import java.util.Map;
 import java.util.Set;
 
-import static dao.Privacy.CHAT;
-import static dao.Privacy.USER;
+import static com.github.m2rtk.telegram.dao.Privacy.CHAT;
+import static com.github.m2rtk.telegram.dao.Privacy.USER;
 import static junit.framework.TestCase.assertEquals;
 import static junit.framework.TestCase.assertTrue;
 

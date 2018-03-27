@@ -1,5 +1,5 @@
-.idea
-target
-cache
-test.log*
-Config.java
+.idea/
+target/
+cache/
+JavacBot.iml
+release/

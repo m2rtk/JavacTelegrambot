@@ -1,14 +1,14 @@
-import bot.commands.*;
-import bot.commands.interfaces.NeedsArgument;
-import bot.commands.parameters.MainParameter;
-import bot.commands.parameters.PrivacyParameter;
-import bot.commands.visitors.Parameter;
+import com.github.m2rtk.telegram.bot.commands.*;
+import com.github.m2rtk.telegram.bot.commands.interfaces.NeedsArgument;
+import com.github.m2rtk.telegram.bot.commands.parameters.MainParameter;
+import com.github.m2rtk.telegram.bot.commands.parameters.PrivacyParameter;
+import com.github.m2rtk.telegram.bot.commands.visitors.Parameter;
 import org.junit.Rule;
 import org.junit.Test;
 import org.junit.rules.ExpectedException;
-import parser.CommandParser;
-import parser.ParserException;
-import parser.UnknownCommandException;
+import com.github.m2rtk.telegram.parser.CommandParser;
+import com.github.m2rtk.telegram.parser.ParserException;
+import com.github.m2rtk.telegram.parser.UnknownCommandException;
 
 import java.util.Collections;
 import java.util.HashSet;
@@ -39,21 +39,21 @@ public class ParserTests {
     public void noParameterArgumentTest0() {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Expected parameter argument. Reached end of input.");
-        test("/javac -m", null);
+        test("/com.github.m2rtk.telegram.javac -m", null);
     }
 
     @Test
     public void noArgumentTest0() {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Expected argument for command. Reached end of input.");
-        test("/javac -m Test", null);
+        test("/com.github.m2rtk.telegram.javac -m Test", null);
     }
 
     @Test
     public void noArgumentTest1() {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Expected argument for command. Reached end of input.");
-        test("/javac", null);
+        test("/com/github/m2rtk/telegram/javac", null);
     }
 
     @Test
@@ -67,7 +67,7 @@ public class ParserTests {
     public void noParameterArgumentTest1() {
         thrown.expect(ParserException.class);
         thrown.expectMessage("Expected parameter argument. Got parameter ");
-        test("/javac -m -p System.out.println(1);", null);
+        test("/com.github.m2rtk.telegram.javac -m -p System.out.println(1);", null);
     }
 
     @Test
@@ -107,7 +107,7 @@ public class ParserTests {
     public void javacTest0() {
         JavacCommand javacCommand = new JavacCommand();
         javacCommand.setArgument("public class Test { public static void main(String[] args) { System.out.println(1); }}");
-        test("/javac public class Test { public static void main(String[] args) { System.out.println(1); }}", javacCommand);
+        test("/com.github.m2rtk.telegram.javac public class Test { public static void main(String[] args) { System.out.println(1); }}", javacCommand);
     }
 
     @Test
@@ -124,7 +124,7 @@ public class ParserTests {
                         "    }" +
                         "}"
         );
-        test("/javac " +
+        test("/com/github/m2rtk/telegram/javac " +
                 "public class Test {" +
                 "   public static void main(String[] args) {\n" +
                 "        System.out.println(123);\n" +
@@ -139,13 +139,13 @@ public class ParserTests {
 
     @Test
     public void javacMainTest0() throws Exception {
-        javacMainTest("/javac -m Test System.out.println(1);", "System.out.println(1);", "Test");
+        javacMainTest("/com.github.m2rtk.telegram.javac -m Test System.out.println(1);", "System.out.println(1);", "Test");
     }
 
     @Test
     public void javacMainTest1() throws Exception {
         String content = "int sum = 0; for (int i = 0; i < args.length; i++) sum += Integer.parseInt(args[i]); System.out.println(sum);";
-        javacMainTest("/javac -m Sum " + content, content, "Sum");
+        javacMainTest("/com.github.m2rtk.telegram.javac -m Sum " + content, content, "Sum");
     }
 
     @Test

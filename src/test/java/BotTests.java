@@ -1,4 +1,4 @@
-import bot.JavaBot;
+import com.github.m2rtk.telegram.bot.JavaBot;
 import org.junit.After;
 import org.junit.Before;
 import org.junit.Test;
@@ -27,7 +27,7 @@ public class BotTests {
 
     @Before
     public void init() {
-        bot = spy(new JavaBot());
+        bot = spy(new JavaBot(null, null));
         doNothing().when(bot).sendMessage(anyString(), anyLong());
     }
 
@@ -72,7 +72,7 @@ public class BotTests {
 
     @Test
     public void javaCommandOutputsClassOutput() {
-        Update update = Utils.createMockUpdateWithTextContent("/javac -m Test System.out.println(1);", user, chat);
+        Update update = Utils.createMockUpdateWithTextContent("/com.github.m2rtk.telegram.javac -m Test System.out.println(1);", user, chat);
         bot.onUpdateReceived(update);
         init();
         test("/java Test", "1" + System.getProperty("line.separator"));
@@ -80,7 +80,7 @@ public class BotTests {
 
     @Test
     public void javaCommandSpecialCaseOutputsClassOutput() {
-        Update update = Utils.createMockUpdateWithTextContent("/javac -m Test System.out.println(1);", user, chat);
+        Update update = Utils.createMockUpdateWithTextContent("/com.github.m2rtk.telegram.javac -m Test System.out.println(1);", user, chat);
         bot.onUpdateReceived(update);
         init();
         test("/Test", "1" + System.getProperty("line.separator"));
@@ -88,7 +88,7 @@ public class BotTests {
 
     @Test
     public void javaCommandSpecialCaseWithArgumentsOutputsClassOutput() {
-        Update update = Utils.createMockUpdateWithTextContent("/javac -m Test System.out.println(args[0] + args[1]);", user, chat);
+        Update update = Utils.createMockUpdateWithTextContent("/com.github.m2rtk.telegram.javac -m Test System.out.println(args[0] + args[1]);", user, chat);
         bot.onUpdateReceived(update);
         init();
         test("/Test 1 2", "12" + System.getProperty("line.separator"));
@@ -96,7 +96,7 @@ public class BotTests {
 
     @Test
     public void javacCommandOutputsSuccessfulCompilationResult() {
-        test("/javac -m Test System.out.println(1);", "Successfully compiled!");
+        test("/com.github.m2rtk.telegram.javac -m Test System.out.println(1);", "Successfully compiled!");
     }
 
     @Test
@@ -105,16 +105,16 @@ public class BotTests {
         test("/upp", unknownCommand); init();
         test("/destroyUniverse", unknownCommand); init();
         test("/sudo rm -rf --no-preserve-root /", unknownCommand); init();
-        test("/java Test", unknownCommand); init(); // because dao doesn't have class Test
+        test("/java Test", unknownCommand); init(); // because com.github.m2rtk.telegram.dao doesn't have class Test
 
         // missing arguments
         test("/delete", invalidCommand); init();
         test("/java", invalidCommand); init();
-        test("/javac", invalidCommand); init();
-        test("/javac -m", invalidCommand); init();
-        test("/javac -m Test", invalidCommand); init();
-        test("/javac -m -p", invalidCommand); init();
-        test("/javac -m Test -p", invalidCommand); init();
+        test("/com/github/m2rtk/telegram/javac", invalidCommand); init();
+        test("/com.github.m2rtk.telegram.javac -m", invalidCommand); init();
+        test("/com.github.m2rtk.telegram.javac -m Test", invalidCommand); init();
+        test("/com.github.m2rtk.telegram.javac -m -p", invalidCommand); init();
+        test("/com.github.m2rtk.telegram.javac -m Test -p", invalidCommand); init();
     }
 
     @Test

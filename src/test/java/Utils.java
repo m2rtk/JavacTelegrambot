@@ -1,5 +1,5 @@
-import javac.ClassFile;
-import javac.JavaFile;
+import com.github.m2rtk.telegram.javac.ClassFile;
+import com.github.m2rtk.telegram.javac.JavaFile;
 import org.telegram.telegrambots.api.objects.Message;
 import org.telegram.telegrambots.api.objects.Update;
 import org.telegram.telegrambots.api.objects.User;

@@ -1,7 +1,7 @@
-import javac.ClassFile;
-import javac.Compiler;
-import javac.Executor;
-import javac.JavaFile;
+import com.github.m2rtk.telegram.javac.ClassFile;
+import com.github.m2rtk.telegram.javac.Compiler;
+import com.github.m2rtk.telegram.javac.Executor;
+import com.github.m2rtk.telegram.javac.JavaFile;
 import org.junit.Test;
 
 import static org.junit.Assert.assertEquals;
@@ -102,8 +102,8 @@ public class JavacTests {
 
     @Test
     public void javaFileExtractNameWithImportsAndCommentsCorrectly() {
-        nameExtractTest("import javac.ClassFile; \n" +
-                        "import javac.Compiler; \n" +
+        nameExtractTest("import com.github.m2rtk.telegram.javac.ClassFile; \n" +
+                        "import com.github.m2rtk.telegram.javac.Compiler; \n" +
                         "//class Wrong {} \n" +
                         "class Test {}",
                 "Test"

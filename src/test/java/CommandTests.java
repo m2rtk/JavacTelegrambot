@@ -1,12 +1,12 @@
-import bot.Commands;
-import bot.commands.*;
-import bot.commands.interfaces.NeedsArgument;
-import bot.commands.interfaces.NeedsDAO;
-import bot.commands.interfaces.NeedsPrivacy;
-import dao.BotDAO;
-import dao.InMemoryBotDAO;
-import dao.Privacy;
-import javac.ClassFile;
+import com.github.m2rtk.telegram.bot.Commands;
+import com.github.m2rtk.telegram.bot.commands.*;
+import com.github.m2rtk.telegram.bot.commands.interfaces.NeedsArgument;
+import com.github.m2rtk.telegram.bot.commands.interfaces.NeedsDAO;
+import com.github.m2rtk.telegram.bot.commands.interfaces.NeedsPrivacy;
+import com.github.m2rtk.telegram.dao.BotDAO;
+import com.github.m2rtk.telegram.dao.InMemoryBotDAO;
+import com.github.m2rtk.telegram.dao.Privacy;
+import com.github.m2rtk.telegram.javac.ClassFile;
 import org.junit.Before;
 import org.junit.Test;
 
@@ -16,7 +16,7 @@ import java.nio.file.Paths;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import static dao.Privacy.CHAT;
+import static com.github.m2rtk.telegram.dao.Privacy.CHAT;
 import static org.junit.Assert.*;
 
 public class CommandTests {

@@ -6,7 +6,7 @@
 
     <groupId>telegrambot</groupId>
     <artifactId>JavacBot</artifactId>
-    <version>1.0</version>
+    <version>1.1</version>
 
     <build>
         <plugins>
@@ -20,12 +20,15 @@
                 <configuration>
                     <archive>
                         <manifest>
-                            <mainClass>Main</mainClass>
+                            <mainClass>com.github.m2rtk.telegram.Main</mainClass>
                         </manifest>
                     </archive>
                     <descriptorRefs>
                         <descriptorRef>jar-with-dependencies</descriptorRef>
                     </descriptorRefs>
+                    <finalName>javabot</finalName>
+                    <outputDirectory>release</outputDirectory>
+                    <appendAssemblyId>false</appendAssemblyId>
                 </configuration>
                 <executions>
                     <execution>
@@ -49,12 +52,27 @@
         <dependency>
             <groupId>org.telegram</groupId>
             <artifactId>telegrambots</artifactId>
-            <version>2.4.4.5</version>
+            <version>3.6</version>
         </dependency>
         <dependency>
             <groupId>com.github.javaparser</groupId>
             <artifactId>javaparser-core</artifactId>
             <version>3.2.6</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-api</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <dependency>
+            <groupId>org.apache.logging.log4j</groupId>
+            <artifactId>log4j-core</artifactId>
+            <version>2.10.0</version>
+        </dependency>
+        <dependency>
+            <groupId>com.cars</groupId>
+            <artifactId>docker-secrets</artifactId>
+            <version>0.2.0</version>
         </dependency>
         <dependency>
             <groupId>junit</groupId>
