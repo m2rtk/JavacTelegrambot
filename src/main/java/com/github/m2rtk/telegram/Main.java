@@ -18,7 +18,7 @@ import java.util.stream.Collectors;
 public class Main {
 
     static {
-        System.setProperty("log4j.configurationFile", "/log4j2.xml");
+        System.setProperty("log4j.configurationFile", ClassLoader.getSystemResource("log4j2.xml").getPath());
     }
 
     private static final Logger log = LogManager.getLogger();
@@ -40,7 +40,8 @@ public class Main {
         try {
             return DockerSecrets.load();
         } catch (DockerSecretLoadException e) {
-            try (FileInputStream in = new FileInputStream("etc/application.properties")) {
+            String path = ClassLoader.getSystemResource("application.properties").getPath();
+            try (FileInputStream in = new FileInputStream(path)) {
                 Properties p = new Properties();
                 p.load(in);
                 return p.entrySet().stream().collect(Collectors.toMap(q -> (String) q.getKey(), w -> (String) w.getValue()));

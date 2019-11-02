@@ -3,3 +3,5 @@ target/
 cache/
 JavacBot.iml
 release/
+
+application.properties
